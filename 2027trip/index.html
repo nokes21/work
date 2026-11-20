@@ -458,6 +458,23 @@
     .btn:hover { opacity: .9; }
     .btn-wide { width: 100%; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
+    .drag-handle {
+      flex-shrink: 0;
+      width: 26px; margin-left: -6px;
+      text-align: center;
+      font-size: 18px; line-height: 28px;
+      color: var(--ink-soft);
+      cursor: grab;
+      touch-action: none;
+      user-select: none; -webkit-user-select: none;
+    }
+    .check-item.dragging {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 6px 14px -6px rgba(60,40,10,.45);
+      position: relative; z-index: 2;
+    }
+    .check-item.dragging .drag-handle { cursor: grabbing; color: var(--stamp); }
     .check-item {
       display: flex; align-items: center; justify-content: space-between;
       min-height: 28px;
@@ -1366,9 +1383,11 @@
     function createTodoElement(index, text, isChecked, type) {
       const div = document.createElement('div');
       div.className = `check-item${isChecked ? ' done' : ''}`;
+      div.dataset.index = index;
       const fn = type === 'todo' ? 'toggleTodo' : 'toggleSouvenir';
       const rmFn = type === 'todo' ? 'removeBelongingItem' : 'removeSouvenirItem';
       div.innerHTML = `
+        ${type === 'todo' ? '<span class="drag-handle" aria-label="ドラッグして並び替え" onpointerdown="startTodoDrag(event, this)">≡</span>' : ''}
         <label>
           <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="${fn}(${index}, this.checked)">
           <span class="check-box"></span>
@@ -1377,6 +1396,34 @@
         <button onclick="${rmFn}(${index})" class="icon-btn" aria-label="削除"><i class="fa-solid fa-xmark"></i></button>
       `;
       return div;
+    }
+
+    // ドラッグで ならびかえ（もちもの）
+    function startTodoDrag(e, handle) {
+      e.preventDefault();
+      const item = handle.closest('.check-item'), list = item.parentElement;
+      item.classList.add('dragging');
+      try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+      const move = ev => {
+        const y = ev.clientY;
+        if (y < 90) window.scrollBy(0, -8); else if (y > window.innerHeight - 50) window.scrollBy(0, 8);
+        let sib = item.previousElementSibling;
+        if (sib) { const r = sib.getBoundingClientRect(); if (y < r.top + r.height / 2) { list.insertBefore(item, sib); return; } }
+        sib = item.nextElementSibling;
+        if (sib) { const r = sib.getBoundingClientRect(); if (y > r.top + r.height / 2) list.insertBefore(sib, item); }
+      };
+      const up = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', up);
+        handle.removeEventListener('pointercancel', up);
+        item.classList.remove('dragging');
+        const order = [...list.children].map(el => +el.dataset.index);
+        belongings = order.map(i => belongings[i]);
+        saveLocalStorage(); renderTodoList();
+      };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', up);
+      handle.addEventListener('pointercancel', up);
     }
 
     function toggleTodo(index, isChecked) { belongings[index].checked = isChecked; saveLocalStorage(); renderTodoList(); }
