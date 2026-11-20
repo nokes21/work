@@ -652,8 +652,73 @@
     .wx-tip { grid-column: 1 / -1; font-family: var(--hand); font-size: 13px; color: var(--ink-soft); background: rgba(227,167,47,.14); border-radius: 6px; padding: 6px 9px; }
     .wx-wide { grid-column: 1 / -1; }
 
+
+    /* タブ 6こ */
+    .tab-btn { font-size: 11px; }
+
+    /* おみくじ */
+    .omikuji { text-align: center; }
+    .omikuji-pk { width: 120px; height: 120px; display: block; margin: 0 auto 8px; object-fit: contain; }
+    .omikuji-result:empty { display: none; }
+    .omikuji-result {
+      background: #fff;
+      border: 2px solid var(--stamp);
+      border-radius: 10px;
+      padding: 12px 12px 14px;
+      margin-bottom: 12px;
+    }
+    .omikuji-result .fortune { font-size: 34px; font-weight: 900; color: var(--stamp); letter-spacing: .1em; line-height: 1.3; }
+    .omikuji-result .row { font-family: var(--hand); font-size: 15px; font-weight: 600; margin-top: 4px; }
+    .omikuji-result .row b { color: var(--sea); }
+    .omikuji-result .date { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-top: 6px; }
+    @keyframes shake { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+    .omikuji.shaking .omikuji-pk { animation: shake .25s 4; }
+
+    /* トイレ・休憩 */
+    .rest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .rest-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      background: #fff; border: 1.5px solid var(--paper-line); border-radius: 10px;
+      padding: 10px 4px; text-decoration: none; font-size: 26px;
+    }
+    .rest-btn span { font-size: 12px; font-weight: 700; color: var(--ink); }
+    .rest-btn:active { background: rgba(43,122,140,.08); }
+
+    /* なんでもメモ */
+    .note-form { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: end; margin-bottom: 10px; }
+    .note-form textarea { resize: vertical; font-size: 16px; line-height: 1.5; }
+    .note-item { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+    .note-item .text { white-space: pre-wrap; word-break: break-word; font-family: var(--hand); font-size: 15px; font-weight: 600; }
+    .note-item .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft); }
+    .note-item .meta button { border: 0; background: none; color: var(--ink-soft); font-size: 12px; font-weight: 700; cursor: pointer; padding: 2px 6px; }
+
+    /* 思い出 */
+    .field-label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin: 4px 0 4px; }
+    #mvTitle { width: 100%; font-size: 16px; margin-bottom: 10px; }
+    .pick-btn { margin-bottom: 12px; cursor: pointer; }
+    .mem-item {
+      display: grid; grid-template-columns: 76px 1fr; gap: 10px;
+      background: #fff; border: 1.5px solid var(--paper-line); border-radius: 10px;
+      padding: 8px; margin-bottom: 10px;
+    }
+    .mem-item img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; }
+    .mem-item textarea { width: 100%; font-size: 16px; line-height: 1.4; resize: vertical; }
+    .mem-ctrl { display: flex; gap: 4px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+    .mem-ctrl select { font-size: 13px; padding: 3px 4px; border: 1.5px solid var(--paper-line); border-radius: 6px; background: #fff; }
+    .mem-ctrl .icon-btn { opacity: .8; }
+    .mem-no { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-right: auto; }
+    .mv-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+    .mv-actions .btn { display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; padding: 11px 8px; }
+    .mv-make { background: var(--stamp); }
+    .mv-stage { margin-top: 12px; text-align: center; }
+    .mv-stage canvas, .mv-result video { width: 100%; max-width: 300px; aspect-ratio: 9 / 16; border-radius: 8px; background: #000; display: block; margin: 0 auto; }
+    .mv-progress { height: 8px; background: var(--paper-line); border-radius: 4px; margin: 10px auto 0; max-width: 300px; overflow: hidden; }
+    .mv-progress span { display: block; height: 100%; width: 0; background: var(--stamp); }
+    .mv-msg { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
+    .mv-result { margin-top: 12px; }
+
     @media (prefers-reduced-motion: reduce) {
-      .is-now-card, .flash { animation: none; }
+      .is-now-card, .flash, .omikuji.shaking .omikuji-pk { animation: none; }
     }
   </style>
 </head>
@@ -707,6 +772,7 @@
         <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn"><i class="fa-solid fa-user-group"></i>メンバー</button>
         <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn"><i class="fa-solid fa-map-location-dot"></i>行き先</button>
         <button onclick="switchTab('memo')" id="tab-btn-memo" class="tab-btn"><i class="fa-solid fa-pen-to-square"></i>メモ</button>
+        <button onclick="switchTab('memories')" id="tab-btn-memories" class="tab-btn"><i class="fa-solid fa-film"></i>思い出</button>
         <button onclick="switchTab('other')" id="tab-btn-other" class="tab-btn"><i class="fa-solid fa-suitcase"></i>その他</button>
       </nav>
     </div>
@@ -839,8 +905,39 @@
         <div class="page">
           <div class="notice">
             <i class="fa-solid fa-lock" style="margin-top:3px"></i>
-            <span>このページの内容（持ち物・お土産）は、このスマホにだけ保存されます。他の家族には表示されません。</span>
+            <span>このページの内容（おみくじ・メモ・持ち物・お土産）は、このスマホにだけ保存されます。他の家族には表示されません。</span>
           </div>
+          <div class="page-head"><h2>ラプラスのおみくじ</h2><span class="en">FORTUNE</span></div>
+          <div class="omikuji" id="omikuji">
+            <img class="omikuji-pk" src="kids-img/sample.svg" alt="">
+            <div id="omikujiResult" class="omikuji-result"></div>
+            <button class="btn btn-wide" id="omikujiBtn" onclick="drawOmikuji()">🎋 おみくじを ひく</button>
+          </div>
+        </div>
+
+        <div class="page">
+          <div class="page-head"><h2>トイレ・休憩</h2><span class="en">REST STOP</span></div>
+          <p class="memo">今いる場所の近くを Google マップで探します（位置情報をオンにしてね）</p>
+          <div class="rest-grid">
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E3%83%88%E3%82%A4%E3%83%AC/">🚻<span>トイレ</span></a>
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E6%8E%88%E4%B9%B3%E5%AE%A4/">🍼<span>授乳室</span></a>
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E3%81%8A%E3%82%80%E3%81%A4%E6%9B%BF%E3%81%88/">👶<span>おむつ替え</span></a>
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8B/">🏪<span>コンビニ</span></a>
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%82%A8%E3%83%AA%E3%82%A2+%E9%81%93%E3%81%AE%E9%A7%85/">🛣️<span>SA・道の駅</span></a>
+            <a class="rest-btn" target="_blank" href="https://www.google.com/maps/search/%E5%85%AC%E5%9C%92/">🛝<span>公園</span></a>
+          </div>
+        </div>
+
+        <div class="page">
+          <div class="page-head"><h2>なんでもメモ</h2><span class="en">NOTES</span></div>
+          <form onsubmit="saveNote(event)" class="note-form">
+            <textarea id="noteInput" class="field" rows="3" placeholder="例: 駐車場 B2の15番／宿の部屋 302／集合 11:30 レストハウス前"></textarea>
+            <button type="submit" class="btn" id="noteBtn">保存</button>
+          </form>
+          <div id="noteList"></div>
+        </div>
+
+        <div class="page">
           <div class="page-head"><h2>持ち物チェック</h2><span class="en">PACKING</span></div>
           <form onsubmit="addBelongingItem(event)" class="add-form">
             <input type="text" id="belongingInput" placeholder="持ち物を追加…" class="field">
@@ -859,7 +956,44 @@
         </div>
       </section>
 
-      <!-- ===== 5. その他 ===== -->
+      <!-- ===== 5. 思い出（この端末だけ） ===== -->
+      <section id="content-memories" class="hidden">
+        <div class="page">
+          <div class="notice">
+            <i class="fa-solid fa-lock" style="margin-top:3px"></i>
+            <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどでみんなに送ってね。</span>
+          </div>
+          <div class="page-head"><h2>思い出スライドショー</h2><span class="en">PICTURE DIARY</span></div>
+          <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます♪</p>
+
+          <label class="field-label" for="mvTitle">タイトル</label>
+          <input id="mvTitle" class="field" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
+
+          <label class="btn btn-wide pick-btn"><i class="fa-solid fa-images"></i>写真を追加
+            <input type="file" accept="image/*" multiple onchange="addMemoryPhotos(this)" hidden>
+          </label>
+          <div id="memList"></div>
+
+          <div class="mv-actions">
+            <button class="btn" onclick="previewMovie()"><i class="fa-solid fa-play"></i>プレビュー</button>
+            <button class="btn mv-make" onclick="makeMovie()"><i class="fa-solid fa-clapperboard"></i>動画を作る</button>
+          </div>
+          <div class="mv-stage hidden" id="mvStage">
+            <canvas id="mvCanvas" width="720" height="1280"></canvas>
+            <div class="mv-progress hidden" id="mvProgress"><span id="mvBar"></span></div>
+            <p class="mv-msg" id="mvMsg"></p>
+          </div>
+          <div class="mv-result hidden" id="mvResult">
+            <video id="mvVideo" controls playsinline></video>
+            <div class="mv-actions">
+              <button class="btn" onclick="shareMovie()"><i class="fa-solid fa-share-from-square"></i>保存・送る</button>
+              <a class="btn" id="mvDownload" download="miyagi-omoide.mp4"><i class="fa-solid fa-download"></i>ダウンロード</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 6. その他 ===== -->
       <section id="content-other" class="hidden">
         <div class="page">
           <div class="notice notice-share">
@@ -997,6 +1131,8 @@
       renderSouvenirList();
       renderSpots();
       initPayments();
+      loadNotes(); renderNotes(); renderOmikuji();
+      loadMemories();
       checkCurrentStatus();
       setInterval(checkCurrentStatus, 10000);
       loadWeather();
@@ -1039,7 +1175,7 @@
 
     // タブ切り替え
     function switchTab(tab) {
-      const tabs = ['schedule', 'members', 'spots', 'memo', 'other'];
+      const tabs = ['schedule', 'members', 'spots', 'memo', 'memories', 'other'];
       tabs.forEach(t => {
         const content = document.getElementById(`content-${t}`);
         if (content) content.classList.add('hidden');
@@ -1297,6 +1433,357 @@
       { id: 'sched-7', start: '2027-03-21T16:00:00', end: '2027-03-21T18:00:00' },
     ];
 
+
+
+    /* ===== ラプラスのおみくじ（1日1回） ===== */
+    const OMIKUJI = {
+      fortune: [['大吉', 3], ['中吉', 3], ['小吉', 2], ['吉', 2], ['末吉', 1]],
+      item: ['ずんだ', 'ささかまぼこ', 'ぎゅうたん', 'こけし', 'かき', 'おにぎり', 'かいがら', 'あおい ぼうし', 'ハンカチ', 'さくらの はな', 'ふね', 'みかづき'],
+      color: ['あお', 'みずいろ', 'さくらいろ', 'きいろ', 'みどり', 'しろ'],
+      action: ['みんなで しゃしんを とる', '「ありがとう」を 3かい いう', 'うみに てを ふる', 'おともだちと てを つなぐ', 'はやく ねる', 'おみやげを いっしょに えらぶ', 'へんがおで しゃしんを とる', 'やさいを ひとくち たべる'],
+    };
+    function pickWeighted(list) {
+      const total = list.reduce((a, b) => a + b[1], 0);
+      let r = Math.random() * total;
+      for (const [v, w] of list) { if ((r -= w) < 0) return v; }
+      return list[0][0];
+    }
+    const pick1 = a => a[Math.floor(Math.random() * a.length)];
+    function todayKey() { return ymd(simTime ? new Date(simTime) : new Date()); }
+    function loadOmikuji() {
+      try { const v = JSON.parse(localStorage.getItem('miyagi_trip_omikuji') || 'null'); return v && v.date === todayKey() ? v : null; } catch (e) { return null; }
+    }
+    function renderOmikuji() {
+      const v = loadOmikuji();
+      const res = document.getElementById('omikujiResult');
+      const btn = document.getElementById('omikujiBtn');
+      if (!v) { res.innerHTML = ''; btn.disabled = false; btn.textContent = '🎋 おみくじを ひく'; return; }
+      res.innerHTML = `<div class="fortune">${v.fortune}</div>
+        <div class="row">きょうの ラッキー アイテム：<b>${v.item}</b></div>
+        <div class="row">ラッキー カラー：<b>${v.color}</b></div>
+        <div class="row">やってみよう：<b>${v.action}</b></div>
+        <div class="date">${v.date}</div>`;
+      btn.disabled = true; btn.textContent = 'また あした ひいてね';
+    }
+    function drawOmikuji() {
+      if (loadOmikuji()) return;
+      const box = document.getElementById('omikuji');
+      box.classList.add('shaking');
+      setTimeout(() => {
+        box.classList.remove('shaking');
+        const v = { date: todayKey(), fortune: pickWeighted(OMIKUJI.fortune), item: pick1(OMIKUJI.item), color: pick1(OMIKUJI.color), action: pick1(OMIKUJI.action) };
+        try { localStorage.setItem('miyagi_trip_omikuji', JSON.stringify(v)); } catch (e) {}
+        renderOmikuji();
+      }, 1000);
+    }
+
+    /* ===== なんでもメモ ===== */
+    let notes = [], editingNote = null;
+    function loadNotes() { try { notes = JSON.parse(localStorage.getItem('miyagi_trip_notes') || '[]'); } catch (e) { notes = []; } }
+    function storeNotes() { try { localStorage.setItem('miyagi_trip_notes', JSON.stringify(notes)); } catch (e) {} }
+    function fmtTime(t) { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
+    function renderNotes() {
+      const list = document.getElementById('noteList');
+      if (!notes.length) { list.innerHTML = '<p class="empty">駐車場の場所、部屋番号、集合場所など、なんでもメモしてね</p>'; return; }
+      list.innerHTML = notes.map(n => `<div class="note-item"><div class="text">${esc(n.text)}</div>
+        <div class="meta"><span>${fmtTime(n.at)}</span><span><button onclick="editNote('${n.id}')">編集</button><button onclick="deleteNote('${n.id}')">削除</button></span></div></div>`).join('');
+    }
+    function saveNote(e) {
+      e.preventDefault();
+      const input = document.getElementById('noteInput');
+      const text = input.value.trim();
+      if (!text) return;
+      if (editingNote) {
+        const n = notes.find(x => x.id === editingNote);
+        if (n) { n.text = text; n.at = Date.now(); }
+        notes.sort((a, b) => b.at - a.at);
+      } else {
+        notes.unshift({ id: 'n' + Date.now(), text, at: Date.now() });
+      }
+      editingNote = null; input.value = ''; document.getElementById('noteBtn').textContent = '保存';
+      storeNotes(); renderNotes();
+    }
+    function editNote(id) {
+      const n = notes.find(x => x.id === id); if (!n) return;
+      editingNote = id;
+      const input = document.getElementById('noteInput');
+      input.value = n.text; input.focus();
+      document.getElementById('noteBtn').textContent = '更新';
+    }
+    function deleteNote(id) {
+      if (!confirm('このメモを削除しますか？')) return;
+      notes = notes.filter(x => x.id !== id);
+      if (editingNote === id) { editingNote = null; document.getElementById('noteInput').value = ''; document.getElementById('noteBtn').textContent = '保存'; }
+      storeNotes(); renderNotes();
+    }
+
+    /* ===== 思い出スライドショー ===== */
+    // 写真は IndexedDB（このスマホの中）に ほぞん
+    const MV = { W: 720, H: 1280, title: 3.2, slide: 4.6, end: 3.2, fade: 0.7, fps: 30 };
+    let memories = [];          // { id, blob, msg, day, url }
+    let mvBusy = false, mvBlob = null, mvStop = false;
+    function idb() {
+      return new Promise((ok, ng) => {
+        const r = indexedDB.open('miyagi-omoide', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('entries', { keyPath: 'id' });
+        r.onsuccess = () => ok(r.result); r.onerror = () => ng(r.error);
+      });
+    }
+    async function idbAll() { const db = await idb(); return new Promise(ok => { const q = db.transaction('entries').objectStore('entries').getAll(); q.onsuccess = () => ok(q.result || []); q.onerror = () => ok([]); }); }
+    async function idbPut(v) { const db = await idb(); return new Promise(ok => { const t = db.transaction('entries', 'readwrite'); t.objectStore('entries').put(v); t.oncomplete = ok; t.onerror = ok; }); }
+    async function idbDel(id) { const db = await idb(); return new Promise(ok => { const t = db.transaction('entries', 'readwrite'); t.objectStore('entries').delete(id); t.oncomplete = ok; t.onerror = ok; }); }
+    function saveMvTitle() { try { localStorage.setItem('miyagi_trip_mv_title', document.getElementById('mvTitle').value); } catch (e) {} }
+
+    async function loadMemories() {
+      try { const t = localStorage.getItem('miyagi_trip_mv_title'); if (t) document.getElementById('mvTitle').value = t; } catch (e) {}
+      try {
+        const rows = await idbAll();
+        memories = rows.sort((a, b) => a.order - b.order).map(r => ({ ...r, url: URL.createObjectURL(r.blob) }));
+      } catch (e) { memories = []; }
+      renderMemories();
+    }
+    function persistMemory(m, i) { return idbPut({ id: m.id, blob: m.blob, msg: m.msg, day: m.day, order: i }).catch(() => {}); }
+    function persistOrder() { memories.forEach(persistMemory); }
+
+    // 大きい写真は 縮めてから ほぞん（スマホの容量・動画づくりを 軽く）
+    function shrinkImage(file) {
+      return new Promise(resolve => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const max = 1400, sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          c.toBlob(b => resolve(b || file), 'image/jpeg', 0.85);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
+      });
+    }
+    async function addMemoryPhotos(input) {
+      const files = [...input.files]; input.value = '';
+      const day = ymd(simTime ? new Date(simTime) : new Date()) === TRIP_DAYS[1] ? 2 : 1;
+      for (const f of files) {
+        const blob = await shrinkImage(f);
+        if (!blob) continue;
+        const m = { id: 'm' + Date.now() + Math.random().toString(36).slice(2, 6), blob, msg: '', day, url: URL.createObjectURL(blob) };
+        memories.push(m);
+        await persistMemory(m, memories.length - 1);
+      }
+      renderMemories();
+    }
+    function renderMemories() {
+      const list = document.getElementById('memList');
+      if (!memories.length) { list.innerHTML = '<p class="empty">まだ写真がありません</p>'; return; }
+      list.innerHTML = memories.map((m, i) => `<div class="mem-item">
+        <img src="${m.url}" alt="">
+        <div>
+          <textarea class="field" rows="2" maxlength="60" placeholder="ひとこと（例: ラプラスの すべりだい たのしかった！）" oninput="setMemMsg(${i}, this.value)">${esc(m.msg)}</textarea>
+          <div class="mem-ctrl">
+            <span class="mem-no">${i + 1}まいめ</span>
+            <select onchange="setMemDay(${i}, this.value)"><option value="1" ${m.day == 1 ? 'selected' : ''}>1日目</option><option value="2" ${m.day == 2 ? 'selected' : ''}>2日目</option></select>
+            <button class="icon-btn" onclick="moveMem(${i}, -1)" aria-label="上へ">↑</button>
+            <button class="icon-btn" onclick="moveMem(${i}, 1)" aria-label="下へ">↓</button>
+            <button class="icon-btn" onclick="removeMem(${i})" aria-label="削除">✕</button>
+          </div>
+        </div></div>`).join('');
+    }
+    let memSaveTimer = null;
+    function setMemMsg(i, v) { memories[i].msg = v; clearTimeout(memSaveTimer); memSaveTimer = setTimeout(() => persistMemory(memories[i], i), 400); }
+    function setMemDay(i, v) { memories[i].day = Number(v); persistMemory(memories[i], i); }
+    function moveMem(i, d) {
+      const j = i + d; if (j < 0 || j >= memories.length) return;
+      [memories[i], memories[j]] = [memories[j], memories[i]];
+      persistOrder(); renderMemories();
+    }
+    function removeMem(i) {
+      if (!confirm('この写真を外しますか？')) return;
+      const [m] = memories.splice(i, 1);
+      URL.revokeObjectURL(m.url); idbDel(m.id); persistOrder(); renderMemories();
+    }
+
+    // ---- えがく ----
+    function loadImg(url) { return new Promise((ok, ng) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ng; i.src = url; }); }
+    function wrapJa(ctx, text, maxW) {
+      const lines = []; let line = '';
+      for (const ch of text.replace(/\n/g, ' ')) {
+        if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch.trim() ? ch : ''; }
+        else line += ch;
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+    const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+    function paperBg(ctx) {
+      const { W, H } = MV;
+      ctx.fillStyle = '#efe4cc'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(120,90,50,.08)';
+      for (let y = 6; y < H; y += 14) for (let x = (y / 14 % 2) * 7; x < W; x += 14) ctx.fillRect(x, y, 2, 2);
+    }
+    function drawTitle(ctx, a, t) {
+      const { W, H } = MV;
+      ctx.globalAlpha = a; paperBg(ctx);
+      ctx.fillStyle = '#1f3550'; ctx.fillRect(0, 0, W, 120);
+      ctx.fillStyle = '#fbf7ee'; ctx.font = '600 26px "IBM Plex Mono", monospace'; ctx.textAlign = 'center';
+      ctx.fillText('FAMILY TRIP · MIYAGI', W / 2, 72);
+      const k = ease(t / 1.2);
+      ctx.save(); ctx.translate(W / 2, 560); ctx.rotate(-0.05); ctx.globalAlpha = a * k;
+      ctx.strokeStyle = '#c8553d'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 150 * (1.3 - .3 * k), 0, Math.PI * 2); ctx.stroke();
+      ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 136 * (1.3 - .3 * k), 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#c8553d'; ctx.font = '600 30px "IBM Plex Mono", monospace'; ctx.fillText('2027.03.20–21', 0, 12);
+      ctx.restore(); ctx.globalAlpha = a;
+      ctx.fillStyle = '#1f3550'; ctx.font = '900 64px "Zen Kaku Gothic New", sans-serif';
+      const title = document.getElementById('mvTitle').value || '宮城旅行の思い出';
+      wrapJa(ctx, title, W - 120).forEach((l, i) => ctx.fillText(l, W / 2, 860 + i * 80));
+      ctx.font = '600 38px "Klee One", sans-serif'; ctx.fillStyle = '#5a6b80';
+      ctx.fillText('4家族 15人の たび', W / 2, 1060);
+      ctx.globalAlpha = 1;
+    }
+    function drawEnd(ctx, a) {
+      const { W, H } = MV;
+      ctx.globalAlpha = a; paperBg(ctx);
+      ctx.fillStyle = '#1f3550'; ctx.textAlign = 'center';
+      ctx.font = '600 56px "Klee One", sans-serif';
+      ctx.fillText('また みんなで', W / 2, 560); ctx.fillText('いこうね！', W / 2, 650);
+      ctx.fillStyle = '#c8553d'; ctx.font = '600 28px "IBM Plex Mono", monospace';
+      ctx.fillText('THE END', W / 2, 780);
+      ctx.globalAlpha = 1;
+    }
+    function drawSlide(ctx, m, img, idx, t, a) {
+      const { W, H } = MV;
+      ctx.globalAlpha = a; paperBg(ctx);
+      // ヘッダー
+      ctx.textAlign = 'left'; ctx.fillStyle = '#1f3550';
+      ctx.fillRect(48, 64, 150, 48);
+      ctx.fillStyle = '#fbf7ee'; ctx.font = '600 26px "IBM Plex Mono", monospace'; ctx.fillText('DAY ' + m.day, 66, 98);
+      ctx.fillStyle = '#1f3550'; ctx.font = '700 32px "Zen Kaku Gothic New", sans-serif';
+      ctx.fillText(m.day == 1 ? '3月20日(土)' : '3月21日(日)', 216, 99);
+      ctx.textAlign = 'right'; ctx.fillStyle = '#c8553d'; ctx.font = '600 24px "IBM Plex Mono", monospace';
+      ctx.fillText(`No.${String(idx + 1).padStart(2, '0')}`, W - 48, 98);
+      // しゃしん（ポラロイド）
+      const fx = 70, fy = 160, fw = W - 140, fh = 700;
+      ctx.save(); ctx.translate(W / 2, fy + fh / 2); ctx.rotate((idx % 2 ? 1 : -1) * 0.022);
+      ctx.shadowColor = 'rgba(60,40,10,.35)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 10;
+      ctx.fillStyle = '#fff'; ctx.fillRect(-fw / 2, -fh / 2, fw, fh);
+      ctx.shadowColor = 'transparent';
+      const pw = fw - 36, ph = fh - 36;
+      ctx.beginPath(); ctx.rect(-pw / 2, -fh / 2 + 18, pw, ph); ctx.clip();
+      const z = 1 + 0.07 * (t / MV.slide);
+      const s = Math.max(pw / img.width, ph / img.height) * z;
+      const dx = (idx % 2 ? -1 : 1) * 14 * (t / MV.slide);
+      ctx.drawImage(img, -img.width * s / 2 + dx, -fh / 2 + 18 + ph / 2 - img.height * s / 2, img.width * s, img.height * s);
+      ctx.restore();
+      // マスキングテープ
+      ctx.save(); ctx.translate(W / 2, fy + 4); ctx.rotate(-0.06);
+      ctx.fillStyle = idx % 3 === 0 ? 'rgba(232,160,168,.85)' : idx % 3 === 1 ? 'rgba(43,122,140,.6)' : 'rgba(227,167,47,.8)';
+      ctx.fillRect(-90, -20, 180, 40); ctx.restore();
+      // にっきの せん と もじ
+      const ly = 930, lh = 74;
+      ctx.strokeStyle = 'rgba(31,53,80,.22)'; ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(60, ly + i * lh + 18); ctx.lineTo(W - 60, ly + i * lh + 18); ctx.stroke(); }
+      ctx.fillStyle = '#1f3550'; ctx.textAlign = 'left'; ctx.font = '600 46px "Klee One", sans-serif';
+      const text = m.msg || '';
+      const shown = Math.floor(text.length * ease((t - 0.4) / 1.6));
+      wrapJa(ctx, text.slice(0, shown), W - 140).slice(0, 4).forEach((l, i) => ctx.fillText(l, 70, ly + i * lh));
+      ctx.globalAlpha = 1;
+    }
+    function timeline() {
+      const segs = [{ type: 'title', dur: MV.title }];
+      memories.forEach((m, i) => segs.push({ type: 'slide', m, i, dur: MV.slide }));
+      segs.push({ type: 'end', dur: MV.end });
+      let t = 0; segs.forEach(sg => { sg.start = t; t += sg.dur; });
+      return { segs, total: t };
+    }
+    function renderAt(ctx, tl, imgs, T) {
+      const { segs } = tl;
+      let k = segs.findIndex(sg => T < sg.start + sg.dur); if (k < 0) k = segs.length - 1;
+      const draw = (sg, a) => {
+        const lt = T - sg.start;
+        if (sg.type === 'title') drawTitle(ctx, a, lt);
+        else if (sg.type === 'end') drawEnd(ctx, a);
+        else drawSlide(ctx, sg.m, imgs[sg.i], sg.i, lt, a);
+      };
+      draw(segs[k], 1);
+      const next = segs[k + 1];
+      const into = segs[k].start + segs[k].dur - T;
+      if (next && into < MV.fade) draw(next, 1 - into / MV.fade);
+    }
+    async function prepareMovie() {
+      if (!memories.length) { alert('写真を1枚以上追加してください'); return null; }
+      if (mvBusy) return null;
+      try { await Promise.all(['600 46px "Klee One"', '900 64px "Zen Kaku Gothic New"', '600 26px "IBM Plex Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
+      const imgs = await Promise.all(memories.map(m => loadImg(m.url)));
+      document.getElementById('mvStage').classList.remove('hidden');
+      return { imgs, tl: timeline(), ctx: document.getElementById('mvCanvas').getContext('2d') };
+    }
+    function playOn(prep, onFrame) {
+      return new Promise(done => {
+        const t0 = performance.now();
+        const step = () => {
+          const T = (performance.now() - t0) / 1000;
+          if (mvStop) { mvStop = false; done(false); return; }
+          renderAt(prep.ctx, prep.tl, prep.imgs, Math.min(T, prep.tl.total - 0.001));
+          onFrame && onFrame(T / prep.tl.total);
+          if (T >= prep.tl.total) { done(true); return; }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+    async function previewMovie() {
+      const prep = await prepareMovie(); if (!prep) return;
+      mvBusy = true;
+      document.getElementById('mvMsg').textContent = 'プレビュー中…';
+      document.getElementById('mvProgress').classList.add('hidden');
+      await playOn(prep);
+      mvBusy = false;
+      document.getElementById('mvMsg').textContent = 'よければ「動画を作る」を押してね';
+    }
+    function pickMime() {
+      const list = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+      return list.find(t => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+    }
+    async function makeMovie() {
+      const canvas = document.getElementById('mvCanvas');
+      if (!window.MediaRecorder || !canvas.captureStream) { alert('このブラウザでは動画を作れません。Safari / Chrome の最新版で試してください'); return; }
+      const prep = await prepareMovie(); if (!prep) return;
+      mvBusy = true;
+      const mime = pickMime();
+      const rec = new MediaRecorder(canvas.captureStream(MV.fps), mime ? { mimeType: mime, videoBitsPerSecond: 4000000 } : undefined);
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+      const stopped = new Promise(ok => rec.onstop = ok);
+      const bar = document.getElementById('mvBar');
+      document.getElementById('mvProgress').classList.remove('hidden');
+      document.getElementById('mvMsg').textContent = '動画を作っています…（画面を閉じずに待ってね）';
+      document.getElementById('mvResult').classList.add('hidden');
+      renderAt(prep.ctx, prep.tl, prep.imgs, 0);
+      rec.start(250);
+      await playOn(prep, r => bar.style.width = Math.min(100, r * 100).toFixed(1) + '%');
+      rec.stop(); await stopped;
+      mvBusy = false;
+      const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
+      mvBlob = new Blob(chunks, { type });
+      const ext = type.includes('mp4') ? 'mp4' : 'webm';
+      const url = URL.createObjectURL(mvBlob);
+      const v = document.getElementById('mvVideo'); v.src = url;
+      const a = document.getElementById('mvDownload'); a.href = url; a.download = `miyagi-omoide.${ext}`;
+      document.getElementById('mvResult').classList.remove('hidden');
+      document.getElementById('mvMsg').textContent = 'できあがり！ 下の動画を確認してね';
+      document.getElementById('mvResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    async function shareMovie() {
+      if (!mvBlob) return;
+      const ext = mvBlob.type.includes('mp4') ? 'mp4' : 'webm';
+      const file = new File([mvBlob], `miyagi-omoide.${ext}`, { type: mvBlob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: document.getElementById('mvTitle').value }); } catch (e) {}
+      } else {
+        document.getElementById('mvDownload').click();
+      }
+    }
 
     /* ===== カウントダウン ===== */
     const TRIP_DAYS = ['2027-03-20', '2027-03-21'];
