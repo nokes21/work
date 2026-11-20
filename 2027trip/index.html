@@ -1281,7 +1281,7 @@
       document.getElementById('payAmount').value = '';
       if (paymentsRef) {
         paymentsRef.push({ family, title, amount, createdAt: firebase.database.ServerValue.TIMESTAMP })
-          .catch(() => setSyncStatus('err', '記録できませんでした。通信状況を確認してください'));
+          .catch(err => setSyncStatus('err', '記録できませんでした（' + ((err && (err.code || err.message)) || '不明') + '）'));
         return;
       }
       payments.push({ family, title, amount });
@@ -1514,13 +1514,19 @@
       editingKid = null;
       if (profilesRef) {
         profilesRef.child(id).set({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP })
-          .catch(() => alert('保存できませんでした。通信状況を確認してください'));
+          .catch(err => {
+            alert('保存できませんでした。\n理由: ' + ((err && (err.code || err.message)) || '不明'));
+            loadLocalProfilesFromServer();
+          });
         profiles[id] = data;
       } else {
         profiles[id] = data;
         try { localStorage.setItem('miyagi_trip_profiles', JSON.stringify(profiles)); } catch (err) {}
       }
       renderKidCards();
+    }
+    function loadLocalProfilesFromServer() {
+      if (profilesRef) profilesRef.once('value').then(snap => { profiles = snap.val() || {}; renderKidCards(); }).catch(() => {});
     }
     async function initProfiles() {
       loadLocalProfiles();
