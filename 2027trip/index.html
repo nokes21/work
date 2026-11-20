@@ -539,6 +539,12 @@
     .settle-row { display: flex; justify-content: space-between; padding: 2px 0; }
     .settle-head { font-weight: 600; border-bottom: 1.5px dashed #b8b0a0; padding-bottom: 6px; margin-bottom: 4px; }
     .plus { color: var(--sea); font-weight: 600; }
+    .split-note { margin: 0; font-size: 11px; color: var(--ink-soft); line-height: 1.5; font-family: 'Zen Kaku Gothic New', sans-serif; }
+    .split-tag { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-soft); border: 1px solid var(--paper-line); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+    .settle-cols { display: grid !important; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 4px; text-align: right; }
+    .settle-cols span:first-child { text-align: left; }
+    .settle-moves { margin-top: 8px; padding-top: 6px; border-top: 1.5px dashed #b8b0a0; }
+    .settle-k { font-weight: 600; margin-bottom: 2px; }
     .minus { color: var(--stamp); font-weight: 600; }
 
     /* テストパネル */
@@ -1154,7 +1160,13 @@
             </select>
             <input type="number" inputmode="numeric" id="payAmount" placeholder="金額（円）" class="field">
             <input type="text" id="payTitle" placeholder="内容（例: 高速代）" class="field span2">
+            <select id="paySplit" class="field span2">
+              <option value="people">人数割（子ども料金あり）</option>
+              <option value="family">家族で均等</option>
+              <option value="adult">大人だけ</option>
+            </select>
             <button type="submit" class="btn span2">記録する</button>
+            <p class="split-note span2" id="splitNote"></p>
           </form>
 
           <div class="receipt">
@@ -1289,6 +1301,7 @@
       renderSpots();
       renderDayFlow();
       initPayments();
+      renderSplitNote();
       loadNotes(); renderNotes();
       if (newsRead()) document.getElementById('newsDot').classList.add('hidden');
       initProfiles();
@@ -1454,15 +1467,16 @@
       const family = document.getElementById('payFamily').value;
       const title = document.getElementById('payTitle').value.trim();
       const amount = parseInt(document.getElementById('payAmount').value);
+      const split = document.getElementById('paySplit').value;
       if (!title || !amount || amount <= 0) return;
       document.getElementById('payTitle').value = '';
       document.getElementById('payAmount').value = '';
       if (paymentsRef) {
-        paymentsRef.push({ family, title, amount, createdAt: firebase.database.ServerValue.TIMESTAMP })
+        paymentsRef.push({ family, title, amount, split, createdAt: firebase.database.ServerValue.TIMESTAMP })
           .catch(err => setSyncStatus('err', '記録できませんでした（' + ((err && (err.code || err.message)) || '不明') + '）'));
         return;
       }
-      payments.push({ family, title, amount });
+      payments.push({ family, title, amount, split });
       saveLocalStorage();
       renderPaymentList();
     }
@@ -1525,7 +1539,7 @@
         paymentsRef.on('value', snap => {
           const v = snap.val() || {};
           payments = Object.entries(v)
-            .map(([key, p]) => ({ key, family: p.family, title: p.title, amount: Number(p.amount) || 0, createdAt: p.createdAt || 0 }))
+            .map(([key, p]) => ({ key, family: p.family, title: p.title, amount: Number(p.amount) || 0, split: p.split, createdAt: p.createdAt || 0 }))
             .sort((a, b) => a.createdAt - b.createdAt);
           renderPaymentList();
           if (!document.getElementById('settlementResult').classList.contains('hidden')) calculateSettlement();
@@ -1552,7 +1566,7 @@
         const div = document.createElement('div');
         div.className = 'pay-item';
         div.innerHTML = `
-          <div><span class="who">${esc(famLabel(p.family))}</span> <span class="what">${esc(p.title)}</span></div>
+          <div><span class="who">${esc(famLabel(p.family))}</span> <span class="what">${esc(p.title)}</span> <span class="split-tag">${SPLIT_LABEL[p.split || 'family']}</span></div>
           <div style="display:flex;align-items:center;gap:2px">
             <span class="amt">¥${p.amount.toLocaleString()}</span>
             <button onclick="removePayment(${idx})" class="icon-btn" aria-label="削除"><i class="fa-solid fa-xmark"></i></button>
@@ -1560,6 +1574,29 @@
         `;
         container.appendChild(div);
       });
+    }
+
+    /* ===== 割り勘の 分け方 =====
+       人数割：大人 1、子ども（幼児・小学生）CHILD_RATE、赤ちゃん BABY_RATE の わりあい */
+    const CHILD_RATE = 0.5, BABY_RATE = 0;
+    const FAMILY_PEOPLE = {
+      'あかり': { adult: 2, child: 2, baby: 0 },   // 原口家
+      'かすみ': { adult: 2, child: 2, baby: 0 },   // 小澤家
+      'みはる': { adult: 2, child: 1, baby: 0 },   // 竹内家
+      'なつき': { adult: 2, child: 1, baby: 1 },   // 坪田家
+    };
+    const SPLIT_LABEL = { people: '人数割', family: '家族均等', adult: '大人のみ' };
+    const FAMILIES_ORDER = ['あかり', 'かすみ', 'みはる', 'なつき'];
+    function splitWeight(f, split) {
+      const n = FAMILY_PEOPLE[f];
+      if (split === 'adult') return n.adult;
+      if (split === 'people') return n.adult + n.child * CHILD_RATE + n.baby * BABY_RATE;
+      return 1;
+    }
+    function renderSplitNote() {
+      const el = document.getElementById('splitNote'); if (!el) return;
+      el.textContent = `人数割は「大人 1・子ども ${CHILD_RATE}・赤ちゃん ${BABY_RATE}」で計算します（` +
+        FAMILIES_ORDER.map(f => `${famLabel(f).replace('家', '')} ${splitWeight(f, 'people')}`).join('／') + '）';
     }
 
     function calculateSettlement() {
@@ -1570,31 +1607,44 @@
         resultDiv.innerHTML = '<p class="empty">記録されている支払いがありません。</p>';
         return;
       }
-
-      const families = ['あかり', 'かすみ', 'みはる', 'なつき'];
-      let totals = { 'あかり': 0, 'かすみ': 0, 'みはる': 0, 'なつき': 0 };
+      const paid = {}, due = {};
+      FAMILIES_ORDER.forEach(f => { paid[f] = 0; due[f] = 0; });
       let grandTotal = 0;
-
       payments.forEach(p => {
-        if (p.family in totals) totals[p.family] += p.amount;
+        if (!(p.family in paid)) return;
+        paid[p.family] += p.amount;
         grandTotal += p.amount;
+        const split = p.split || 'family';
+        const ws = FAMILIES_ORDER.map(f => splitWeight(f, split)), sum = ws.reduce((x, y) => x + y, 0);
+        FAMILIES_ORDER.forEach((f, i) => { due[f] += p.amount * ws[i] / sum; });
       });
+      // 1円単位に まるめて、ずれは いちばん 負担の 大きい 家族で ちょうせい
+      const dueR = {}; FAMILIES_ORDER.forEach(f => dueR[f] = Math.round(due[f]));
+      const drift = grandTotal - FAMILIES_ORDER.reduce((x, f) => x + dueR[f], 0);
+      if (drift) { const top = FAMILIES_ORDER.reduce((x, f) => dueR[f] > dueR[x] ? f : x); dueR[top] += drift; }
 
-      const avg = Math.round(grandTotal / 4);
-
-      let html = `<div class="settle-head"><div class="settle-row"><span>総額</span><span>¥${grandTotal.toLocaleString()}</span></div><div class="settle-row"><span>1家あたり</span><span>¥${avg.toLocaleString()}</span></div></div>`;
-
-      families.forEach(f => {
-        const diff = totals[f] - avg;
-        if (diff > 0) {
-          html += `<div class="settle-row"><span>${famLabel(f)}</span><span class="plus">+¥${diff.toLocaleString()} 受取</span></div>`;
-        } else if (diff < 0) {
-          html += `<div class="settle-row"><span>${famLabel(f)}</span><span class="minus">-¥${Math.abs(diff).toLocaleString()} 支払</span></div>`;
-        } else {
-          html += `<div class="settle-row"><span>${famLabel(f)}</span><span>精算なし</span></div>`;
-        }
+      let html = `<div class="settle-head"><div class="settle-row"><span>総額</span><span>¥${grandTotal.toLocaleString()}</span></div></div>`;
+      html += `<div class="settle-row settle-cols"><span></span><span>負担</span><span>立替</span><span>差額</span></div>`;
+      const bal = {};
+      FAMILIES_ORDER.forEach(f => {
+        bal[f] = paid[f] - dueR[f];
+        const cls = bal[f] > 0 ? 'plus' : bal[f] < 0 ? 'minus' : '';
+        const sign = bal[f] > 0 ? '+' : bal[f] < 0 ? '-' : '';
+        html += `<div class="settle-row settle-cols"><span>${famLabel(f)}</span><span>¥${dueR[f].toLocaleString()}</span><span>¥${paid[f].toLocaleString()}</span><span class="${cls}">${sign}¥${Math.abs(bal[f]).toLocaleString()}</span></div>`;
       });
-
+      // だれが だれに はらうか（すくない かいすうで）
+      const debt = FAMILIES_ORDER.filter(f => bal[f] < 0).map(f => ({ f, v: -bal[f] })).sort((x, y) => y.v - x.v);
+      const cred = FAMILIES_ORDER.filter(f => bal[f] > 0).map(f => ({ f, v: bal[f] })).sort((x, y) => y.v - x.v);
+      const moves = [];
+      let i = 0, j = 0;
+      while (i < debt.length && j < cred.length) {
+        const v = Math.min(debt[i].v, cred[j].v);
+        if (v > 0) moves.push(`${famLabel(debt[i].f)} → ${famLabel(cred[j].f)}　¥${v.toLocaleString()}`);
+        debt[i].v -= v; cred[j].v -= v;
+        if (!debt[i].v) i++;
+        if (!cred[j].v) j++;
+      }
+      html += `<div class="settle-moves"><div class="settle-k">精算のしかた</div>${moves.length ? moves.map(m => `<div>${m}</div>`).join('') : '<div>精算は必要ありません</div>'}</div>`;
       resultDiv.innerHTML = html;
       resultDiv.classList.remove('hidden');
     }
