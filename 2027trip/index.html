@@ -655,20 +655,23 @@
     .pass { grid-template-columns: 46px 1fr; }
     .kid-cards { display: grid; gap: 8px; margin-top: 10px; }
     .kid-card {
-      display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: start;
+      display: block;
       background: var(--paper);
       border: 1.5px dashed var(--paper-line);
       border-radius: 8px;
-      padding: 8px 10px;
+      padding: 8px 10px 10px;
     }
+    .kid-head { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1.5px dashed var(--paper-line); padding-bottom: 6px; }
+    .kid-nm { flex: 1; min-width: 0; font-size: 17px; font-weight: 900; padding-bottom: 6px; word-break: break-all; }
+    .kid-head .kid-edit { margin-bottom: 6px; }
     .kid-sprite { width: 48px; height: 60px; image-rendering: pixelated; cursor: pointer; background: linear-gradient(transparent 85%, rgba(120,90,50,.12) 85%); border-radius: 4px; }
     .kid-name { font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .kid-edit { border: 1.5px solid var(--ink-soft); background: #fff; color: var(--ink); border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
-    .kid-prof { margin: 4px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 12.5px; }
+    .kid-prof { margin: 8px 2px 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13.5px; }
     .kid-prof dt { color: var(--ink-soft); font-weight: 700; font-size: 11px; padding-top: 1px; }
     .kid-prof dd { margin: 0; font-family: var(--hand); font-weight: 600; word-break: break-word; }
     .kid-prof dd.empty-v { color: #b8b0a0; }
-    .kid-form { display: grid; gap: 5px; margin-top: 4px; }
+    .kid-form { display: grid; gap: 5px; margin-top: 8px; }
     .kid-form label { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
     .kid-form .field { width: 100%; font-size: 16px; padding: 6px 8px; }
     .kid-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
@@ -1495,7 +1498,7 @@
           const pr = profiles[id] || {};
           if (editingKid === id) {
             return `<div class="kid-card" id="kid-${id}">
-              <canvas class="kid-sprite" data-id="${id}"></canvas>
+              <div class="kid-head"><canvas class="kid-sprite" data-id="${id}"></canvas><span class="kid-nm">${esc(kidName(id))}</span></div>
               <form class="kid-form" onsubmit="saveKid(event, '${id}')">
                 <label>なまえ</label><input class="field" name="name" maxlength="8" value="${esc(kidName(id))}" required>
                 ${PROFILE_FIELDS.map(([k, label, ph]) => `<label>${label}</label><input class="field" name="${k}" maxlength="30" placeholder="例: ${ph}" value="${esc(pr[k] || '')}">`).join('')}
@@ -1503,11 +1506,9 @@
               </form></div>`;
           }
           return `<div class="kid-card" id="kid-${id}">
-            <canvas class="kid-sprite" data-id="${id}"></canvas>
-            <div>
-              <div class="kid-name"><span>${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
-              <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}</dl>
-            </div></div>`;
+            <div class="kid-head"><canvas class="kid-sprite" data-id="${id}"></canvas><span class="kid-nm">${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
+            <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}</dl>
+          </div>`;
         }).join('');
       });
       document.querySelectorAll('.kid-sprite').forEach(c => c.onclick = () => { kidJump[c.dataset.id] = performance.now() / 1000; });
