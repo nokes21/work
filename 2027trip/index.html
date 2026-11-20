@@ -596,6 +596,30 @@
     @keyframes flash-ring { 0% { box-shadow: 0 0 0 0 rgba(200,85,61,.6); } 100% { box-shadow: 0 0 0 12px rgba(200,85,61,0); } }
     .flash { border-color: var(--stamp) !important; animation: flash-ring 1s 2; }
 
+    /* 自己紹介カード */
+    .pass { grid-template-columns: 46px 1fr; }
+    .kid-cards { display: grid; gap: 8px; margin-top: 10px; }
+    .kid-card {
+      display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: start;
+      background: var(--paper);
+      border: 1.5px dashed var(--paper-line);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .kid-sprite { width: 48px; height: 60px; image-rendering: pixelated; cursor: pointer; background: linear-gradient(transparent 85%, rgba(120,90,50,.12) 85%); border-radius: 4px; }
+    .kid-name { font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .kid-edit { border: 1.5px solid var(--ink-soft); background: #fff; color: var(--ink); border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
+    .kid-prof { margin: 4px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 12.5px; }
+    .kid-prof dt { color: var(--ink-soft); font-weight: 700; font-size: 11px; padding-top: 1px; }
+    .kid-prof dd { margin: 0; font-family: var(--hand); font-weight: 600; word-break: break-word; }
+    .kid-prof dd.empty-v { color: #b8b0a0; }
+    .kid-form { display: grid; gap: 5px; margin-top: 4px; }
+    .kid-form label { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .kid-form .field { width: 100%; font-size: 16px; padding: 6px 8px; }
+    .kid-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+    .kid-form .row .btn { padding: 8px; }
+    .btn.ghost { background: #fff; color: var(--ink); border: 1.5px solid var(--ink-soft); }
+
     /* 共有の じょうたい */
     .notice-share { color: var(--ink); border-color: var(--sea); background: rgba(43,122,140,.08); }
     .sync-status {
@@ -828,33 +852,38 @@
       <section id="content-members" class="hidden">
         <div class="page">
           <div class="page-head"><h2>乗客名簿</h2><span class="en">PASSENGERS</span></div>
+          <p class="memo">子どもたちの自己紹介カードです。「書く」から名前とプロフィールを入れてね（みんなに共有されます）。ドット絵をタップするとジャンプ！</p>
 
           <div class="pass">
             <div class="pass-side c1"><span class="no">NO.</span><span class="num">01</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">あかりファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span><span>みのり</span><span>あかり</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
+              <div class="kid-cards" data-kids="minori,akari"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c2"><span class="no">NO.</span><span class="num">02</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">かすみファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span><span>かすみ</span><span>みおり</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
+              <div class="kid-cards" data-kids="kasumi,miori"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c3"><span class="no">NO.</span><span class="num">03</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">みはるファミリー</span><span class="pass-count">×3</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span><span>みはる</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
+              <div class="kid-cards" data-kids="miharu"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c4"><span class="no">NO.</span><span class="num">04</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">なつきファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span><span>なつき</span><span>ふじ</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
+              <div class="kid-cards" data-kids="natsuki,fuji"></div>
             </div>
           </div>
 
@@ -1084,6 +1113,8 @@
       renderSpots();
       initPayments();
       loadNotes(); renderNotes();
+      initProfiles();
+      requestAnimationFrame(animateKidCards);
       loadMemories();
       checkCurrentStatus();
       setInterval(checkCurrentStatus, 10000);
@@ -1254,6 +1285,19 @@
       });
     }
 
+    let dbPromise = null;
+    function getDb() {
+      if (!FIREBASE_CONFIG) return Promise.resolve(null);
+      if (!dbPromise) dbPromise = (async () => {
+        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
+        await loadScript(`${base}/firebase-app-compat.js`);
+        await loadScript(`${base}/firebase-database-compat.js`);
+        firebase.initializeApp(FIREBASE_CONFIG);
+        return firebase.database();
+      })().catch(() => null);
+      return dbPromise;
+    }
+
     async function initPayments() {
       renderPaymentList();
       if (!FIREBASE_CONFIG) {
@@ -1262,11 +1306,8 @@
       }
       setSyncStatus('', '共有データに接続中…');
       try {
-        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
-        await loadScript(`${base}/firebase-app-compat.js`);
-        await loadScript(`${base}/firebase-database-compat.js`);
-        firebase.initializeApp(FIREBASE_CONFIG);
-        const db = firebase.database();
+        const db = await getDb();
+        if (!db) throw new Error('no db');
         paymentsRef = db.ref(`trips/${TRIP_ID}/payments`);
         paymentsRef.on('value', snap => {
           const v = snap.val() || {};
@@ -1386,6 +1427,91 @@
     ];
 
 
+
+
+    /* ===== 自己紹介カード（ドット絵・共有） ===== */
+    const KID_IDS = ['minori', 'akari', 'kasumi', 'miharu', 'natsuki', 'miori', 'fuji']; // ドット絵の ならびと おなじ
+    const KID_NAMES = { minori: 'みのり', akari: 'あかり', kasumi: 'かすみ', miharu: 'みはる', natsuki: 'なつき', miori: 'みおり', fuji: 'ふじ' };
+    const PROFILE_FIELDS = [['like', 'すきなもの', 'ずんだ、ラプラス'], ['fun', 'たのしみ', 'ラプラスこうえん'], ['msg', 'ひとこと', 'よろしくね！']];
+    let profiles = {}, editingKid = null, profilesRef = null;
+    const kidJump = {};
+
+    function loadLocalProfiles() { try { profiles = JSON.parse(localStorage.getItem('miyagi_trip_profiles') || '{}'); } catch (e) { profiles = {}; } }
+    function kidName(id) { return (profiles[id] && profiles[id].name) || KID_NAMES[id]; }
+
+    function renderKidCards() {
+      document.querySelectorAll('.kid-cards').forEach(box => {
+        box.innerHTML = box.dataset.kids.split(',').map(id => {
+          const i = KID_IDS.indexOf(id), pr = profiles[id] || {};
+          if (editingKid === id) {
+            return `<div class="kid-card" id="kid-${id}">
+              <canvas class="kid-sprite" data-i="${i}" data-id="${id}"></canvas>
+              <form class="kid-form" onsubmit="saveKid(event, '${id}')">
+                <label>なまえ</label><input class="field" name="name" maxlength="8" value="${esc(kidName(id))}" required>
+                ${PROFILE_FIELDS.map(([k, label, ph]) => `<label>${label}</label><input class="field" name="${k}" maxlength="30" placeholder="例: ${ph}" value="${esc(pr[k] || '')}">`).join('')}
+                <div class="row"><button type="button" class="btn ghost" onclick="cancelKid()">やめる</button><button type="submit" class="btn">保存</button></div>
+              </form></div>`;
+          }
+          return `<div class="kid-card" id="kid-${id}">
+            <canvas class="kid-sprite" data-i="${i}" data-id="${id}"></canvas>
+            <div>
+              <div class="kid-name"><span>${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
+              <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}</dl>
+            </div></div>`;
+        }).join('');
+      });
+      document.querySelectorAll('.kid-sprite').forEach(c => c.onclick = () => { kidJump[c.dataset.id] = performance.now() / 1000; });
+    }
+    function editKid(id) { editingKid = id; renderKidCards(); const f = document.querySelector(`#kid-${id} input[name=name]`); if (f) f.focus(); }
+    function cancelKid() { editingKid = null; renderKidCards(); }
+    function saveKid(e, id) {
+      e.preventDefault();
+      const f = e.target;
+      const data = { name: f.name.value.trim().slice(0, 8) || KID_NAMES[id] };
+      PROFILE_FIELDS.forEach(([k]) => { const v = f[k].value.trim().slice(0, 30); if (v) data[k] = v; });
+      editingKid = null;
+      if (profilesRef) {
+        profilesRef.child(id).set({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP })
+          .catch(() => alert('保存できませんでした。通信状況を確認してください'));
+        profiles[id] = data;
+      } else {
+        profiles[id] = data;
+        try { localStorage.setItem('miyagi_trip_profiles', JSON.stringify(profiles)); } catch (err) {}
+      }
+      renderKidCards();
+    }
+    async function initProfiles() {
+      loadLocalProfiles();
+      renderKidCards();
+      const db = await getDb();
+      if (!db) return;
+      profilesRef = db.ref(`trips/${TRIP_ID}/profiles`);
+      profilesRef.on('value', snap => {
+        profiles = snap.val() || {};
+        if (!editingKid) renderKidCards();
+      });
+    }
+    // カードの ドット絵を その場で あるかせる
+    function animateKidCards(now) {
+      const art = window.KID_ART;
+      if (art && !document.getElementById('content-members').classList.contains('hidden')) {
+        const t = now / 1000, S = 3;
+        document.querySelectorAll('.kid-sprite').forEach(c => {
+          const i = +c.dataset.i, small = art.KIDS[i].size === art.SMALL;
+          const dpr = window.devicePixelRatio || 1, cw = 48, ch = 60;
+          if (c.width !== cw * dpr) { c.width = cw * dpr; c.height = ch * dpr; }
+          const g = c.getContext('2d');
+          g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cw, ch);
+          const step = Math.floor(t * (small ? 3.2 : 2.6) + i) % 2;
+          const img = art.SPR[i][step];
+          let y = ch - 6 - img.height * S + (step ? -1 : 0);
+          const jt = t - (kidJump[c.dataset.id] || -10);
+          if (jt > 0 && jt < 0.5) y -= Math.round(Math.sin(jt / 0.5 * Math.PI) * 12);
+          g.drawImage(img, (cw - art.W * S) / 2, y, art.W * S, img.height * S);
+        });
+      }
+      requestAnimationFrame(animateKidCards);
+    }
 
     /* ===== なんでもメモ ===== */
     let notes = [], editingNote = null;
@@ -1750,6 +1876,7 @@
         return cv;
       }
       const SPR = KIDS.map(k => [sprite(k, 0), sprite(k, 1)]);
+      window.KID_ART = { SPR, KIDS, W, PX, SMALL };
 
       const cv = document.getElementById('parade');
       if (!cv) return;
