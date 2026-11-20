@@ -1147,10 +1147,10 @@
           <div id="syncStatus" class="sync-status"></div>
           <form onsubmit="addPayment(event)" class="pay-form">
             <select id="payFamily" class="field">
-              <option value="あかり">あかり家</option>
-              <option value="かすみ">かすみ家</option>
-              <option value="みはる">みはる家</option>
-              <option value="なつき">なつき家</option>
+              <option value="あかり">原口家</option>
+              <option value="かすみ">小澤家</option>
+              <option value="みはる">竹内家</option>
+              <option value="なつき">坪田家</option>
             </select>
             <input type="number" inputmode="numeric" id="payAmount" placeholder="金額（円）" class="field">
             <input type="text" id="payTitle" placeholder="内容（例: 高速代）" class="field span2">
@@ -1467,11 +1467,15 @@
       renderPaymentList();
     }
 
+    // 割り勘の 家族名（保存する あたいは そのまま、表示だけ 名字に）
+    const FAMILY_LABEL = { 'あかり': '原口家', 'かすみ': '小澤家', 'みはる': '竹内家', 'なつき': '坪田家' };
+    const famLabel = f => FAMILY_LABEL[f] || `${f}家`;
+
     function removePayment(index) {
       const p = payments[index];
       if (!p) return;
       if (paymentsRef) {
-        if (!confirm(`「${p.family}家 ${p.title} ¥${p.amount.toLocaleString()}」を削除しますか？\n（全員の画面から消えます）`)) return;
+        if (!confirm(`「${famLabel(p.family)} ${p.title} ¥${p.amount.toLocaleString()}」を削除しますか？\n（全員の画面から消えます）`)) return;
         paymentsRef.child(p.key).remove();
         return;
       }
@@ -1548,7 +1552,7 @@
         const div = document.createElement('div');
         div.className = 'pay-item';
         div.innerHTML = `
-          <div><span class="who">${esc(p.family)}家</span> <span class="what">${esc(p.title)}</span></div>
+          <div><span class="who">${esc(famLabel(p.family))}</span> <span class="what">${esc(p.title)}</span></div>
           <div style="display:flex;align-items:center;gap:2px">
             <span class="amt">¥${p.amount.toLocaleString()}</span>
             <button onclick="removePayment(${idx})" class="icon-btn" aria-label="削除"><i class="fa-solid fa-xmark"></i></button>
@@ -1583,11 +1587,11 @@
       families.forEach(f => {
         const diff = totals[f] - avg;
         if (diff > 0) {
-          html += `<div class="settle-row"><span>${f}家</span><span class="plus">+¥${diff.toLocaleString()} 受取</span></div>`;
+          html += `<div class="settle-row"><span>${famLabel(f)}</span><span class="plus">+¥${diff.toLocaleString()} 受取</span></div>`;
         } else if (diff < 0) {
-          html += `<div class="settle-row"><span>${f}家</span><span class="minus">-¥${Math.abs(diff).toLocaleString()} 支払</span></div>`;
+          html += `<div class="settle-row"><span>${famLabel(f)}</span><span class="minus">-¥${Math.abs(diff).toLocaleString()} 支払</span></div>`;
         } else {
-          html += `<div class="settle-row"><span>${f}家</span><span>精算なし</span></div>`;
+          html += `<div class="settle-row"><span>${famLabel(f)}</span><span>精算なし</span></div>`;
         }
       });
 
