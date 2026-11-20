@@ -1595,9 +1595,9 @@
     /* ===== 家族タイル（2×2・開閉式・並びは毎回ランダム） ===== */
     const FAMILIES = [
       { id: 'akari',   name: 'あかり家',  home: 'mansion', color: '#c8553d', members: ['akari-papa', 'akari-mama', 'minori', 'akari'] },
-      { id: 'kasumi',  name: 'かすみ家',  home: 'house',   color: '#2b7a8c', members: ['kasumi-papa', 'kasumi-mama', 'kasumi', 'miori'] },
+      { id: 'kasumi',  name: 'かすみ家',  home: 'house',   color: '#e07a3a', members: ['kasumi-papa', 'kasumi-mama', 'kasumi', 'miori'] },
       { id: 'miharu',  name: 'みはる家',  home: 'mansion', color: '#d9961c', members: ['miharu-papa', 'miharu-mama', 'miharu'] },
-      { id: 'natsuki', name: 'なつき家',  home: 'house',   color: '#7a6aa8', members: ['natsuki-papa', 'natsuki-mama', 'natsuki', 'fuji'] },
+      { id: 'natsuki', name: 'なつき家',  home: 'house',   color: '#6b7280', members: ['natsuki-papa', 'natsuki-mama', 'natsuki', 'fuji'] },
     ];
     for (let i = FAMILIES.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [FAMILIES[i], FAMILIES[j]] = [FAMILIES[j], FAMILIES[i]]; }
     let openFam = null;
@@ -1618,8 +1618,8 @@
     const HOME_PAL = {
       akari:   { R: '#c8553d', W: '#f3e6cf', G: '#9fd8f5', A: '#c8553d', D: '#7a5a3a', F: '#7cc46a' },
       miharu:  { R: '#5a6b80', W: '#e8ecef', G: '#9fd8f5', A: '#e3a72f', D: '#4a5670', F: '#7cc46a' },
-      kasumi:  { R: '#2b7a8c', W: '#fbf3dc', G: '#bfe6fa', D: '#8a5a3a', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', T: '#3f9b6e', N: '#8a5a3a' },
-      natsuki: { R: '#7a6aa8', W: '#fff4ee', G: '#bfe6fa', D: '#c46a7f', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', P: '#ff86b3', Y: '#ffd34e' },
+      kasumi:  { R: '#e07a3a', W: '#fff1e2', G: '#bfe6fa', D: '#8a5a3a', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', T: '#3f9b6e', N: '#8a5a3a' },
+      natsuki: { R: '#6b7280', W: '#eceef1', G: '#bfe6fa', D: '#4b5563', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', P: '#ff86b3', Y: '#ffd34e' },
     };
     function homeRows(fam) {
       const rows = HOME_PIX[fam.home].map(r => r.split(''));
@@ -1651,7 +1651,6 @@
             <canvas class="fam-house" data-fam="${f.id}"></canvas>
             <span class="fam-name">${f.name}</span>
             <canvas class="fam-art" data-ids="${f.members.join(',')}"></canvas>
-            <span class="fam-count">×${f.members.length}</span>
           </button>`).join('');
         const open = row.find(f => f.id === openFam);
         if (open) html += `<div class="fam-panel" style="--fc:${open.color}"><div class="kid-cards" data-kids="${open.members.join(',')}"></div></div>`;
