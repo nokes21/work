@@ -598,7 +598,7 @@ const PRINCESS={};
 const PIX=(()=>{
   const BIG={head:['....HHHH....','...HHHHHH...','..HHHHHHHH..','..HHHSSSSH..','..HHSSSESS..','..HHSSSSKS..','...H.SSSS...'],
     body:['.....CCC....','....CCCCC...','....CCCCSS..','....DDDDD...','...DDDDDDD..'],legs:['....L...L...','....L...L...','...BB...BB..']};
-  const TALL={head:BIG.head,body:['.....CCC....','....CCCCC...','....CCCCC...','....CCCCC...','....CCCCSS..','....DDDDD...','...DDDDDDD..'],legs:['....L...L...','....L...L...','....L...L...','....L...L...','...BB...BB..']};
+  const TALL={head:BIG.head,body:['.....CCC....','....CCCCC...','....CCCCC...','....CCCCSS..','....DDDDD...','...DDDDDDD..'],legs:['....L...L...','....L...L...','....L...L...','...BB...BB..']};
   const SMALL={head:['....HHHH....','...HHHHHH...','..HHHSSSSH..','..HHSSSESS..','..HHSSSSKS..','...H.SSSS...'],
     body:['.....CCCS...','....DDDD....'],legs:['....L..L....','...BB..BB...']};
   const STYLE={long:[[6,2],[6,3],[7,3],[8,3]],pony:[[2,1],[3,0],[3,1],[4,1],[2,2,'R']],bob:[],twin:[[4,1],[5,0],[5,1],[6,1],[4,2,'R']],bun:[[0,2],[0,3],[-1,3]],short:[]};
@@ -622,7 +622,7 @@ const PIX=(()=>{
     const rows=[...kid.size.head,...kid.size.body,...kid.size.legs].map(r=>r.split(''));
     let top=0;(STYLE[kid.style]||[]).forEach(([r])=>{if(r<0){rows.unshift('............'.split(''));top++}});
     (STYLE[kid.style]||[]).forEach(([r,c,ch])=>{const row=rows[r+top];if(row)row[c]=ch||'H'});
-    const W=21,Hh=21,cv=document.createElement('canvas');cv.width=W;cv.height=Hh;
+    const W=20,Hh=20,cv=document.createElement('canvas');cv.width=W;cv.height=Hh;
     const g=cv.getContext('2d'),ox=4,oy=Hh-rows.length-1;
     rows.forEach((row,y)=>row.forEach((ch,x)=>{if(ch==='.')return;g.fillStyle=kid[ch]||PAL[ch]||'#000';g.fillRect(ox+(11-x),oy+y,1,1)}));
     return cache[key]=cv.toDataURL();

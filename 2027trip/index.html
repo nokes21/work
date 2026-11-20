@@ -54,7 +54,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 40;
-      height: 46px;
+      height: 40px;
       background-color: var(--kraft);
       box-shadow: 0 2px 6px -4px rgba(60,40,10,.5);
       cursor: pointer;
@@ -82,7 +82,7 @@
     .news-card h3 { text-align: center; margin: 2px 0 12px; }
     .news-body { font-family: var(--hand); font-size: 16px; font-weight: 600; line-height: 1.7; background: #fff; border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; }
     .news-body .by { display: block; text-align: right; font-size: 14px; color: var(--ink-soft); margin-top: 6px; }
-    body { padding-top: 46px; }
+    body { padding-top: 40px; }
     .ticket {
       position: relative;
       margin-top: 12px;
@@ -169,7 +169,7 @@
     }
 
     /* ===== タブ（インデックスシール） ===== */
-    .tabs-wrap { position: sticky; top: 46px; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
+    .tabs-wrap { position: sticky; top: 40px; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
     .tabs { display: flex; gap: 4px; }
     .tab-btn {
       flex: 1;
@@ -654,7 +654,7 @@
     .sp-title { font-size: 26px; font-weight: 900; letter-spacing: .02em; }
     .sp-sub { font-size: 12px; font-weight: 700; color: var(--stamp); letter-spacing: .12em; margin-top: 2px; }
     .sp-date { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 14px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
-    #splashKids { width: min(320px, 90vw); height: 48px; image-rendering: pixelated; }
+    #splashKids { width: min(320px, 90vw); height: 44px; image-rendering: pixelated; }
     @keyframes sp-pop { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
 
     /* その日の ながれ（ざっくり） */
@@ -704,7 +704,7 @@
     .fam-house { width: 48px; height: 51px; image-rendering: pixelated; }
     .fam-name { font-size: 14px; font-weight: 900; }
     .fam-count { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
-    .fam-art { width: 100%; height: 42px; image-rendering: pixelated; }
+    .fam-art { width: 100%; height: 36px; image-rendering: pixelated; }
     .fam-open-hint { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
     .fam-panel {
       grid-column: 1 / -1;
@@ -729,7 +729,7 @@
     .kid-head { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1.5px dashed var(--paper-line); padding-bottom: 6px; }
     .kid-nm { flex: 1; min-width: 0; font-size: 17px; font-weight: 900; padding-bottom: 6px; word-break: break-all; }
     .kid-head .kid-edit { margin-bottom: 6px; }
-    .kid-sprite { width: 48px; height: 66px; image-rendering: pixelated; cursor: pointer; background: linear-gradient(transparent 85%, rgba(120,90,50,.12) 85%); border-radius: 4px; }
+    .kid-sprite { width: 48px; height: 60px; image-rendering: pixelated; cursor: pointer; background: linear-gradient(transparent 85%, rgba(120,90,50,.12) 85%); border-radius: 4px; }
     .kid-name { font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .kid-edit { border: 1.5px solid var(--ink-soft); background: #fff; color: var(--ink); border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
     .kid-prof { margin: 8px 2px 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13.5px; }
@@ -1686,7 +1686,7 @@
         const t = now / 1000, S = 3;
         document.querySelectorAll('.fam-art').forEach(c => {
           const ids = c.dataset.ids.split(','), dpr = window.devicePixelRatio || 1;
-          const cw = c.clientWidth, ch = 42, S2 = 2;
+          const cw = c.clientWidth, ch = 36, S2 = 2;
           if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = ch * dpr; }
           const g = c.getContext('2d');
           g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cw, ch);
@@ -1706,7 +1706,7 @@
           const frames = ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id];
           if (!frames) return;
           const i = ki >= 0 ? ki : 7, small = ki >= 0 && (art.KIDS[ki].size === art.SMALL || art.KIDS[ki].size === art.CRAWL);
-          const dpr = window.devicePixelRatio || 1, cw = 48, ch = 66;
+          const dpr = window.devicePixelRatio || 1, cw = 48, ch = 60;
           if (c.width !== cw * dpr) { c.width = cw * dpr; c.height = ch * dpr; }
           const g = c.getContext('2d');
           g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cw, ch);
@@ -2133,8 +2133,8 @@
       // せが たかめ（みのりちゃん）
       const TALL = {
         head: ['....HHHH....', '...HHHHHH...', '..HHHHHHHH..', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
-        body: ['.....CCC....', '....CCCCC...', '....CCCCC...', '....CCCCC...', '....CCCCSS..', '....DDDDD...', '...DDDDDDD..'],
-        legs: [['....L...L...', '....L...L...', '....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....LL.....', '.....LL.....', '.....BBB....']],
+        body: ['.....CCC....', '....CCCCC...', '....CCCCC...', '....CCCCSS..', '....DDDDD...', '...DDDDDDD..'],
+        legs: [['....L...L...', '....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....LL.....', '.....BBB....']],
       };
       const SMALL = {
         head: ['....HHHH....', '...HHHHHH...', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
