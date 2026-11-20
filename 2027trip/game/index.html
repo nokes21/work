@@ -259,6 +259,9 @@ button{font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:non
 .rank-list .who{flex:1;min-width:0;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rank-list .pts{color:#c26a00;font-weight:900;white-space:nowrap}
 .empty{text-align:center;padding:26px 8px;color:var(--ink-soft);line-height:1.7}
+.rank-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 12px}
+.rank-tabs button{border:0;border-radius:14px;padding:9px 2px;font:inherit;font-size:12.5px;font-weight:900;color:var(--ink-soft);background:#eef8ff;box-shadow:0 0 0 2px #cdeefc;cursor:pointer}
+.rank-tabs button.on{color:#fff;background:linear-gradient(180deg,#8fd3f5,#3ea6dc);box-shadow:0 3px 0 #2a84b8}
 
 /* ===== あそびかた ===== */
 .rule{display:flex;gap:12px;align-items:center;background:#fff;border-radius:18px;padding:10px 12px;margin-bottom:10px;box-shadow:0 0 0 2px #f6e3ef}
@@ -505,11 +508,16 @@ button{font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:non
   <div class="topbar"><button class="back" onclick="backFromRanking()"><svg><use href="#i-back"/></svg>もどる</button></div>
   <div class="card">
     <div class="ribbon gold">みやぎ ランキング</div>
-    <p class="sub">ハイスコア ベスト10</p>
+    <div class="rank-tabs" id="rankTabs">
+      <button data-m="shape" onclick="selectRank('shape')">かたち</button>
+      <button data-m="number" onclick="selectRank('number')">すうじ</button>
+      <button data-m="flash" onclick="selectRank('flash')">いっしゅん</button>
+      <button data-m="stop" onclick="selectRank('stop')">ストップ</button>
+    </div>
+    <p class="sub"><span id="rankLabel"></span> ベスト10</p>
     <ol id="rankList" class="rank-list"></ol>
-    <p class="note">この スマホに ほぞんされた スコアだよ</p>
+    <p class="note" id="rankNote">みんなの スコアだよ</p>
   </div>
-  <button class="btn white wide" onclick="clearRanking()">ランキングを リセット</button>
 </section>
 
 <!-- ===== あそびかた ===== -->
@@ -557,6 +565,19 @@ const PRINCESS={};
 const LABEL={shape:'おなじ かたち',number:'すうじの じゅんばん',flash:'いっしゅん クイズ',stop:'ぴったり ストップ'};
 const STOP={rounds:3,min:5,max:10,fadeAt:2000,giveUp:25}; // ぴったりストップ：かいすう・びょうすうのはんい・きえるまで（ms）
 const STORE='miyagiScores';
+// みんなで きょうゆうする ランキング（Firebase Realtime Database）
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyCd_NHgMbzPLGp50I_ZRsyzdvSnD6zrbmE",
+  authDomain:"tripmiyagi-3e86e.firebaseapp.com",
+  databaseURL:"https://tripmiyagi-3e86e-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"tripmiyagi-3e86e",
+  storageBucket:"tripmiyagi-3e86e.firebasestorage.app",
+  messagingSenderId:"362875220346",
+  appId:"1:362875220346:web:f7ad807799a0faced1e6c3"
+};
+const SCORE_PATH='trips/miyagi2027/scores';
+const FIREBASE_VERSION='10.12.2';
+const MISSIONS=['shape','number','flash','stop'];
 const SPARK_COLORS=['#ffd04d','#ff8cc6','#7cc8f0','#8fd8ff','#ffffff'];
 
 /* ==== じょうたい ==== */
@@ -589,7 +610,11 @@ $('otherName').addEventListener('keydown',e=>{if(e.key==='Enter')chooseOther()})
 
 /* ==== ほぞん ==== */
 function getScores(){try{const v=JSON.parse(localStorage.getItem(STORE)||'[]');return Array.isArray(v)?v.filter(x=>x&&typeof x.score==='number'&&typeof x.player==='string'):[]}catch(e){return[]}}
-function saveScore(value){let arr=getScores();arr.push({player,score:value,date:Date.now(),mission});arr.sort((a,b)=>b.score-a.score||a.date-b.date);arr=arr.slice(0,10);try{localStorage.setItem(STORE,JSON.stringify(arr))}catch(e){}}
+function saveScore(value){
+  let arr=getScores();arr.push({player,score:value,date:Date.now(),mission});arr.sort((a,b)=>b.score-a.score||a.date-b.date);arr=arr.slice(0,300);
+  try{localStorage.setItem(STORE,JSON.stringify(arr))}catch(e){}
+  if(scoresDb)scoresDb.ref(SCORE_PATH+'/'+mission).push({player,score:value,date:Date.now()}).catch(()=>{});
+}
 function updateBest(){const l=getScores().filter(x=>x.player===player);$('bestScore').textContent=l.length?Math.max(...l.map(x=>x.score)):0}
 
 /* ==== タイマー ==== */
@@ -791,9 +816,16 @@ function finish(){
 function backToMenu(){updateBest();show('menu')}
 
 /* ==== ランキング ==== */
-function showRanking(){if(current!=='ranking')lastScreen=current;renderRanking();show('ranking')}
+let rankMission='shape',scoresDb=null;const sharedScores={};
+function showRanking(){if(current!=='ranking')lastScreen=current;if(MISSIONS.includes(mission))rankMission=mission;renderRanking();show('ranking')}
+function selectRank(m){rankMission=m;renderRanking()}
+function localTop(m){return getScores().filter(x=>(x.mission||'shape')===m).slice(0,10)}
 function renderRanking(){
-  const arr=getScores(),list=$('rankList');list.innerHTML='';
+  document.querySelectorAll('#rankTabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===rankMission));
+  $('rankLabel').textContent=LABEL[rankMission];
+  const shared=scoresDb&&sharedScores[rankMission];
+  $('rankNote').textContent=scoresDb?'みんなの スコアだよ':'いまは この スマホの スコアだけ だよ';
+  const arr=shared?sharedScores[rankMission]:localTop(rankMission),list=$('rankList');list.innerHTML='';
   if(!arr.length){list.innerHTML='<li class="empty">まだ ランキングが ないよ<br>ミッションで あそんでみてね</li>';return}
   arr.forEach((r,i)=>{
     const li=document.createElement('li');if(i===0)li.className='top1';
@@ -805,7 +837,6 @@ function renderRanking(){
   });
 }
 function backFromRanking(){if(lastScreen==='menu')updateBest();show(lastScreen==='game'?'menu':lastScreen)}
-function clearRanking(){ask('ランキングを ぜんぶ けしても いい？',()=>{try{localStorage.removeItem(STORE)}catch(e){}renderRanking();updateBest()})}
 function ask(text,onYes){
   $('modalText').textContent=text;$('modal').classList.remove('hidden');
   const close=()=>$('modal').classList.add('hidden');
@@ -827,6 +858,24 @@ function sparkle(n=4,el){
 /* ==== さいしょ ==== */
 document.querySelectorAll('[data-portrait]').forEach(p=>p.innerHTML=avatar(p.dataset.portrait));
 if(HERO_IMG)$('heroArt').innerHTML=`<img class="hero-img" src="${HERO_IMG}" alt="">`;
+
+function loadScript(src){return new Promise((ok,ng)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=ng;document.head.appendChild(sc)})}
+async function initShared(){
+  if(!FIREBASE_CONFIG)return;
+  try{
+    const base='https://www.gstatic.com/firebasejs/'+FIREBASE_VERSION;
+    await loadScript(base+'/firebase-app-compat.js');await loadScript(base+'/firebase-database-compat.js');
+    firebase.initializeApp(FIREBASE_CONFIG);scoresDb=firebase.database();
+    MISSIONS.forEach(m=>{
+      scoresDb.ref(SCORE_PATH+'/'+m).orderByChild('score').limitToLast(10).on('value',snap=>{
+        const arr=[];snap.forEach(c=>{const v=c.val();if(v&&typeof v.score==='number'&&typeof v.player==='string')arr.push(v)});
+        sharedScores[m]=arr.sort((a,b)=>b.score-a.score||a.date-b.date);
+        if(current==='ranking'&&rankMission===m)renderRanking();
+      },()=>{delete sharedScores[m]});
+    });
+  }catch(e){scoresDb=null}
+}
+initShared();
 </script>
 </body>
 </html>
