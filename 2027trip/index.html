@@ -654,14 +654,6 @@
     .sp-title { font-size: 26px; font-weight: 900; letter-spacing: .02em; }
     .sp-sub { font-size: 12px; font-weight: 700; color: var(--stamp); letter-spacing: .12em; margin-top: 2px; }
     .sp-date { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 14px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
-    .sp-pk {
-      width: min(160px, 42vw); height: auto; max-height: 26vh; object-fit: contain;
-      margin-bottom: -26px; position: relative; z-index: 1;
-      animation: sp-float .7s .15s cubic-bezier(.2,1.4,.4,1) both, sp-bob 2.4s 1s ease-in-out infinite;
-      filter: drop-shadow(0 8px 10px rgba(60,40,10,.25));
-    }
-    @keyframes sp-float { from { opacity: 0; transform: translateY(24px) scale(.8); } to { opacity: 1; transform: none; } }
-    @keyframes sp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     #splashKids { width: min(320px, 90vw); height: 44px; image-rendering: pixelated; }
     @keyframes sp-pop { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
 
@@ -858,8 +850,6 @@
 <body>
   <!-- ===== スプラッシュ（開いたときに 1回だけ） ===== -->
   <div id="splash" class="splash" onclick="hideSplash()" aria-hidden="true">
-    <!-- ラプラスの画像（kids-img/lapras.png）が置かれたら表示。ないときは何も出ない -->
-    <img class="sp-pk" src="kids-img/lapras.png" alt="" onerror="this.remove()">
     <div class="sp-card">
       <div class="sp-band">FAMILY TRIP TICKET</div>
       <div class="sp-body">

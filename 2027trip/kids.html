@@ -93,8 +93,6 @@
       padding: 2mm 7mm;
     }
     .head .lead { font-size: 17px; color: var(--soft); margin-top: 1.5mm; }
-    .head .pk { margin-left: auto; width: 30mm; height: 30mm; flex-shrink: 0; }
-    .pk { display: block; object-fit: contain; }
 
     .lines { display: grid; gap: 0; }
     .lines span { display: block; height: 13mm; border-bottom: 2.5px dashed #d6c6a6; }
@@ -120,9 +118,8 @@
       text-shadow: 4px 4px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
     }
     .cover .sub { font-size: 28px; font-weight: 900; color: var(--pink); margin: 0; }
-    .cover-art { position: relative; height: 150mm; margin: 6mm -4mm 0; }
+    .cover-art { position: relative; height: 126mm; margin: 8mm -4mm 0; }
     .cover-art svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .cover-art .pk { position: absolute; }
     .cover .date {
       font-size: 22px; margin: 6mm 0 4mm;
     }
@@ -168,7 +165,7 @@
       background: var(--bg);
       padding: 3mm 6mm 3mm 4mm;
     }
-    .fact svg, .fact .pk { width: 34mm; height: 34mm; }
+    .fact svg { width: 34mm; height: 34mm; }
     .fact h3 { margin: 0 0 1mm; font-size: 24px; font-weight: 900; }
     .fact p { margin: 0; font-size: 18px; line-height: 1.5; font-weight: 700; word-break: keep-all; overflow-wrap: anywhere; }
     .fact b { color: #b8422f; }
@@ -195,7 +192,6 @@
     .cell .e { font-size: 44px; line-height: 1.2; margin-bottom: 1mm; }
     .cell:nth-child(odd) { border-color: var(--pink); }
     .cell.free { background: var(--sun-l); border-color: var(--sun); }
-    .cell.free .pk { width: 22mm; height: 22mm; }
 
     /* ===== もちもの ===== */
     .mochi { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 8mm; }
@@ -276,6 +272,15 @@
     </symbol>
 
     <!-- まめちしき の え -->
+    <symbol id="f-manhole" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" fill="#9aa3ad" stroke="#6b7280" stroke-width="3"/>
+      <circle cx="50" cy="50" r="38" fill="#b9c0c8" stroke="#6b7280" stroke-width="2"/>
+      <g fill="none" stroke="#6b7280" stroke-width="3" stroke-linecap="round">
+        <path d="M18 44q8-6 16 0t16 0 16 0 16 0"/><path d="M16 58q8-6 16 0t16 0 16 0 16 0"/><path d="M22 72q7-5 14 0t14 0 14 0 14 0"/>
+      </g>
+      <circle cx="50" cy="28" r="8" fill="#ffd34e" stroke="#d9a21c" stroke-width="2"/>
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#4b5563" stroke-width="2" stroke-dasharray="3 5"/>
+    </symbol>
     <symbol id="f-zunda" viewBox="0 0 100 100">
       <ellipse cx="50" cy="74" rx="44" ry="14" fill="#fff" stroke="#c9b48c" stroke-width="3"/>
       <g stroke="#e0d3b8" stroke-width="2"><circle cx="30" cy="60" r="15" fill="#fffaf0"/><circle cx="70" cy="60" r="15" fill="#fffaf0"/><circle cx="50" cy="52" r="16" fill="#fffaf0"/></g>
@@ -423,10 +428,6 @@
     <p class="sub">ラプラスに あいに いこう！</p>
     <div class="cover-art">
       <svg class="scene" viewBox="0 0 320 210" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><use href="#miyagi"/></svg>
-      <!-- ポケモンの え（あとで さしかえ） -->
-      <img class="pk" src="kids-img/sample.svg" alt="" style="width:32mm;height:32mm;left:6mm;top:0">
-      <img class="pk" src="kids-img/sample.svg" alt="" style="width:32mm;height:32mm;left:50%;top:0;transform:translateX(-50%)">
-      <img class="pk" src="kids-img/sample.svg" alt="" style="width:32mm;height:32mm;right:6mm;top:0">
     </div>
     <p class="date">2027ねん 3がつ 20にち（ど）〜 21にち（にち）</p>
     <div class="name-box"><span>なまえ</span><span class="line"></span></div>
@@ -436,7 +437,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--pink-l)">
       <div><h2>✏️ わたしの こと</h2><div class="lead">じぶんの ことを かいてみよう！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="me-grid">
       <div class="box" style="--bc:var(--pink)"><h3>なまえ</h3><div class="lines"><span></span></div></div>
@@ -459,11 +459,10 @@
   <section class="sheet">
     <div class="head" style="--c:var(--mint-l)">
       <div><h2>💡 みやぎの まめちしき ①</h2><div class="lead">しってるかな？ よんでみよう！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="facts">
       <div class="fact" style="--bg:var(--sea-l)">
-        <img class="pk" src="kids-img/sample.svg" alt="">
+        <svg viewBox="0 0 100 100"><use href="#f-manhole"/></svg>
         <div><h3>ラプラス</h3><p>みやぎを おうえんしている ポケモン！ みやぎの あちこちに <b>ラプラスの こうえん</b>や マンホールが あるよ。</p></div>
       </div>
       <div class="fact" style="--bg:var(--mint-l)">
@@ -490,7 +489,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--mint-l)">
       <div><h2>💡 みやぎの まめちしき ②</h2><div class="lead">みつけたら おうちの ひとに おしえてね！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="facts">
       <div class="fact" style="--bg:var(--sun-l)">
@@ -521,7 +519,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--sun-l)">
       <div><h2>🎲 たびの びんご</h2><div class="lead">みつけたら <b style="color:#b8422f">シール</b>を はろう！ たて・よこ・ななめで びんご！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="bingo" id="bingo"></div>
     <span class="pageno">5</span>
@@ -531,7 +528,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--pink-l)">
       <div><h2>🎒 もちもの ちぇっく</h2><div class="lead">じゅんび できたら ✓ を かこう！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <ul class="mochi" id="mochi"></ul>
     <div class="box" style="margin-top:7mm;--bc:var(--mint);--bg:var(--mint-l)">
@@ -545,7 +541,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--sea-l)">
       <div><h2>🌀 めいろ</h2><div class="lead">まさむねくん、おしろまで いけるかな？</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="art" id="maze"></div>
     <span class="pageno">7</span>
@@ -555,7 +550,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--mint-l)">
       <div><h2>🔍 まちがい さがし</h2><div class="lead">うえと したの え、ちがう ところが <b style="color:#b8422f">5つ</b> あるよ！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="diff">
       <div class="art" id="diffA"><span class="diff-label">あ</span></div>
@@ -569,7 +563,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--pink-l)">
       <div><h2>🖍️ ぬりえ</h2><div class="lead">すきな いろで ぬってね！ ポケモンも かきたしてみよう</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="art" id="nurie"></div>
     <span class="pageno">9</span>
@@ -579,7 +572,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--sun-l)">
       <div><h2>🎨 おえかき</h2><div class="lead">たびで いちばん たのしかった ことを かこう！</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="art draw-art"></div>
     <span class="pageno">10</span>
@@ -589,7 +581,6 @@
   <section class="sheet">
     <div class="head" style="--c:var(--sea-l)">
       <div><h2>📖 おもいで にっき</h2><div class="lead">どんな 1にちだったかな？</div></div>
-      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
     <div class="diary">
       <div class="box" style="--bc:var(--pink)">
@@ -619,7 +610,7 @@
   ];
   document.getElementById('bingo').innerHTML = BINGO.map(c => c
     ? `<div class="cell"><span class="e">${c[0]}</span>${c[1]}</div>`
-    : `<div class="cell free"><img class="pk" src="kids-img/sample.svg" alt="">フリー</div>`).join('');
+    : `<div class="cell free"><span class="e">★</span>フリー</div>`).join('');
 
   /* ===== もちもの ===== */
   const MOCHI = [
