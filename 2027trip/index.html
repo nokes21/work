@@ -1793,10 +1793,10 @@
 
     /* ===== 家族タイル（2×2・開閉式・並びは毎回ランダム） ===== */
     const FAMILIES = [
-      { id: 'akari',   name: 'あかり家',  home: 'mansion', color: '#c8553d', members: ['akari-papa', 'akari-mama', 'minori', 'akari'] },
-      { id: 'kasumi',  name: 'かすみ家',  home: 'house',   color: '#e07a3a', members: ['kasumi-papa', 'kasumi-mama', 'kasumi', 'miori'] },
-      { id: 'miharu',  name: 'みはる家',  home: 'mansion', color: '#d9961c', members: ['miharu-papa', 'miharu-mama', 'miharu'] },
-      { id: 'natsuki', name: 'なつき家',  home: 'house',   color: '#6b7280', members: ['natsuki-papa', 'natsuki-mama', 'natsuki', 'fuji'] },
+      { id: 'akari',   name: '原口家',  home: 'mansion', color: '#c8553d', members: ['akari-papa', 'akari-mama', 'minori', 'akari'] },
+      { id: 'kasumi',  name: '小澤家',  home: 'house',   color: '#e07a3a', members: ['kasumi-papa', 'kasumi-mama', 'kasumi', 'miori'] },
+      { id: 'miharu',  name: '竹内家',  home: 'mansion', color: '#d9961c', members: ['miharu-papa', 'miharu-mama', 'miharu'] },
+      { id: 'natsuki', name: '坪田家',  home: 'house',   color: '#6b7280', members: ['natsuki-papa', 'natsuki-mama', 'natsuki', 'fuji'] },
     ];
     for (let i = FAMILIES.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [FAMILIES[i], FAMILIES[j]] = [FAMILIES[j], FAMILIES[i]]; }
     let openFam = null;
