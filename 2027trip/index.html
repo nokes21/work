@@ -1163,7 +1163,6 @@
             <select id="paySplit" class="field span2">
               <option value="people">人数割（子ども料金あり）</option>
               <option value="family">家族で均等</option>
-              <option value="adult">大人だけ</option>
             </select>
             <button type="submit" class="btn span2">記録する</button>
             <p class="split-note span2" id="splitNote"></p>
@@ -1585,7 +1584,7 @@
       'みはる': { adult: 2, child: 1, baby: 0 },   // 竹内家
       'なつき': { adult: 2, child: 1, baby: 1 },   // 坪田家
     };
-    const SPLIT_LABEL = { people: '人数割', family: '家族均等', adult: '大人のみ' };
+    const SPLIT_LABEL = { people: '人数割', family: '家族均等', adult: '家族均等' };
     const FAMILIES_ORDER = ['あかり', 'かすみ', 'みはる', 'なつき'];
     function splitWeight(f, split) {
       const n = FAMILY_PEOPLE[f];
