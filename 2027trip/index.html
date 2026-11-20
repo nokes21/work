@@ -1061,6 +1061,15 @@
             <i class="fa-solid fa-lock" style="margin-top:3px"></i>
             <span>このページの内容（持ち物・メモ・お土産）は、このスマホにだけ保存されます。他の家族には表示されません。</span>
           </div>
+          <div class="page-head"><h2>お土産リスト</h2><span class="en">SOUVENIRS</span></div>
+          <form onsubmit="addSouvenirItem(event)" class="add-form">
+            <input type="text" id="souvenirItemInput" placeholder="例: 笹かま、ずんだ餅" class="field">
+            <button type="submit" class="btn">追加</button>
+          </form>
+          <div id="souvenirList"></div>
+        </div>
+
+        <div class="page">
           <div class="page-head"><h2>持ち物チェック</h2><span class="en">PACKING</span></div>
           <form onsubmit="addBelongingItem(event)" class="add-form">
             <input type="text" id="belongingInput" placeholder="持ち物を追加…" class="field">
@@ -1076,15 +1085,6 @@
             <button type="submit" class="btn" id="noteBtn">保存</button>
           </form>
           <div id="noteList"></div>
-        </div>
-
-        <div class="page">
-          <div class="page-head"><h2>お土産リスト</h2><span class="en">SOUVENIRS</span></div>
-          <form onsubmit="addSouvenirItem(event)" class="add-form">
-            <input type="text" id="souvenirItemInput" placeholder="例: 笹かま、ずんだ餅" class="field">
-            <button type="submit" class="btn">追加</button>
-          </form>
-          <div id="souvenirList"></div>
         </div>
       </section>
 
