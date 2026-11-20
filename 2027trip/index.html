@@ -1705,7 +1705,7 @@
           const id = c.dataset.id, ki = KID_IDS.indexOf(id);
           const frames = ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id];
           if (!frames) return;
-          const i = ki >= 0 ? ki : 7, small = ki >= 0 && art.KIDS[ki].size === art.SMALL;
+          const i = ki >= 0 ? ki : 7, small = ki >= 0 && (art.KIDS[ki].size === art.SMALL || art.KIDS[ki].size === art.CRAWL);
           const dpr = window.devicePixelRatio || 1, cw = 48, ch = 60;
           if (c.width !== cw * dpr) { c.width = cw * dpr; c.height = ch * dpr; }
           const g = c.getContext('2d');
@@ -2124,6 +2124,12 @@
         body: ['....CCCCC...', '...CCCCCCC..', '...CCCCCCC..', '...CCCCCSS..', '....DDDDD...', '...DDDDDDD..', '..DDDDDDDDD.'],
         legs: [['....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....BBB....']],
       };
+      // ハイハイ（ふじくん・1さい）みぎむき 12×9
+      const CRAWL = {
+        head: ['.......HHHH.', '......HHHHHH', '......HSSSSH', '......HSSESS', '......SSSSKS'],
+        body: ['..CCCCCSSSS.', '.DDCCCCCC...', '.DDDCCCCC...'],
+        legs: [['.L.L....CS..', 'B..L.....SS.'], ['..LL...SC...', '..BL...SS...']],
+      };
       const SMALL = {
         head: ['....HHHH....', '...HHHHHH...', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
         body: ['.....CCCS...', '....DDDD....'],
@@ -2145,7 +2151,7 @@
         { size: BIG, style: 'twin', H: '#1d1b22', C: '#6fd3b0', D: '#2f8f6b', R: '#ff6fa3' },
         { size: BIG, style: 'long', H: '#5a3522', C: '#8fd3f5', D: '#2f7fc4' },
         { size: SMALL, style: 'bun', H: '#3a2418', C: '#ffb37a', D: '#e0544a' },
-        { size: SMALL, style: 'short', H: '#2b2420', C: '#7cc46a', D: '#3a62a8', boy: true },
+        { size: CRAWL, style: 'short', H: '#2b2420', C: '#7cc46a', D: '#3a62a8' },
       ];
       const PAL = { S: '#ffd9b8', E: '#2b2420', K: '#ff9aa8', L: '#ffd9b8', B: '#5a3a2a' };
       const PX = 2, W = 12;
@@ -2196,7 +2202,7 @@
         const fr = [sprite(def, 0), sprite(def, 1)];
         if (ki >= 0) SPR[ki] = fr; else ADULT_SPR[id] = fr;
       }
-      window.KID_ART = { SPR, KIDS, W, PX, SMALL, ADULT_SPR, recolor };
+      window.KID_ART = { SPR, KIDS, W, PX, SMALL, CRAWL, ADULT_SPR, recolor };
 
       const cv = document.getElementById('parade');
       if (!cv) return;
@@ -2233,7 +2239,7 @@
         const jump = t - jumpAt;
         const sw = W * PX;
         KIDS.forEach((k, i) => {
-          const small = k.size === SMALL;
+          const small = k.size === SMALL || k.size === CRAWL;
           phase[i] += dt * (small ? 7 : 5.5) * Math.pow(factor, 0.75);
           const x = Math.round(lead + i * gap + (small ? 2 : 0));
           if (x < -30 || x > cw + 10) return;
