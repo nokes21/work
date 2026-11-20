@@ -1208,7 +1208,7 @@
         <span class="s3">2027.03.21</span>
       </div>
       <h3>お疲れさまでした！</h3>
-      <p>またみんなで遊びに行きましょう♪</p>
+      <p>またみんなで遊びに行きましょう！</p>
       <button onclick="closeFinishModal()" class="btn btn-wide">閉じる</button>
     </div>
   </div>
@@ -1227,8 +1227,8 @@
     ];
 
     let belongings = [];
-    let souvenirItems = [];
-    let souvenirChecked = {};
+    let souvenirs = [];   // { text, checked }
+    const initialSouvenirs = ['ずんだもち'];
     let payments = [];
     let simTime = null;
 
@@ -1370,13 +1370,12 @@
       const container = document.getElementById('souvenirList');
       if (!container) return;
       container.innerHTML = '';
-      if (souvenirItems.length === 0) {
+      if (souvenirs.length === 0) {
         container.innerHTML = '<p class="empty">買いたいお土産を追加してください♪</p>';
         return;
       }
-      souvenirItems.forEach((item, index) => {
-        const id = `souvenir-${index}`;
-        container.appendChild(createTodoElement(index, item, !!souvenirChecked[id], 'souvenir'));
+      souvenirs.forEach((item, index) => {
+        container.appendChild(createTodoElement(index, item.text, item.checked, 'souvenir'));
       });
     }
 
@@ -1387,7 +1386,7 @@
       const fn = type === 'todo' ? 'toggleTodo' : 'toggleSouvenir';
       const rmFn = type === 'todo' ? 'removeBelongingItem' : 'removeSouvenirItem';
       div.innerHTML = `
-        ${type === 'todo' ? '<span class="drag-handle" aria-label="ドラッグして並び替え" onpointerdown="startTodoDrag(event, this)">≡</span>' : ''}
+        <span class="drag-handle" aria-label="ドラッグして並び替え" onpointerdown="startTodoDrag(event, this, '${type}')">≡</span>
         <label>
           <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="${fn}(${index}, this.checked)">
           <span class="check-box"></span>
@@ -1399,7 +1398,7 @@
     }
 
     // ドラッグで ならびかえ（もちもの）
-    function startTodoDrag(e, handle) {
+    function startTodoDrag(e, handle, type) {
       e.preventDefault();
       const item = handle.closest('.check-item'), list = item.parentElement;
       item.classList.add('dragging');
@@ -1418,8 +1417,8 @@
         handle.removeEventListener('pointercancel', up);
         item.classList.remove('dragging');
         const order = [...list.children].map(el => +el.dataset.index);
-        belongings = order.map(i => belongings[i]);
-        saveLocalStorage(); renderTodoList();
+        if (type === 'souvenir') { souvenirs = order.map(i => souvenirs[i]); saveLocalStorage(); renderSouvenirList(); }
+        else { belongings = order.map(i => belongings[i]); saveLocalStorage(); renderTodoList(); }
       };
       handle.addEventListener('pointermove', move);
       handle.addEventListener('pointerup', up);
@@ -1427,7 +1426,7 @@
     }
 
     function toggleTodo(index, isChecked) { belongings[index].checked = isChecked; saveLocalStorage(); renderTodoList(); }
-    function toggleSouvenir(index, isChecked) { souvenirChecked[`souvenir-${index}`] = isChecked; saveLocalStorage(); renderSouvenirList(); }
+    function toggleSouvenir(index, isChecked) { souvenirs[index].checked = isChecked; saveLocalStorage(); renderSouvenirList(); }
 
     function addBelongingItem(e) {
       e.preventDefault();
@@ -1443,11 +1442,11 @@
       e.preventDefault();
       const input = document.getElementById('souvenirItemInput');
       if (!input.value.trim()) return;
-      souvenirItems.unshift(input.value.trim());
+      souvenirs.unshift({ text: input.value.trim(), checked: false });
       input.value = '';
       saveLocalStorage(); renderSouvenirList();
     }
-    function removeSouvenirItem(index) { souvenirItems.splice(index, 1); saveLocalStorage(); renderSouvenirList(); }
+    function removeSouvenirItem(index) { souvenirs.splice(index, 1); saveLocalStorage(); renderSouvenirList(); }
 
     // 立替・割り勘機能
     function addPayment(e) {
@@ -1599,16 +1598,16 @@
     function saveLocalStorage() {
       try {
         localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
-        localStorage.setItem('miyagi_trip_souvenir_items', JSON.stringify(souvenirItems));
-        localStorage.setItem('miyagi_trip_souvenir_checked', JSON.stringify(souvenirChecked));
+        localStorage.setItem('miyagi_trip_souvenirs_v2', JSON.stringify(souvenirs));
         if (!paymentsRef) localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
       } catch (e) {}
     }
 
     function loadLocalStorage() {
-      let b = null, s = null, sc = null, p = null;
+      let b = null, s = null, sc = null, p = null, s2 = null;
       try {
         b = localStorage.getItem('miyagi_trip_belongings_v2');
+        s2 = localStorage.getItem('miyagi_trip_souvenirs_v2');
         s = localStorage.getItem('miyagi_trip_souvenir_items');
         sc = localStorage.getItem('miyagi_trip_souvenir_checked');
         p = localStorage.getItem('miyagi_trip_payments');
@@ -1620,8 +1619,15 @@
         belongings = initialBelongings.map(item => ({ text: item, checked: false }));
       }
 
-      if (s) souvenirItems = JSON.parse(s);
-      if (sc) souvenirChecked = JSON.parse(sc);
+      // お土産：あたらしい ほぞん → むかしの ほぞんから ひきつぎ → さいしょの あたい
+      try {
+        if (s2) souvenirs = JSON.parse(s2);
+        else {
+          const items = s ? JSON.parse(s) : [], checked = sc ? JSON.parse(sc) : {};
+          souvenirs = items.map((t, i) => ({ text: t, checked: !!checked[`souvenir-${i}`] }));
+        }
+      } catch (e) { souvenirs = []; }
+      if (!s2 && souvenirs.length === 0) souvenirs = initialSouvenirs.map(t => ({ text: t, checked: false }));
       if (p && !FIREBASE_CONFIG) payments = JSON.parse(p);
     }
 
@@ -2368,7 +2374,7 @@
       const ctx = cv.getContext('2d'), t0 = performance.now();
       function draw(now) {
         if (!document.getElementById('splash')) return;
-        const t = (now - t0) / 1000, dpr = window.devicePixelRatio || 1;
+        const t = Math.max(0, (now - t0) / 1000), dpr = window.devicePixelRatio || 1;
         const cw = cv.clientWidth, ch = cv.clientHeight, S = 2;
         if (cv.width !== Math.round(cw * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, cw, ch);
