@@ -590,19 +590,30 @@
       cursor: pointer;
     }
     .spot-card {
-      display: grid; grid-template-columns: 46px 1fr; gap: 12px;
       background: #fff;
       border: 1.5px solid var(--paper-line);
       border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
       transition: border-color .3s, box-shadow .3s;
     }
-    .spot-icon {
-      width: 46px; height: 46px; border-radius: 12px;
-      background: rgba(43,122,140,.12);
-      display: grid; place-items: center; font-size: 24px;
+    .spot-photo { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--paper); }
+    .spot-photo-empty {
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 700; color: var(--ink-soft);
+      background: repeating-linear-gradient(45deg, var(--paper) 0 10px, #f3ecdc 10px 20px);
     }
+    .spot-body { padding: 12px; }
+    .spot-when { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .spot-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .spot-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 6px;
+      border-radius: 8px;
+      background: var(--ink); color: var(--paper);
+      font-size: 13px; font-weight: 700; text-decoration: none;
+    }
+    .spot-btn.off { background: var(--paper); color: var(--ink-soft); border: 1.5px dashed var(--paper-line); font-weight: 600; font-size: 12px; }
     .spot-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .spot-card h3 { margin: 0; font-size: 15px; font-weight: 900; }
     .spot-card .sub { font-size: 11px; color: var(--ink-soft); }
@@ -995,7 +1006,7 @@
             <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどで共有してください。</span>
           </div>
           <div class="page-head"><h2>思い出スライドショー</h2><span class="en">PICTURE DIARY</span></div>
-          <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます♪</p>
+          <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます。</p>
 
           <label class="field-label" for="mvTitle">タイトル</label>
           <input id="mvTitle" class="field" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
@@ -1142,16 +1153,17 @@
     let paymentsRef = null;
 
     /* ===== 行き先（サンプル） =====
-       sched: この行き先に関係する日程の id（日程タブの sched-1〜7） */
+       sched: この行き先に関係する日程の id（日程タブの sched-1〜7）
+       photo: 写真のファイル（例 'spot-img/matsushima.jpg'）、url: 公式サイトなどの URL */
     const SPOTS = [
-      { id: 'matsushima', icon: '🦪', name: '松島海岸', area: '宮城郡松島町', tag: '観光',
-        desc: '日本三景のひとつ。焼き牡蠣の食べ歩きや遊覧船も楽しめます。', map: '松島海岸', sched: ['sched-2'] },
-      { id: 'yado', icon: '♨️', name: '宿（未定）', area: '決まったら住所を入れます', tag: '宿泊',
-        desc: '宿名・住所・チェックイン時間・駐車場などをここにまとめます。', map: '', sched: ['sched-3', 'sched-4'] },
-      { id: 'lapras', icon: '🦕', name: 'ラプラス公園inせんだい', area: '仙台市海岸公園冒険広場', tag: 'メイン',
-        desc: 'ラプラスの大きな遊具やふわふわドームがある公園。', map: '仙台市海岸公園冒険広場', sched: ['sched-5'] },
-      { id: 'sendai', icon: '🛍️', name: '仙台駅周辺', area: '仙台市青葉区', tag: 'ランチ・お土産',
-        desc: '牛タンランチ、ずんだスイーツ、お土産探し。', map: '仙台駅', sched: ['sched-6'] },
+      { id: 'matsushima', name: '松島海岸', area: '宮城郡松島町', tag: '観光',
+        desc: '日本三景のひとつ。焼き牡蠣の食べ歩きや遊覧船も楽しめます。', map: '松島海岸', sched: ['sched-2'], photo: '', url: '' },
+      { id: 'yado', name: '宿（未定）', area: '決まったら住所を入れます', tag: '宿泊',
+        desc: '宿名・住所・チェックイン時間・駐車場などをここにまとめます。', map: '', sched: ['sched-3', 'sched-4'], photo: '', url: '' },
+      { id: 'lapras', name: 'ラプラス公園inせんだい', area: '仙台市海岸公園冒険広場', tag: 'メイン',
+        desc: 'ラプラスの大きな遊具やふわふわドームがある公園。', map: '仙台市海岸公園冒険広場', sched: ['sched-5'], photo: '', url: '' },
+      { id: 'sendai', name: '仙台駅周辺', area: '仙台市青葉区', tag: 'ランチ・お土産',
+        desc: '牛タンランチ、ずんだスイーツ、お土産探し。', map: '仙台駅', sched: ['sched-6'], photo: '', url: '' },
     ];
 
     // 初期化
@@ -1184,16 +1196,17 @@
       const list = document.getElementById('spotList');
       list.innerHTML = SPOTS.map(sp => `
         <div class="spot-card" id="spot-${sp.id}">
-          <div class="spot-icon">${sp.icon}</div>
-          <div>
+          ${sp.photo ? `<img class="spot-photo" src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : `<div class="spot-photo spot-photo-empty">写真は準備中です</div>`}
+          <div class="spot-body">
             <div class="spot-top">
               <div><h3>${esc(sp.name)}</h3><div class="sub">${esc(sp.area)}</div></div>
               <span class="label-stamp ls-red">${esc(sp.tag)}</span>
             </div>
             <p>${esc(sp.desc)}</p>
-            <div class="spot-actions">
-              ${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}
-              ${sp.map ? `<a href="https://maps.google.com/?q=${encodeURIComponent(sp.map)}" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>地図</a>` : ''}
+            <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
+            <div class="spot-btns">
+              ${sp.map ? `<a href="https://maps.google.com/?q=${encodeURIComponent(sp.map)}" target="_blank" class="spot-btn"><i class="fa-solid fa-location-dot"></i>地図</a>` : `<span class="spot-btn off">地図（準備中）</span>`}
+              ${sp.url ? `<a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-globe"></i>Web</a>` : `<span class="spot-btn off">Web（準備中）</span>`}
             </div>
           </div>
         </div>`).join('');
