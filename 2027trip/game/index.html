@@ -78,6 +78,7 @@ button{font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:non
   background:radial-gradient(circle at 50% 35%,#fff 0,#ffe6e1 72%);box-shadow:inset 0 0 0 4px #fff,0 0 0 3px var(--gold)}
 .akari .portrait{background:radial-gradient(circle at 50% 35%,#fff 0,#e2f0c6 72%)}
 .portrait svg,.portrait img,.mini svg,.mini img,.result-portrait svg,.result-portrait img{width:100%;height:100%;display:block;object-fit:cover}
+img.pix{image-rendering:pixelated;image-rendering:crisp-edges;object-fit:contain!important}
 .player strong{font-size:23px;font-weight:900}
 .player small{font-size:12px;color:var(--ink-soft)}
 .other{margin-top:16px;background:var(--lilac-l);border-radius:20px;padding:12px}
@@ -371,7 +372,7 @@ button{font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:non
     <path d="M18 60h24M18 68h24M18 76h24" stroke="#ffd34e" stroke-width="2"/>
     <circle cx="30" cy="36" r="14" fill="#ffe1c4" stroke="#c9a582" stroke-width="2"/>
     <path d="M14 34a16 16 0 0 1 32 0c-3-3-6-4-8-4h-16c-2 0-5 1-8 4z" fill="#2b2b33" stroke="#1a1a20" stroke-width="2"/>
-    <path d="M3 20Q30 -6 57 20Q30 6 3 20z" fill="#ffd34e" stroke="#d9a21c" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M4 2Q30 40 56 2Q30 26 4 2z" fill="#ffd34e" stroke="#d9a21c" stroke-width="2" stroke-linejoin="round"/>
     <circle cx="30" cy="22" r="3" fill="#ffd34e" stroke="#d9a21c" stroke-width="1.5"/>
     <circle cx="25" cy="38" r="2" fill="#2b2420"/>
     <ellipse cx="35.5" cy="38" rx="4" ry="3.2" fill="#2b2420"/><path d="M31 36l-14-4M40 36l5-3" stroke="#2b2420" stroke-width="1.4"/>
@@ -593,6 +594,40 @@ const OBJECT_GROUPS=[
 ];
 const OBJECTS=OBJECT_GROUPS.flat();
 const PRINCESS={};
+/* ==== ドット絵の こどもたち（しおりと おなじ オリジナルの キャラクター） ==== */
+const PIX=(()=>{
+  const BIG={head:['....HHHH....','...HHHHHH...','..HHHHHHHH..','..HHHSSSSH..','..HHSSSESS..','..HHSSSSKS..','...H.SSSS...'],
+    body:['.....CCC....','....CCCCC...','....CCCCSS..','....DDDDD...','...DDDDDDD..'],legs:['....L...L...','....L...L...','...BB...BB..']};
+  const SMALL={head:['....HHHH....','...HHHHHH...','..HHHSSSSH..','..HHSSSESS..','..HHSSSSKS..','...H.SSSS...'],
+    body:['.....CCCS...','....DDDD....'],legs:['....L..L....','...BB..BB...']};
+  const STYLE={long:[[6,2],[6,3],[7,3],[8,3]],pony:[[2,1],[3,0],[3,1],[4,1],[2,2,'R']],bob:[],twin:[[4,1],[5,0],[5,1],[6,1],[4,2,'R']],bun:[[0,2],[0,3],[-1,3]],short:[]};
+  const KIDS={
+    'みのり':{id:'minori',size:BIG,style:'pony',H:'#4a2c1d',C:'#e0544a',D:'#2f3f6b',R:'#ffd34e'},
+    'あかり':{id:'akari',size:BIG,style:'long',H:'#1d1b22',C:'#ff8db8',D:'#c9467f'},
+    'かすみ':{id:'kasumi',size:BIG,style:'bob',H:'#7a4a28',C:'#ffd34e',D:'#c97a2b'},
+    'みはる':{id:'miharu',size:BIG,style:'twin',H:'#1d1b22',C:'#6fd3b0',D:'#2f8f6b',R:'#ff6fa3'},
+    'なつき':{id:'natsuki',size:BIG,style:'long',H:'#5a3522',C:'#8fd3f5',D:'#2f7fc4'},
+    'みおり':{id:'miori',size:SMALL,style:'bun',H:'#3a2418',C:'#ffb37a',D:'#e0544a'},
+  };
+  const PAL={S:'#ffd9b8',E:'#2b2420',K:'#ff9aa8',L:'#ffd9b8',B:'#5a3a2a'};
+  const COLORS={}; // プロフィールの すきな色
+  const cache={};
+  const shade=(hex,k)=>{const n=parseInt(hex.slice(1),16);return'#'+[n>>16,(n>>8)&255,n&255].map(c=>Math.max(0,Math.min(255,Math.round(c*k))).toString(16).padStart(2,'0')).join('')};
+  function url(name){
+    const base=KIDS[name];if(!base)return null;
+    const col=COLORS[base.id];const key=name+(col||'');
+    if(cache[key])return cache[key];
+    const kid=col?{...base,C:col,D:shade(col,.62)}:base;
+    const rows=[...kid.size.head,...kid.size.body,...kid.size.legs].map(r=>r.split(''));
+    let top=0;(STYLE[kid.style]||[]).forEach(([r])=>{if(r<0){rows.unshift('............'.split(''));top++}});
+    (STYLE[kid.style]||[]).forEach(([r,c,ch])=>{const row=rows[r+top];if(row)row[c]=ch||'H'});
+    const W=20,Hh=20,cv=document.createElement('canvas');cv.width=W;cv.height=Hh;
+    const g=cv.getContext('2d'),ox=4,oy=Hh-rows.length-1;
+    rows.forEach((row,y)=>row.forEach((ch,x)=>{if(ch==='.')return;g.fillStyle=kid[ch]||PAL[ch]||'#000';g.fillRect(ox+(11-x),oy+y,1,1)}));
+    return cache[key]=cv.toDataURL();
+  }
+  return {url,KIDS,COLORS};
+})();
 const LABEL={shape:'おなじ かたち',number:'すうじの じゅんばん',flash:'いっしゅん クイズ',stop:'ぴったり ストップ'};
 const STOP={rounds:3,min:5,max:10,fadeAt:2000,giveUp:25}; // ぴったりストップ：かいすう・びょうすうのはんい・きえるまで（ms）
 const STORE='miyagiScores';
@@ -620,7 +655,8 @@ let player='みのり',mission='shape',timerId=null,runId=0,pending=[],startedAt
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const icon=(id,vb='0 0 24 24')=>`<svg viewBox="${vb}" aria-hidden="true"><use href="#${id}"/></svg>`;
-function avatar(name){const img=PORTRAIT_IMG[name];return img?`<img src="${img}" alt="">`:icon(PRINCESS[name]||'p-guest','0 0 120 120')}
+function avatar(name){const img=PORTRAIT_IMG[name];if(img)return `<img src="${img}" alt="">`;const px=PIX.url(name);return px?`<img class="pix" src="${px}" alt="">`:icon(PRINCESS[name]||'p-guest','0 0 120 120')}
+function refreshAvatars(){document.querySelectorAll('[data-portrait]').forEach(p=>p.innerHTML=avatar(p.dataset.portrait));if(current!=='home'){['menuAvatar','gameAvatar'].forEach(i=>$(i).innerHTML=avatar(player))}if(current==='ranking')renderRanking()}
 
 function show(id){['home','menu','game','result','ranking','rules'].forEach(s=>$(s).classList.toggle('hidden',s!==id));current=id;window.scrollTo(0,0)}
 function goHome(){stopTimer();show('home')}
@@ -897,6 +933,12 @@ async function initShared(){
     const base='https://www.gstatic.com/firebasejs/'+FIREBASE_VERSION;
     await loadScript(base+'/firebase-app-compat.js');await loadScript(base+'/firebase-database-compat.js');
     firebase.initializeApp(FIREBASE_CONFIG);scoresDb=firebase.database();
+    // メンバーの「すきな色」を ドット絵の ふくの いろに
+    scoresDb.ref('trips/miyagi2027/profiles').on('value',snap=>{
+      const v=snap.val()||{};Object.keys(PIX.COLORS).forEach(k=>delete PIX.COLORS[k]);
+      Object.values(PIX.KIDS).forEach(k=>{const c=v[k.id]&&v[k.id].color;if(typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c))PIX.COLORS[k.id]=c});
+      refreshAvatars();
+    },()=>{});
     MISSIONS.forEach(m=>{
       scoresDb.ref(SCORE_PATH+'/'+m).orderByChild('score').limitToLast(10).on('value',snap=>{
         const arr=[];snap.forEach(c=>{const v=c.val();if(v&&typeof v.score==='number'&&typeof v.player==='string')arr.push(v)});
