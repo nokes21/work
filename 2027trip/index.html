@@ -674,6 +674,14 @@
     .kid-form { display: grid; gap: 5px; margin-top: 8px; }
     .kid-form label { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
     .kid-form .field { width: 100%; font-size: 16px; padding: 6px 8px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sw { position: relative; cursor: pointer; }
+    .sw input { position: absolute; opacity: 0; pointer-events: none; }
+    .sw span { display: block; width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(31,53,80,.2); }
+    .sw-none span { width: auto; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 24px; background: #fff; color: var(--ink-soft); }
+    .sw input:checked + span { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+    .sw input:focus-visible + span { outline: 2px solid var(--sea); outline-offset: 3px; }
+    .sw-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(31,53,80,.25); vertical-align: -1px; margin-right: 5px; }
     .kid-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
     .kid-form .row .btn { padding: 8px; }
     .btn.ghost { background: #fff; color: var(--ink); border: 1.5px solid var(--ink-soft); }
@@ -908,6 +916,16 @@
             </div>
           </div>
         </div>
+        <!-- ===== 現在地テスト ===== -->
+        <details class="test-panel">
+          <summary><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト</summary>
+          <div class="row">
+            <button onclick="setSimTime('2027-03-20T11:00:00')">1日目昼</button>
+            <button onclick="setSimTime('2027-03-21T10:30:00')">2日目公園</button>
+            <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
+            <button onclick="resetSimTime()">解除</button>
+          </div>
+        </details>
       </section>
 
       <!-- ===== 2. メンバー ===== -->
@@ -1057,16 +1075,6 @@
 
     </main>
 
-    <!-- ===== 現在地テスト ===== -->
-    <details class="test-panel">
-      <summary><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト</summary>
-      <div class="row">
-        <button onclick="setSimTime('2027-03-20T11:00:00')">1日目昼</button>
-        <button onclick="setSimTime('2027-03-21T10:30:00')">2日目公園</button>
-        <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
-        <button onclick="resetSimTime()">解除</button>
-      </div>
-    </details>
   </div>
 
   <!-- ===== おつかれさま ===== -->
@@ -1486,7 +1494,20 @@
     const KID_NAMES = { minori: 'みのり', akari: 'あかり', kasumi: 'かすみ', miharu: 'みはる', natsuki: 'なつき', miori: 'みおり', fuji: 'ふじ' };
     ['akari', 'kasumi', 'miharu', 'natsuki'].forEach(f => { KID_NAMES[`${f}-papa`] = 'パパ'; KID_NAMES[`${f}-mama`] = 'ママ'; });
     const PROFILE_FIELDS = [['like', 'すきなもの', 'ずんだ、ラプラス'], ['fun', 'たのしみ', 'ラプラスこうえん'], ['msg', 'ひとこと', 'よろしくお願いします！']];
+    const COLORS = [
+      ['#e0544a', 'あか'], ['#ff8db8', 'ピンク'], ['#f08a3c', 'オレンジ'], ['#ffd34e', 'きいろ'], ['#9ccc4a', 'きみどり'],
+      ['#3f9b6e', 'みどり'], ['#8fd3f5', 'みずいろ'], ['#2f7fc4', 'あお'], ['#2f3f6b', 'こん'], ['#9b7ad8', 'むらさき'],
+      ['#8a5a3a', 'ちゃいろ'], ['#f2f2f2', 'しろ'], ['#9aa3ad', 'グレー'], ['#333333', 'くろ'],
+    ];
+    const COLOR_NAME = Object.fromEntries(COLORS);
     let profiles = {}, editingKid = null, profilesRef = null;
+    function applyColors() {
+      const art = window.KID_ART; if (!art) return;
+      Object.keys(KID_NAMES).forEach(id => {
+        const c = profiles[id] && profiles[id].color;
+        art.recolor(id, KID_IDS.indexOf(id), COLOR_NAME[c] ? c : null);
+      });
+    }
     const kidJump = {};
 
     function loadLocalProfiles() { try { profiles = JSON.parse(localStorage.getItem('miyagi_trip_profiles') || '{}'); } catch (e) { profiles = {}; } }
@@ -1502,24 +1523,33 @@
               <form class="kid-form" onsubmit="saveKid(event, '${id}')">
                 <label>なまえ</label><input class="field" name="name" maxlength="8" value="${esc(kidName(id))}" required>
                 ${PROFILE_FIELDS.map(([k, label, ph]) => `<label>${label}</label><input class="field" name="${k}" maxlength="30" placeholder="例: ${ph}" value="${esc(pr[k] || '')}">`).join('')}
+                <label>すきな色（ドット絵の服の色になります）</label>
+                <div class="swatches">
+                  <label class="sw sw-none"><input type="radio" name="color" value="" ${!COLOR_NAME[pr.color] ? 'checked' : ''} onchange="previewColor('${id}', '')"><span>なし</span></label>
+                  ${COLORS.map(([c, n]) => `<label class="sw" title="${n}"><input type="radio" name="color" value="${c}" ${pr.color === c ? 'checked' : ''} onchange="previewColor('${id}', '${c}')"><span style="background:${c}"></span></label>`).join('')}
+                </div>
                 <div class="row"><button type="button" class="btn ghost" onclick="cancelKid()">やめる</button><button type="submit" class="btn">保存</button></div>
               </form></div>`;
           }
           return `<div class="kid-card" id="kid-${id}">
             <div class="kid-head"><canvas class="kid-sprite" data-id="${id}"></canvas><span class="kid-nm">${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
-            <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}</dl>
+            <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}
+              <dt>すきな色</dt><dd class="${COLOR_NAME[pr.color] ? '' : 'empty-v'}">${COLOR_NAME[pr.color] ? `<i class="sw-dot" style="background:${pr.color}"></i>${COLOR_NAME[pr.color]}` : '—'}</dd></dl>
           </div>`;
         }).join('');
       });
       document.querySelectorAll('.kid-sprite').forEach(c => c.onclick = () => { kidJump[c.dataset.id] = performance.now() / 1000; });
     }
     function editKid(id) { editingKid = id; renderKidCards(); const f = document.querySelector(`#kid-${id} input[name=name]`); if (f) f.focus(); }
-    function cancelKid() { editingKid = null; renderKidCards(); }
+    function cancelKid() { editingKid = null; applyColors(); renderKidCards(); }
+    function previewColor(id, c) { const a = window.KID_ART; if (a) a.recolor(id, KID_IDS.indexOf(id), c || null); }
     function saveKid(e, id) {
       e.preventDefault();
       const f = e.target;
       const data = { name: f.name.value.trim().slice(0, 8) || KID_NAMES[id] };
       PROFILE_FIELDS.forEach(([k]) => { const v = f[k].value.trim().slice(0, 30); if (v) data[k] = v; });
+      const col = (f.querySelector('input[name=color]:checked') || {}).value;
+      if (COLOR_NAME[col]) data.color = col;
       editingKid = null;
       if (profilesRef) {
         profilesRef.child(id).set({ ...data, updatedAt: firebase.database.ServerValue.TIMESTAMP })
@@ -1532,20 +1562,22 @@
         profiles[id] = data;
         try { localStorage.setItem('miyagi_trip_profiles', JSON.stringify(profiles)); } catch (err) {}
       }
+      applyColors();
       renderKidCards();
     }
     function loadLocalProfilesFromServer() {
-      if (profilesRef) profilesRef.once('value').then(snap => { profiles = snap.val() || {}; renderKidCards(); }).catch(() => {});
+      if (profilesRef) profilesRef.once('value').then(snap => { profiles = snap.val() || {}; applyColors(); renderKidCards(); }).catch(() => {});
     }
     async function initProfiles() {
       loadLocalProfiles();
+      applyColors();
       renderKidCards();
       const db = await getDb();
       if (!db) return;
       profilesRef = db.ref(`trips/${TRIP_ID}/profiles`);
       profilesRef.on('value', snap => {
         profiles = snap.val() || {};
-        if (!editingKid) renderKidCards();
+        if (!editingKid) { applyColors(); renderKidCards(); }
       });
     }
     // カードの ドット絵を その場で あるかせる
@@ -2052,7 +2084,20 @@
       };
       const ADULT_SPR = {};
       Object.entries(ADULTS).forEach(([id, a]) => ADULT_SPR[id] = [sprite(a, 0), sprite(a, 1)]);
-      window.KID_ART = { SPR, KIDS, W, PX, SMALL, ADULT_SPR };
+      // ふくの いろを かえる（プロフィールの「すきな色」）
+      function shade(hex, k) {
+        const n = parseInt(hex.slice(1), 16);
+        const f = c => Math.max(0, Math.min(255, Math.round(c * k)));
+        return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(c => f(c).toString(16).padStart(2, '0')).join('');
+      }
+      function recolor(id, ki, color) {
+        const base = ki >= 0 ? KIDS[ki] : ADULTS[id];
+        if (!base) return;
+        const def = color ? { ...base, C: color, D: shade(color, 0.62) } : base;
+        const fr = [sprite(def, 0), sprite(def, 1)];
+        if (ki >= 0) SPR[ki] = fr; else ADULT_SPR[id] = fr;
+      }
+      window.KID_ART = { SPR, KIDS, W, PX, SMALL, ADULT_SPR, recolor };
 
       const cv = document.getElementById('parade');
       if (!cv) return;
