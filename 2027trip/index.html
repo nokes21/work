@@ -742,7 +742,7 @@
   <div class="wrap">
     <!-- ===== チケット ===== -->
     <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
-    <div class="parade" onclick="paradeJump()" title="タップすると ジャンプ！">
+    <div class="parade" onclick="paradeJump()">
       <canvas id="parade" aria-label="こどもたちが歩いているドット絵"></canvas>
       <button class="news-btn" id="newsBtn" onclick="event.stopPropagation(); openNews()" aria-label="お知らせ">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a6 6 0 0 0-6 6v4.2L4.3 15.6a1 1 0 0 0 .9 1.5h13.6a1 1 0 0 0 .9-1.5L18 12.7V8.5a6 6 0 0 0-6-6zM9.5 18.5a2.5 2.5 0 0 0 5 0z"/></svg>
@@ -877,38 +877,34 @@
       <section id="content-members" class="hidden">
         <div class="page">
           <div class="page-head"><h2>乗客名簿</h2><span class="en">PASSENGERS</span></div>
-          <p class="memo">子どもたちの自己紹介カードです。「書く」から名前とプロフィールを入れてね（みんなに共有されます）。ドット絵をタップするとジャンプ！</p>
+          <p class="memo">メンバーの自己紹介カードです。「書く」から名前とプロフィールを入力できます（全員に共有されます）。<br><b>※ 自分（と自分の子ども）以外のプロフィールは変更しないでください。</b></p>
 
           <div class="pass">
             <div class="pass-side c1"><span class="no">NO.</span><span class="num">01</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">あかりファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
-              <div class="kid-cards" data-kids="minori,akari"></div>
+              <div class="kid-cards" data-kids="akari-papa,akari-mama,minori,akari"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c2"><span class="no">NO.</span><span class="num">02</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">かすみファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
-              <div class="kid-cards" data-kids="kasumi,miori"></div>
+              <div class="kid-cards" data-kids="kasumi-papa,kasumi-mama,kasumi,miori"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c3"><span class="no">NO.</span><span class="num">03</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">みはるファミリー</span><span class="pass-count">×3</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
-              <div class="kid-cards" data-kids="miharu"></div>
+              <div class="kid-cards" data-kids="miharu-papa,miharu-mama,miharu"></div>
             </div>
           </div>
           <div class="pass">
             <div class="pass-side c4"><span class="no">NO.</span><span class="num">04</span></div>
             <div class="pass-body">
               <div class="pass-top"><span class="pass-name">なつきファミリー</span><span class="pass-count">×4</span></div>
-              <div class="pass-people"><span>パパ</span><span>ママ</span></div>
-              <div class="kid-cards" data-kids="natsuki,fuji"></div>
+              <div class="kid-cards" data-kids="natsuki-papa,natsuki-mama,natsuki,fuji"></div>
             </div>
           </div>
 
@@ -967,7 +963,7 @@
         <div class="page">
           <div class="notice">
             <i class="fa-solid fa-lock" style="margin-top:3px"></i>
-            <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどでみんなに送ってね。</span>
+            <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどで共有してください。</span>
           </div>
           <div class="page-head"><h2>思い出スライドショー</h2><span class="en">PICTURE DIARY</span></div>
           <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます♪</p>
@@ -1477,7 +1473,8 @@
     /* ===== 自己紹介カード（ドット絵・共有） ===== */
     const KID_IDS = ['minori', 'akari', 'kasumi', 'miharu', 'natsuki', 'miori', 'fuji']; // ドット絵の ならびと おなじ
     const KID_NAMES = { minori: 'みのり', akari: 'あかり', kasumi: 'かすみ', miharu: 'みはる', natsuki: 'なつき', miori: 'みおり', fuji: 'ふじ' };
-    const PROFILE_FIELDS = [['like', 'すきなもの', 'ずんだ、ラプラス'], ['fun', 'たのしみ', 'ラプラスこうえん'], ['msg', 'ひとこと', 'よろしくね！']];
+    ['akari', 'kasumi', 'miharu', 'natsuki'].forEach(f => { KID_NAMES[`${f}-papa`] = 'パパ'; KID_NAMES[`${f}-mama`] = 'ママ'; });
+    const PROFILE_FIELDS = [['like', 'すきなもの', 'ずんだ、ラプラス'], ['fun', 'たのしみ', 'ラプラスこうえん'], ['msg', 'ひとこと', 'よろしくお願いします！']];
     let profiles = {}, editingKid = null, profilesRef = null;
     const kidJump = {};
 
@@ -1487,10 +1484,10 @@
     function renderKidCards() {
       document.querySelectorAll('.kid-cards').forEach(box => {
         box.innerHTML = box.dataset.kids.split(',').map(id => {
-          const i = KID_IDS.indexOf(id), pr = profiles[id] || {};
+          const pr = profiles[id] || {};
           if (editingKid === id) {
             return `<div class="kid-card" id="kid-${id}">
-              <canvas class="kid-sprite" data-i="${i}" data-id="${id}"></canvas>
+              <canvas class="kid-sprite" data-id="${id}"></canvas>
               <form class="kid-form" onsubmit="saveKid(event, '${id}')">
                 <label>なまえ</label><input class="field" name="name" maxlength="8" value="${esc(kidName(id))}" required>
                 ${PROFILE_FIELDS.map(([k, label, ph]) => `<label>${label}</label><input class="field" name="${k}" maxlength="30" placeholder="例: ${ph}" value="${esc(pr[k] || '')}">`).join('')}
@@ -1498,7 +1495,7 @@
               </form></div>`;
           }
           return `<div class="kid-card" id="kid-${id}">
-            <canvas class="kid-sprite" data-i="${i}" data-id="${id}"></canvas>
+            <canvas class="kid-sprite" data-id="${id}"></canvas>
             <div>
               <div class="kid-name"><span>${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
               <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}</dl>
@@ -1542,14 +1539,17 @@
       if (art && !document.getElementById('content-members').classList.contains('hidden')) {
         const t = now / 1000, S = 3;
         document.querySelectorAll('.kid-sprite').forEach(c => {
-          const i = +c.dataset.i, small = art.KIDS[i].size === art.SMALL;
+          const id = c.dataset.id, ki = KID_IDS.indexOf(id);
+          const frames = ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id];
+          if (!frames) return;
+          const i = ki >= 0 ? ki : 7, small = ki >= 0 && art.KIDS[ki].size === art.SMALL;
           const dpr = window.devicePixelRatio || 1, cw = 48, ch = 60;
           if (c.width !== cw * dpr) { c.width = cw * dpr; c.height = ch * dpr; }
           const g = c.getContext('2d');
           g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cw, ch);
           const step = Math.floor(t * (small ? 3.2 : 2.6) + i) % 2;
-          const img = art.SPR[i][step];
-          let y = ch - 6 - img.height * S + (step ? -1 : 0);
+          const img = frames[step];
+          let y = ch - 4 - img.height * S + (step ? -1 : 0);
           const jt = t - (kidJump[c.dataset.id] || -10);
           if (jt > 0 && jt < 0.5) y -= Math.round(Math.sin(jt / 0.5 * Math.PI) * 12);
           g.drawImage(img, (cw - art.W * S) / 2, y, art.W * S, img.height * S);
@@ -1565,7 +1565,7 @@
     function fmtTime(t) { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
     function renderNotes() {
       const list = document.getElementById('noteList');
-      if (!notes.length) { list.innerHTML = '<p class="empty">駐車場の場所、部屋番号、集合場所など、なんでもメモしてね</p>'; return; }
+      if (!notes.length) { list.innerHTML = '<p class="empty">駐車場の場所、部屋番号、集合場所など、自由にメモできます</p>'; return; }
       list.innerHTML = notes.map(n => `<div class="note-item"><div class="text">${esc(n.text)}</div>
         <div class="meta"><span>${fmtTime(n.at)}</span><span><button onclick="editNote('${n.id}')">編集</button><button onclick="deleteNote('${n.id}')">削除</button></span></div></div>`).join('');
     }
@@ -1820,7 +1820,7 @@
       document.getElementById('mvProgress').classList.add('hidden');
       await playOn(prep);
       mvBusy = false;
-      document.getElementById('mvMsg').textContent = 'よければ「動画を作る」を押してね';
+      document.getElementById('mvMsg').textContent = 'よろしければ「動画を作る」を押してください';
     }
     function pickMime() {
       const list = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
@@ -1838,7 +1838,7 @@
       const stopped = new Promise(ok => rec.onstop = ok);
       const bar = document.getElementById('mvBar');
       document.getElementById('mvProgress').classList.remove('hidden');
-      document.getElementById('mvMsg').textContent = '動画を作っています…（画面を閉じずに待ってね）';
+      document.getElementById('mvMsg').textContent = '動画を作っています…（画面を閉じずにお待ちください）';
       document.getElementById('mvResult').classList.add('hidden');
       renderAt(prep.ctx, prep.tl, prep.imgs, 0);
       rec.start(250);
@@ -1852,7 +1852,7 @@
       const v = document.getElementById('mvVideo'); v.src = url;
       const a = document.getElementById('mvDownload'); a.href = url; a.download = `miyagi-omoide.${ext}`;
       document.getElementById('mvResult').classList.remove('hidden');
-      document.getElementById('mvMsg').textContent = 'できあがり！ 下の動画を確認してね';
+      document.getElementById('mvMsg').textContent = 'できあがりました。下の動画をご確認ください';
       document.getElementById('mvResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     async function shareMovie() {
@@ -1873,6 +1873,16 @@
       const BIG = {
         head: ['....HHHH....', '...HHHHHH...', '..HHHHHHHH..', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
         body: ['.....CCC....', '....CCCCC...', '....CCCCSS..', '....DDDDD...', '...DDDDDDD..'],
+        legs: [['....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....BBB....']],
+      };
+      const ADULT = {
+        head: ['....HHHH....', '...HHHHHH...', '..HHHHHHHH..', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSSS..', '...H.SSSS...'],
+        body: ['....CCCCC...', '...CCCCCCC..', '...CCCCCCC..', '...CCCCCSS..', '....CCCCC...', '....DDDDD...', '....DDDDD...'],
+        legs: [['....D...D...', '....D...D...', '...BB...BB..'], ['.....DD.....', '.....DD.....', '.....BBB....']],
+      };
+      const ADULT_SKIRT = {
+        head: ADULT.head,
+        body: ['....CCCCC...', '...CCCCCCC..', '...CCCCCCC..', '...CCCCCSS..', '....DDDDD...', '...DDDDDDD..', '..DDDDDDDDD.'],
         legs: [['....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....BBB....']],
       };
       const SMALL = {
@@ -1921,7 +1931,20 @@
         return cv;
       }
       const SPR = KIDS.map(k => [sprite(k, 0), sprite(k, 1)]);
-      window.KID_ART = { SPR, KIDS, W, PX, SMALL };
+      // パパ・ママ（メンバーカード よう）
+      const ADULTS = {
+        'akari-papa':   { size: ADULT, style: 'short', H: '#2b2420', C: '#3a6ea5', D: '#3b3b46', boy: true },
+        'akari-mama':   { size: ADULT_SKIRT, style: 'long', H: '#4a2c1d', C: '#f2a7b8', D: '#8a6bb0' },
+        'kasumi-papa':  { size: ADULT, style: 'short', H: '#3a2418', C: '#6aa86a', D: '#4a4038', boy: true },
+        'kasumi-mama':  { size: ADULT_SKIRT, style: 'bob', H: '#7a4a28', C: '#ffe08a', D: '#5c8fbf' },
+        'miharu-papa':  { size: ADULT, style: 'short', H: '#1d1b22', C: '#e07a4a', D: '#33405c', boy: true },
+        'miharu-mama':  { size: ADULT_SKIRT, style: 'pony', H: '#1d1b22', C: '#9fd8c6', D: '#c46a7f', R: '#ffd34e' },
+        'natsuki-papa': { size: ADULT, style: 'short', H: '#4a2c1d', C: '#8a8f99', D: '#2f3f6b', boy: true },
+        'natsuki-mama': { size: ADULT_SKIRT, style: 'long', H: '#2b2420', C: '#c7b3f0', D: '#6b8f5c' },
+      };
+      const ADULT_SPR = {};
+      Object.entries(ADULTS).forEach(([id, a]) => ADULT_SPR[id] = [sprite(a, 0), sprite(a, 1)]);
+      window.KID_ART = { SPR, KIDS, W, PX, SMALL, ADULT_SPR };
 
       const cv = document.getElementById('parade');
       if (!cv) return;
@@ -2005,8 +2028,8 @@
       if (left > 1) el.innerHTML = `出発まで あと <b>${left}</b> 日`;
       else if (left === 1) el.innerHTML = 'いよいよ明日出発！ 🚗';
       else if (today === TRIP_DAYS[0]) el.innerHTML = '旅行1日目！ いってらっしゃい 🌸';
-      else if (today === TRIP_DAYS[1]) el.innerHTML = '旅行2日目！ ラプラスに会いに行こう 🌊';
-      else el.innerHTML = 'おかえりなさい！ また行こうね';
+      else if (today === TRIP_DAYS[1]) el.innerHTML = '旅行2日目！ ラプラスに会いに行きましょう 🌊';
+      else el.innerHTML = 'おかえりなさい！ お疲れさまでした';
     }
 
     /* ===== 天気（Open-Meteo・登録不要） ===== */
