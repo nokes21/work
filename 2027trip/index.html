@@ -1552,7 +1552,10 @@
           let y = ch - 4 - img.height * S + (step ? -1 : 0);
           const jt = t - (kidJump[c.dataset.id] || -10);
           if (jt > 0 && jt < 0.5) y -= Math.round(Math.sin(jt / 0.5 * Math.PI) * 12);
+          // ひだりむきに はんてん
+          g.save(); g.translate(cw, 0); g.scale(-1, 1);
           g.drawImage(img, (cw - art.W * S) / 2, y, art.W * S, img.height * S);
+          g.restore();
         });
       }
       requestAnimationFrame(animateKidCards);
