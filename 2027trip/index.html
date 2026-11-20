@@ -3,399 +3,864 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e8dcc4">
   <title>ラプラスに会いに行く旅 🌸 宮城家族旅行のしおり</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Klee+One:wght@400;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    .tab-btn.active {
-      background-color: #22c55e;
-      color: white;
+    :root {
+      --kraft: #e8dcc4;
+      --kraft-dark: #d9c8a6;
+      --paper: #fbf7ee;
+      --paper-line: #e9e1cf;
+      --ink: #1f3550;
+      --ink-soft: #5a6b80;
+      --stamp: #c8553d;
+      --mustard: #e3a72f;
+      --sea: #2b7a8c;
+      --sakura: #e8a0a8;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --hand: 'Klee One', 'Zen Kaku Gothic New', sans-serif;
     }
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
+      color: var(--ink);
+      background-color: var(--kraft);
+      background-image:
+        radial-gradient(rgba(120, 90, 50, .10) 1px, transparent 1px),
+        radial-gradient(rgba(120, 90, 50, .06) 1px, transparent 1px);
+      background-size: 7px 7px, 13px 13px;
+      background-position: 0 0, 3px 5px;
+      line-height: 1.6;
+      padding-bottom: 48px;
+    }
+    a { color: inherit; }
+    button, input, select { font-family: inherit; color: inherit; }
+    .wrap { max-width: 460px; margin: 0 auto; padding: 0 16px; }
+    .hidden { display: none !important; }
+
+    /* ===== チケット（ヘッダー） ===== */
+    .ticket {
+      position: relative;
+      margin-top: 20px;
+      background: var(--paper);
+      border-radius: 14px;
+      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 24px -12px rgba(60,40,10,.45);
+      overflow: hidden;
+    }
+    .ticket-band {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+    }
+    .ticket-band .kids-link {
+      font-family: 'Zen Kaku Gothic New', sans-serif;
+      letter-spacing: .02em;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid rgba(251,247,238,.5);
+      padding: 3px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .ticket-band .kids-link:hover { background: rgba(251,247,238,.12); }
+    .ticket-main { padding: 18px 18px 16px; position: relative; }
+    .ticket-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--stamp);
+      letter-spacing: .12em;
+    }
+    .ticket-title {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.3;
+      margin: 4px 0 14px;
+      letter-spacing: .02em;
+    }
+    .route {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+    .route .code { font-family: var(--mono); font-size: 26px; font-weight: 600; line-height: 1; }
+    .route .place { font-size: 11px; color: var(--ink-soft); font-weight: 700; margin-top: 4px; }
+    .route .to { text-align: right; }
+    .route .line {
+      color: var(--sea);
+      font-size: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .route .line::before, .route .line::after {
+      content: ""; width: 22px; border-top: 2px dotted var(--sea);
+    }
+    .perf {
+      position: relative;
+      height: 0;
+      border-top: 2px dashed var(--paper-line);
+      margin: 0 14px;
+    }
+    .perf::before, .perf::after {
+      content: "";
+      position: absolute;
+      top: -13px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--kraft);
+    }
+    .perf::before { left: -27px; }
+    .perf::after { right: -27px; }
+    .ticket-stub {
+      padding: 12px 18px 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .stub-label { font-family: var(--mono); font-size: 9px; color: var(--ink-soft); letter-spacing: .14em; }
+    .stub-value { font-size: 13px; font-weight: 700; }
+    .barcode {
+      height: 22px;
+      margin: 0 18px 16px;
+      background: repeating-linear-gradient(90deg,
+        var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px,
+        var(--ink) 8px 11px, transparent 11px 12px, var(--ink) 12px 13px, transparent 13px 16px);
+      opacity: .85;
+      border-radius: 2px;
+    }
+
+    /* ===== タブ（インデックスシール） ===== */
+    .tabs-wrap { position: sticky; top: 0; z-index: 30; padding: 10px 0 8px; background: linear-gradient(var(--kraft) 70%, rgba(232,220,196,0)); }
+    .tabs { display: flex; gap: 4px; }
+    .tab-btn {
+      flex: 1;
+      border: 0;
+      background: var(--kraft-dark);
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 9px 0 8px;
+      border-radius: 10px 10px 4px 4px;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .2s;
+    }
+    .tab-btn i { display: block; font-size: 13px; margin-bottom: 2px; }
+    .tab-btn.active {
+      background: var(--paper);
+      color: var(--ink);
+      transform: translateY(-2px);
+      box-shadow: 0 3px 0 var(--stamp) inset, 0 4px 10px -6px rgba(60,40,10,.5);
+    }
+
+    /* ===== ノートのページ ===== */
+    .page {
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(transparent 0 27px, var(--paper-line) 27px 28px);
+      border-radius: 6px 14px 14px 6px;
+      padding: 18px 16px 20px 26px;
+      position: relative;
+      box-shadow: 0 10px 24px -14px rgba(60,40,10,.5);
+    }
+    .page::before {
+      content: "";
+      position: absolute;
+      left: 12px; top: 0; bottom: 0;
+      border-left: 2px solid rgba(200,85,61,.35);
+    }
+    .page + .page { margin-top: 16px; }
+    .page-head {
+      display: flex; align-items: baseline; gap: 10px;
+      margin: 0 0 12px;
+    }
+    .page-head h2 { margin: 0; font-size: 17px; font-weight: 900; }
+    .page-head .en { font-family: var(--mono); font-size: 10px; color: var(--stamp); letter-spacing: .16em; }
+    .memo {
+      font-family: var(--hand);
+      font-size: 13px;
+      color: var(--ink-soft);
+      background: rgba(227,167,47,.16);
+      border-radius: 4px;
+      padding: 8px 10px;
+      margin: 0 0 14px;
+      transform: rotate(-.4deg);
+    }
+
+    /* マスキングテープ */
+    .tape {
+      position: absolute;
+      top: -9px; left: 50%;
+      width: 84px; height: 20px;
+      transform: translateX(-50%) rotate(-3deg);
+      background: rgba(232,160,168,.75);
+      background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.35) 0 4px, transparent 4px 8px);
+      box-shadow: 0 1px 2px rgba(0,0,0,.08);
+      z-index: 2;
+    }
+    .tape.sea { background-color: rgba(43,122,140,.55); }
+    .tape.mustard { background-color: rgba(227,167,47,.7); }
+
+    /* ===== 日程：路線図 ===== */
+    .day { margin-top: 6px; }
+    .day + .day { margin-top: 22px; }
+    .day-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-bottom: 10px;
+    }
+    .day-no {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: .12em;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    .day-date { font-weight: 700; font-size: 14px; }
+    .stops { position: relative; padding-left: 26px; }
+    .stops::before {
+      content: "";
+      position: absolute;
+      left: 8px; top: 10px; bottom: 10px;
+      width: 4px;
+      border-radius: 2px;
+      background: var(--sea);
+    }
+    .stop {
+      position: relative;
+      background: #fff;
+      border: 1.5px solid var(--paper-line);
+      border-radius: 10px;
+      padding: 10px 12px 11px;
+      margin-bottom: 10px;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .stop::before {
+      content: "";
+      position: absolute;
+      left: -25px; top: 13px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--paper);
+      border: 3px solid var(--sea);
+    }
+    .stop-time { font-family: var(--mono); font-weight: 600; font-size: 13px; color: var(--sea); }
+    .stop h3 { margin: 2px 0 3px; font-size: 15px; font-weight: 700; }
+    .stop p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+    .map-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      font-size: 12px; font-weight: 700;
+      text-decoration: none;
+      color: var(--sea);
+      border: 1.5px solid var(--sea);
+      border-radius: 999px;
+      padding: 3px 11px;
+    }
+    .map-link:hover { background: rgba(43,122,140,.08); }
+    .now-stamp {
+      position: absolute;
+      right: 8px; top: -10px;
+      font-size: 11px; font-weight: 900;
+      color: var(--stamp);
+      border: 2px solid var(--stamp);
+      background: var(--paper);
+      border-radius: 6px;
+      padding: 1px 8px;
+      transform: rotate(6deg);
+      letter-spacing: .06em;
+    }
+    @keyframes now-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,85,61,.45); }
+      60% { box-shadow: 0 0 0 8px rgba(200,85,61,0); }
     }
     .is-now-card {
-      border: 2px solid #ef4444 !important;
-      animation: pulse-ring 2s infinite;
+      border-color: var(--stamp) !important;
+      animation: now-glow 2s infinite;
+    }
+    .is-now-card::before { background: var(--stamp); border-color: var(--stamp); }
+
+    /* ===== メンバー：乗客名簿 ===== */
+    .pass {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      background: #fff;
+      border: 1.5px solid var(--paper-line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .pass-side {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff;
+      font-family: var(--mono);
+      border-right: 2px dashed rgba(255,255,255,.7);
+    }
+    .pass-side .no { font-size: 9px; letter-spacing: .12em; opacity: .85; }
+    .pass-side .num { font-size: 20px; font-weight: 600; line-height: 1.1; }
+    .pass-body { padding: 10px 12px; }
+    .pass-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .pass-name { font-weight: 900; font-size: 15px; }
+    .pass-count { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+    .pass-people { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .pass-people span {
+      font-size: 12px; font-weight: 700;
+      background: var(--paper);
+      border: 1px solid var(--paper-line);
+      border-radius: 999px;
+      padding: 1px 9px;
+    }
+    .c1 { background: var(--stamp); }
+    .c2 { background: var(--sea); }
+    .c3 { background: var(--mustard); }
+    .c4 { background: #7a6aa8; }
+    .total {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 2px dashed var(--paper-line);
+      font-weight: 700; font-size: 13px;
+    }
+    .total .mono { font-family: var(--mono); }
+
+    /* ===== スポット・グルメ：ポストカード ===== */
+    .postcard {
+      position: relative;
+      background: #fff;
+      padding: 10px 10px 14px;
+      border-radius: 4px;
+      box-shadow: 0 8px 20px -12px rgba(60,40,10,.55);
+      margin: 22px 0 0;
+    }
+    .postcard:nth-child(odd) { transform: rotate(-.6deg); }
+    .postcard:nth-child(even) { transform: rotate(.5deg); }
+    .postcard img {
+      display: block;
+      width: 100%; height: 170px;
+      object-fit: cover;
+      border-radius: 2px;
+      filter: saturate(.85) sepia(.12);
+    }
+    .postcard-body { padding: 10px 4px 0; }
+    .postcard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .postcard h3 { margin: 0; font-size: 16px; font-weight: 900; }
+    .postcard .sub { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+    .postcard p { font-size: 12.5px; color: var(--ink-soft); margin: 8px 0 0; }
+    .label-stamp {
+      flex-shrink: 0;
+      font-size: 10px; font-weight: 900;
+      letter-spacing: .08em;
+      border: 1.5px solid currentColor;
+      border-radius: 4px;
+      padding: 1px 6px;
+      transform: rotate(-4deg);
+    }
+    .ls-red { color: var(--stamp); }
+    .ls-sea { color: var(--sea); }
+    .ls-mustard { color: #b07d16; }
+    .postcard .map-link { width: 100%; justify-content: center; margin-top: 12px; padding: 7px 0; }
+
+    /* ===== その他 ===== */
+    .notice {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; font-weight: 700;
+      color: var(--ink-soft);
+      border: 1.5px dashed var(--ink-soft);
+      border-radius: 8px;
+      padding: 9px 11px;
+      margin-bottom: 16px;
+      background: rgba(251,247,238,.6);
+    }
+    .coupon {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      background: var(--mustard);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 18px -12px rgba(60,40,10,.6);
+    }
+    .coupon-main { padding: 12px 14px; }
+    .coupon-main .k { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; }
+    .coupon-main h3 { margin: 2px 0 2px; font-size: 15px; font-weight: 900; }
+    .coupon-main p { margin: 0; font-size: 11.5px; font-weight: 700; opacity: .85; }
+    .coupon-go {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 0 16px;
+      border-left: 2px dashed rgba(31,53,80,.45);
+      text-decoration: none;
+      font-weight: 900; font-size: 13px;
+      background: rgba(255,255,255,.18);
+    }
+    .coupon-go:hover { background: rgba(255,255,255,.32); }
+
+    .add-form { display: flex; gap: 6px; margin-bottom: 10px; }
+    .field {
+      flex: 1; min-width: 0;
+      font-size: 14px;
+      background: #fff;
+      border: 1.5px solid var(--paper-line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      outline: none;
+    }
+    .field:focus { border-color: var(--sea); }
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: .9; }
+    .btn-wide { width: 100%; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    .check-item {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 28px;
+      padding: 0 2px;
+    }
+    .check-item label { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; font-family: var(--hand); font-size: 15px; font-weight: 600; }
+    .check-item input { position: absolute; opacity: 0; pointer-events: none; }
+    .check-box {
+      width: 18px; height: 18px;
+      border: 2px solid var(--ink);
+      border-radius: 3px;
+      flex-shrink: 0;
+      position: relative;
+      background: #fff;
+    }
+    .check-item input:checked + .check-box::after {
+      content: "✓";
+      position: absolute;
+      left: 1px; top: -9px;
+      font-size: 22px; font-weight: 900;
+      color: var(--stamp);
+      line-height: 1;
+    }
+    .check-item input:focus-visible + .check-box { outline: 2px solid var(--sea); outline-offset: 2px; }
+    .check-item.done .text { text-decoration: line-through; text-decoration-color: var(--stamp); color: var(--ink-soft); }
+    .icon-btn {
+      border: 0; background: none; cursor: pointer;
+      color: var(--ink-soft);
+      font-size: 13px;
+      padding: 4px 6px;
+      opacity: .6;
+    }
+    .icon-btn:hover { opacity: 1; color: var(--stamp); }
+    .empty { font-family: var(--hand); font-size: 13px; color: var(--ink-soft); text-align: center; margin: 4px 0; }
+
+    /* レシート */
+    .receipt {
+      background: #fff;
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 14px 14px 18px;
+      position: relative;
+      margin-top: 12px;
+      --zig: 8px;
+      -webkit-mask:
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--zig) 100%;
+      mask:
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--zig) 100%;
+    }
+    .receipt-title { text-align: center; font-weight: 600; letter-spacing: .2em; margin-bottom: 8px; }
+    .receipt hr { border: 0; border-top: 1.5px dashed #b8b0a0; margin: 8px 0; }
+    .pay-form { display: grid; gap: 6px; font-family: 'Zen Kaku Gothic New', sans-serif; }
+    .pay-row { display: flex; gap: 6px; }
+    .pay-row select.field { flex: 0 0 auto; font-weight: 700; }
+    .pay-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 2px 0; }
+    .pay-item .who { font-weight: 600; }
+    .pay-item .what { font-family: 'Zen Kaku Gothic New', sans-serif; color: var(--ink-soft); }
+    .pay-item .amt { font-weight: 600; }
+    #paymentList { max-height: 180px; overflow-y: auto; }
+    .settle { margin-top: 10px; }
+    .settle-row { display: flex; justify-content: space-between; padding: 2px 0; }
+    .settle-head { font-weight: 600; border-bottom: 1.5px dashed #b8b0a0; padding-bottom: 6px; margin-bottom: 4px; }
+    .plus { color: var(--sea); font-weight: 600; }
+    .minus { color: var(--stamp); font-weight: 600; }
+
+    /* テストパネル */
+    .test-panel {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+    .test-panel summary { cursor: pointer; font-weight: 700; }
+    .test-panel .row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .test-panel button {
+      border: 1.5px solid var(--ink-soft);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* おつかれさまモーダル */
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(31,53,80,.55);
+      z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      width: 100%; max-width: 340px;
+      background: var(--paper);
+      border-radius: 14px;
+      padding: 26px 20px 20px;
+      text-align: center;
+    }
+    .big-stamp {
+      width: 128px; height: 128px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      border: 4px double var(--stamp);
+      color: var(--stamp);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transform: rotate(-12deg);
+      font-weight: 900;
+    }
+    .big-stamp .s1 { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; }
+    .big-stamp .s2 { font-size: 22px; line-height: 1.2; }
+    .big-stamp .s3 { font-family: var(--mono); font-size: 10px; }
+    .modal-card h3 { margin: 0; font-size: 18px; font-weight: 900; }
+    .modal-card p { margin: 6px 0 16px; font-family: var(--hand); font-size: 14px; color: var(--ink-soft); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .is-now-card { animation: none; }
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 pb-16 font-sans antialiased">
+<body>
 
-  <!-- ヘッダー -->
-  <header class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-6 shadow-md rounded-b-3xl text-center relative overflow-hidden">
-    <div class="absolute -right-6 -bottom-6 opacity-20 text-8xl">
-      <i class="fa-solid fa-water"></i>
-    </div>
-    
-    <!-- kids.html への印刷リンクボタン（「こども用」に短縮） -->
-    <a href="kids.html" target="_blank" class="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md transition-all flex items-center gap-1.5 shadow-sm border border-white/30 z-20">
-      <i class="fa-solid fa-print"></i>
-      <span>こども用</span>
-    </a>
-
-    <div class="relative z-10">
-      <span class="bg-emerald-700/50 text-emerald-100 text-xs px-3 py-1 rounded-full font-bold tracking-wide uppercase mb-2 inline-block">宮城家族旅行のしおり</span>
-      <h1 class="text-2xl font-extrabold tracking-tight mb-1">ラプラスに会いに行く旅 🌸</h1>
-      <p class="text-emerald-100 text-sm font-medium">2027年3月20日(土) 〜 3月21日(日)</p>
-    </div>
-  </header>
-
-  <!-- デモ用時間コントロール -->
-  <div class="max-w-md mx-auto px-4 mt-3">
-    <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-800 flex flex-wrap items-center justify-between gap-1 shadow-sm">
-      <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト:</span>
-      <div class="flex flex-wrap gap-1">
-        <button onclick="setSimTime('2027-03-20T11:00:00')" class="bg-white border border-amber-300 hover:bg-amber-100 px-2 py-0.5 rounded text-[11px] font-medium">1日目昼</button>
-        <button onclick="setSimTime('2027-03-21T10:30:00')" class="bg-white border border-amber-300 hover:bg-amber-100 px-2 py-0.5 rounded text-[11px] font-medium">2日目公園</button>
-        <button onclick="setSimTime('2027-03-21T19:00:00')" class="bg-white border border-amber-300 hover:bg-amber-100 px-2 py-0.5 rounded text-[11px] font-medium">旅行終了後</button>
-        <button onclick="resetSimTime()" class="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[11px] font-bold">解除</button>
+  <div class="wrap">
+    <!-- ===== チケット ===== -->
+    <header class="ticket">
+      <div class="ticket-band">
+        <span>FAMILY TRIP TICKET</span>
+        <a href="kids.html" target="_blank" class="kids-link"><i class="fa-solid fa-print"></i>こども用</a>
       </div>
+      <div class="ticket-main">
+        <div class="ticket-sub">宮城家族旅行のしおり</div>
+        <h1 class="ticket-title">ラプラスに会いに行く旅 🌸</h1>
+        <div class="route">
+          <div>
+            <div class="code">HOME</div>
+            <div class="place">おうち</div>
+          </div>
+          <div class="line"><i class="fa-solid fa-car-side"></i></div>
+          <div class="to">
+            <div class="code">SDJ</div>
+            <div class="place">宮城・仙台</div>
+          </div>
+        </div>
+      </div>
+      <div class="perf"></div>
+      <div class="ticket-stub">
+        <div>
+          <div class="stub-label">DATE</div>
+          <div class="stub-value">3/20(土)–21(日)</div>
+        </div>
+        <div>
+          <div class="stub-label">YEAR</div>
+          <div class="stub-value">2027</div>
+        </div>
+        <div>
+          <div class="stub-label">PASSENGERS</div>
+          <div class="stub-value">4家族 15名</div>
+        </div>
+      </div>
+      <div class="barcode" aria-hidden="true"></div>
+    </header>
+
+    <!-- ===== タブ ===== -->
+    <div class="tabs-wrap">
+      <nav class="tabs">
+        <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn active"><i class="fa-solid fa-route"></i>日程</button>
+        <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn"><i class="fa-solid fa-user-group"></i>メンバー</button>
+        <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn"><i class="fa-solid fa-map-pin"></i>スポット</button>
+        <button onclick="switchTab('gourmet')" id="tab-btn-gourmet" class="tab-btn"><i class="fa-solid fa-utensils"></i>グルメ</button>
+        <button onclick="switchTab('other')" id="tab-btn-other" class="tab-btn"><i class="fa-solid fa-suitcase"></i>その他</button>
+      </nav>
     </div>
+
+    <main>
+
+      <!-- ===== 1. 日程 ===== -->
+      <section id="content-schedule">
+        <div class="page">
+          <div class="page-head"><h2>旅のルート</h2><span class="en">ITINERARY</span></div>
+          <p class="memo">※ あくまでも予定です！当日の気分や子供たちの機嫌に合わせて、柔軟に楽しくいきましょう♪</p>
+
+          <div class="day">
+            <div class="day-label"><span class="day-no">DAY 1</span><span class="day-date">3月20日(土)</span></div>
+            <div class="stops">
+              <div id="sched-1" class="stop">
+                <span id="badge-sched-1" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">09:30</div>
+                <h3>出発・移動 🚗</h3>
+                <p>みんなで合流して宮城へ出発！車内でおしゃべりを楽しみながら向かいます。</p>
+              </div>
+              <div id="sched-2" class="stop">
+                <span id="badge-sched-2" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">12:00</div>
+                <h3>松島海岸でお昼ごはん＆散策 🦪</h3>
+                <p>日本三景の松島に到着。美味しい海鮮ランチや焼き牡蠣を堪能！散策や食べ歩きを楽しみます。</p>
+                <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="map-link"><i class="fa-solid fa-location-dot"></i>地図を開く</a>
+              </div>
+              <div id="sched-3" class="stop">
+                <span id="badge-sched-3" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">15:30</div>
+                <h3>宿チェックイン＆のんびりタイム ♨️</h3>
+                <p>宿にチェックイン。お部屋で休憩したり、子供たちみんなでお部屋遊び！</p>
+              </div>
+              <div id="sched-4" class="stop">
+                <span id="badge-sched-4" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">18:00</div>
+                <h3>みんなで夕食＆お風呂 🍲</h3>
+                <p>4家族一緒に賑やかな夜ご飯！美味しいご飯のあとは温泉でゆったり過ごします。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="day">
+            <div class="day-label"><span class="day-no">DAY 2</span><span class="day-date">3月21日(日)</span></div>
+            <div class="stops">
+              <div id="sched-5" class="stop">
+                <span id="badge-sched-5" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">10:00</div>
+                <h3>ラプラス公園inせんだい 🦕</h3>
+                <p>楽しみにしていたラプラス公園へ！巨大なラプラス遊具やふわふわドームで子供たちと一緒に全力遊び！</p>
+                <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="map-link"><i class="fa-solid fa-location-dot"></i>地図を開く</a>
+              </div>
+              <div id="sched-6" class="stop">
+                <span id="badge-sched-6" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">13:00</div>
+                <h3>仙台市内ランチ＆お土産購入 🛍️</h3>
+                <p>牛タンやお寿司など名物ランチを堪能。ずんだスイーツを食べたり、家族へのお土産を探します。</p>
+              </div>
+              <div id="sched-7" class="stop">
+                <span id="badge-sched-7" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">16:00</div>
+                <h3>現地解散・帰路 🏠</h3>
+                <p>楽しかった思い出を胸に帰路につきます。みんな無事に帰れるように気をつけて！</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 2. メンバー ===== -->
+      <section id="content-members" class="hidden">
+        <div class="page">
+          <div class="page-head"><h2>乗客名簿</h2><span class="en">PASSENGERS</span></div>
+
+          <div class="pass">
+            <div class="pass-side c1"><span class="no">NO.</span><span class="num">01</span></div>
+            <div class="pass-body">
+              <div class="pass-top"><span class="pass-name">あかりファミリー</span><span class="pass-count">×4</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span><span>みのり</span><span>あかり</span></div>
+            </div>
+          </div>
+          <div class="pass">
+            <div class="pass-side c2"><span class="no">NO.</span><span class="num">02</span></div>
+            <div class="pass-body">
+              <div class="pass-top"><span class="pass-name">かすみファミリー</span><span class="pass-count">×4</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span><span>かすみ</span><span>みおり</span></div>
+            </div>
+          </div>
+          <div class="pass">
+            <div class="pass-side c3"><span class="no">NO.</span><span class="num">03</span></div>
+            <div class="pass-body">
+              <div class="pass-top"><span class="pass-name">みはるファミリー</span><span class="pass-count">×3</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span><span>みはる</span></div>
+            </div>
+          </div>
+          <div class="pass">
+            <div class="pass-side c4"><span class="no">NO.</span><span class="num">04</span></div>
+            <div class="pass-body">
+              <div class="pass-top"><span class="pass-name">なつきファミリー</span><span class="pass-count">×4</span></div>
+              <div class="pass-people"><span>パパ</span><span>ママ</span><span>なつき</span><span>ふじ</span></div>
+            </div>
+          </div>
+
+          <div class="total">
+            <span>合計</span>
+            <span>大人 <span class="mono">8</span> ／ 子供 <span class="mono">7</span>（計 <span class="mono">15</span>名）</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 3. スポット ===== -->
+      <section id="content-spots" class="hidden">
+        <div class="postcard">
+          <span class="tape"></span>
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="ラプラス公園">
+          <div class="postcard-body">
+            <div class="postcard-top">
+              <div>
+                <h3>ラプラス公園inせんだい</h3>
+                <div class="sub">仙台市海岸公園冒険広場</div>
+              </div>
+              <span class="label-stamp ls-red">メイン</span>
+            </div>
+            <p>みやぎ応援ポケモンの「ラプラス」をモチーフにした遊具が揃う公園！巨大なラプラスの滑り台やふわふわドームなど、子供たちが大興奮できるポイントがいっぱいです。</p>
+            <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>ナビを見る</a>
+          </div>
+        </div>
+
+        <div class="postcard">
+          <span class="tape sea"></span>
+          <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="松島海岸エリア">
+          <div class="postcard-body">
+            <div class="postcard-top">
+              <div>
+                <h3>松島海岸エリア</h3>
+                <div class="sub">日本三景・松島</div>
+              </div>
+              <span class="label-stamp ls-sea">観光</span>
+            </div>
+            <p>日本三景の一つで絶景を眺めながら散策！焼き牡蠣の食べ歩きや笹かまぼこの手焼き体験など、大人も子供も満足できる食べ歩きスポットです。</p>
+            <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>ナビを見る</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 4. グルメ ===== -->
+      <section id="content-gourmet" class="hidden">
+        <div class="postcard">
+          <span class="tape mustard"></span>
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80" alt="仙台牛タン">
+          <div class="postcard-body">
+            <div class="postcard-top">
+              <h3>仙台牛タン</h3>
+              <span class="label-stamp ls-mustard">名物</span>
+            </div>
+            <p>厚切りでジューシーな炭火焼き牛タン。定番の塩焼きだけでなく、テールスープや麦飯との相性も抜群です！</p>
+          </div>
+        </div>
+
+        <div class="postcard">
+          <span class="tape"></span>
+          <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80" alt="ずんだスイーツ">
+          <div class="postcard-body">
+            <div class="postcard-top">
+              <h3>ずんだスイーツ</h3>
+              <span class="label-stamp ls-sea">スイーツ</span>
+            </div>
+            <p>風味豊かな枝豆ペーストのずんだ餅や、手軽に持ち運べる大人気の「ずんだシェイク」は子供たちのおやつにもぴったり！</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 5. その他 ===== -->
+      <section id="content-other" class="hidden">
+        <div class="notice">
+          <i class="fa-solid fa-lock" style="margin-top:3px"></i>
+          <span>このページで追加・記録した内容（持ち物・お土産・割り勘メモ）は他の家族には共有されず、このスマホ（端末）にだけ保存されます。</span>
+        </div>
+
+        <div class="coupon">
+          <div class="coupon-main">
+            <div class="k">PRINT · A4</div>
+            <h3>🖨️ こども用しおり</h3>
+            <p>ビンゴ・もちものちぇっく・おえかき付き！</p>
+          </div>
+          <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="page">
+          <div class="page-head"><h2>持ち物チェック</h2><span class="en">PACKING</span></div>
+          <form onsubmit="addBelongingItem(event)" class="add-form">
+            <input type="text" id="belongingInput" placeholder="持ち物を追加…" class="field">
+            <button type="submit" class="btn">追加</button>
+          </form>
+          <div id="todoList"></div>
+        </div>
+
+        <div class="page">
+          <div class="page-head"><h2>お土産リスト</h2><span class="en">SOUVENIRS</span></div>
+          <form onsubmit="addSouvenirItem(event)" class="add-form">
+            <input type="text" id="souvenirItemInput" placeholder="例: 笹かま、ずんだ餅" class="field">
+            <button type="submit" class="btn">追加</button>
+          </form>
+          <div id="souvenirList"></div>
+        </div>
+
+        <div class="page">
+          <div class="page-head"><h2>割り勘・立替メモ</h2><span class="en">RECEIPT</span></div>
+          <form onsubmit="addPayment(event)" class="pay-form">
+            <div class="pay-row">
+              <select id="payFamily" class="field">
+                <option value="あかり">あかり家</option>
+                <option value="かすみ">かすみ家</option>
+                <option value="みはる">みはる家</option>
+                <option value="なつき">なつき家</option>
+              </select>
+              <input type="text" id="payTitle" placeholder="内容（例: 高速代）" class="field">
+            </div>
+            <div class="pay-row">
+              <input type="number" inputmode="numeric" id="payAmount" placeholder="金額（円）" class="field">
+              <button type="submit" class="btn">記録</button>
+            </div>
+          </form>
+
+          <div class="receipt">
+            <div class="receipt-title">*** 立替記録 ***</div>
+            <hr>
+            <div id="paymentList"></div>
+            <hr>
+            <button onclick="calculateSettlement()" class="btn btn-wide"><i class="fa-solid fa-scale-balanced"></i>精算する</button>
+            <div id="settlementResult" class="settle hidden"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== 現在地テスト ===== -->
+    <details class="test-panel">
+      <summary><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト</summary>
+      <div class="row">
+        <button onclick="setSimTime('2027-03-20T11:00:00')">1日目昼</button>
+        <button onclick="setSimTime('2027-03-21T10:30:00')">2日目公園</button>
+        <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
+        <button onclick="resetSimTime()">解除</button>
+      </div>
+    </details>
   </div>
 
-  <!-- ナビゲーションタブ -->
-  <div class="sticky top-2 z-30 max-w-md mx-auto px-4 my-3">
-    <nav class="bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-100 flex justify-between gap-1 text-xs font-bold">
-      <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn active flex-1 py-2 rounded-xl transition-all text-center">日程</button>
-      <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn flex-1 py-2 rounded-xl transition-all text-center text-slate-600">メンバー</button>
-      <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn flex-1 py-2 rounded-xl transition-all text-center text-slate-600">スポット</button>
-      <button onclick="switchTab('gourmet')" id="tab-btn-gourmet" class="tab-btn flex-1 py-2 rounded-xl transition-all text-center text-slate-600">グルメ</button>
-      <button onclick="switchTab('other')" id="tab-btn-other" class="tab-btn flex-1 py-2 rounded-xl transition-all text-center text-slate-600">その他</button>
-    </nav>
-  </div>
-
-  <!-- メインコンテンツ -->
-  <main class="max-w-md mx-auto px-4 space-y-4">
-
-    <!-- 1. スケジュールタブ -->
-    <div id="content-schedule" class="space-y-4">
-      <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-800 flex items-start gap-2.5 shadow-sm">
-        <i class="fa-solid fa-lightbulb text-emerald-600 text-base mt-0.5"></i>
-        <p class="leading-relaxed font-medium">
-          ※ あくまでも予定です！当日の気分や子供たちの機嫌に合わせて柔軟に楽しく対応しましょう♪
-        </p>
+  <!-- ===== おつかれさま ===== -->
+  <div id="finishModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="big-stamp">
+        <span class="s1">COMPLETE</span>
+        <span class="s2">旅了</span>
+        <span class="s3">2027.03.21</span>
       </div>
-
-      <!-- Day 1 -->
-      <div class="space-y-3">
-        <div class="flex items-center gap-2">
-          <span class="bg-emerald-600 text-white font-extrabold text-xs px-3 py-1 rounded-lg">1日目</span>
-          <h2 class="font-bold text-slate-700 text-sm">2027年3月20日(土)</h2>
-        </div>
-
-        <div id="sched-1" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>09:30 -</span>
-            <span id="badge-sched-1" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">出発・移動 🚗</h3>
-          <p class="text-xs text-slate-500 mt-1">みんなで合流して宮城へ出発！車内でおしゃべりを楽しみながら向かいます。</p>
-        </div>
-
-        <div id="sched-2" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>12:00 -</span>
-            <span id="badge-sched-2" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">松島海岸でお昼ごはん＆散策 🦪</h3>
-          <p class="text-xs text-slate-500 mt-1">日本三景の松島に到着。美味しい海鮮ランチや焼き牡蠣を堪能！散策や食べ歩きを楽しみます。</p>
-          <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg mt-2.5 hover:bg-blue-100 transition-colors">
-            <i class="fa-solid fa-map-location-dot"></i> Google Mapsで開く
-          </a>
-        </div>
-
-        <div id="sched-3" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>15:30 -</span>
-            <span id="badge-sched-3" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">宿チェックイン＆のんびりタイム ♨️</h3>
-          <p class="text-xs text-slate-500 mt-1">宿にチェックイン。お部屋で休憩したり、子供たちみんなでお部屋遊び！</p>
-        </div>
-
-        <div id="sched-4" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>18:00 -</span>
-            <span id="badge-sched-4" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">みんなで夕食＆お風呂 🍲</h3>
-          <p class="text-xs text-slate-500 mt-1">4家族一緒に賑やかな夜ご飯！美味しいご飯のあとは温泉でゆったり過ごします。</p>
-        </div>
-      </div>
-
-      <!-- Day 2 -->
-      <div class="space-y-3 pt-2">
-        <div class="flex items-center gap-2">
-          <span class="bg-emerald-600 text-white font-extrabold text-xs px-3 py-1 rounded-lg">2日目</span>
-          <h2 class="font-bold text-slate-700 text-sm">2027年3月21日(日)</h2>
-        </div>
-
-        <div id="sched-5" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>10:00 -</span>
-            <span id="badge-sched-5" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">ラプラス公園inせんだい 🦕</h3>
-          <p class="text-xs text-slate-500 mt-1">楽しみにしていたラプラス公園へ！巨大なラプラス遊具やふわふわドームで子供たちと一緒に全力遊び！</p>
-          <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg mt-2.5 hover:bg-blue-100 transition-colors">
-            <i class="fa-solid fa-map-location-dot"></i> Google Mapsで開く
-          </a>
-        </div>
-
-        <div id="sched-6" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>13:00 -</span>
-            <span id="badge-sched-6" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">仙台市内ランチ＆お土産購入 🛍️</h3>
-          <p class="text-xs text-slate-500 mt-1">牛タンやお寿司など名物ランチを堪能。ずんだスイーツを食べたり、家族へのお土産を探します。</p>
-        </div>
-
-        <div id="sched-7" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative transition-all">
-          <div class="flex justify-between items-start mb-1">
-            <span class="text-xs font-bold text-emerald-600"><i class="fa-regular fa-clock mr-1"></i>16:00 -</span>
-            <span id="badge-sched-7" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">📍 いまココ！</span>
-          </div>
-          <h3 class="font-bold text-slate-800">現地解散・気をつけて帰りましょう 帰路</h3>
-          <p class="text-xs text-slate-500 mt-1">楽しかった思い出を胸に帰路につきます。みんな無事に帰れるように気をつけて！</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. メンバータブ -->
-    <div id="content-members" class="hidden space-y-3">
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-        <h2 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-users text-emerald-600"></i> 参加ファミリー（4家族）
-        </h2>
-        <div class="grid grid-cols-1 gap-3">
-          <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3.5">
-            <div class="flex justify-between items-center mb-1">
-              <span class="font-bold text-emerald-900 text-sm">あかりファミリー</span>
-              <span class="bg-emerald-200 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">4名</span>
-            </div>
-            <p class="text-xs text-emerald-800">パパ / ママ / みのり / あかり</p>
-          </div>
-          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
-            <div class="flex justify-between items-center mb-1">
-              <span class="font-bold text-slate-800 text-sm">かすみファミリー</span>
-              <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">4名</span>
-            </div>
-            <p class="text-xs text-slate-600">パパ / ママ / かすみ / みおり</p>
-          </div>
-          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
-            <div class="flex justify-between items-center mb-1">
-              <span class="font-bold text-slate-800 text-sm">みはるファミリー</span>
-              <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">3名</span>
-            </div>
-            <p class="text-xs text-slate-600">パパ / ママ / みはる</p>
-          </div>
-          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
-            <div class="flex justify-between items-center mb-1">
-              <span class="font-bold text-slate-800 text-sm">なつきファミリー</span>
-              <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">4名</span>
-            </div>
-            <p class="text-xs text-slate-600">パパ / ママ / なつき / ふじ</p>
-          </div>
-        </div>
-        <div class="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-800 flex items-center justify-between font-bold">
-          <span>合計人数</span>
-          <span>大人 8名 ／ 子供 7名（合計 15名）</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. スポットタブ（写真付き） -->
-    <div id="content-spots" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="ラプラス公園" class="w-full h-40 object-cover">
-        <div class="p-4 space-y-2">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800">ラプラス公園inせんだい</h3>
-            <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">メイン</span>
-          </div>
-          <p class="text-xs text-slate-400">（仙台市海岸公園冒険広場）</p>
-          <p class="text-xs text-slate-600 leading-relaxed pt-1">
-            みやぎ応援ポケモンの「ラプラス」をモチーフにした遊具が揃う公園！巨大なラプラスの滑り台やふわふわドームなど、子供たちが大興奮できるポイントがいっぱいです。
-          </p>
-          <div class="pt-2">
-            <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl w-full justify-center hover:bg-blue-100 transition-colors">
-              <i class="fa-solid fa-map-location-dot"></i> Google Mapsでナビを見る
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-        <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="松島海岸エリア" class="w-full h-40 object-cover">
-        <div class="p-4 space-y-2">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800">松島海岸エリア</h3>
-            <span class="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">観光</span>
-          </div>
-          <p class="text-xs text-slate-600 leading-relaxed pt-1">
-            日本三景の一つで絶景を眺めながら散策！焼き牡蠣の食べ歩きや笹かまぼこの手焼き体験など、大人も子供も満足できる食べ歩きスポットです。
-          </p>
-          <div class="pt-2">
-            <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl w-full justify-center hover:bg-blue-100 transition-colors">
-              <i class="fa-solid fa-map-location-dot"></i> Google Mapsでナビを見る
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. グルメタブ（写真付き） -->
-    <div id="content-gourmet" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80" alt="仙台牛タン" class="w-full h-40 object-cover">
-        <div class="p-4 space-y-2">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold text-slate-800 text-base flex items-center gap-1.5">
-              <i class="fa-solid fa-drumstick-bite text-amber-600"></i> 仙台牛タン
-            </h3>
-            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">名物</span>
-          </div>
-          <p class="text-xs text-slate-500 leading-relaxed">厚切りでジューシーな炭火焼き牛タン。定番の塩焼きだけでなくテールスープや麦飯との相性も抜群です！</p>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-        <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80" alt="ずんだスイーツ" class="w-full h-40 object-cover">
-        <div class="p-4 space-y-2">
-          <div class="flex items-center justify-between">
-            <h3 class="font-bold text-slate-800 text-base flex items-center gap-1.5">
-              <i class="fa-solid fa-ice-cream text-emerald-600"></i> ずんだスイーツ
-            </h3>
-            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">スイーツ</span>
-          </div>
-          <p class="text-xs text-slate-500 leading-relaxed">風味豊かな枝豆ペーストのずんだ餅や、手軽に持ち運べる大人気の「ずんだシェイク」は子供たちのおやつにもぴったり！</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. その他タブ (持ち物 / お土産 / 割り勘 / 印刷リンク) -->
-    <div id="content-other" class="hidden space-y-6">
-      
-      <!-- プライバシー明記のアラートボックス -->
-      <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-800 flex items-start gap-2.5 shadow-sm">
-        <i class="fa-solid fa-lock text-emerald-600 text-base mt-0.5"></i>
-        <p class="leading-relaxed font-bold">
-          このページで追加・記録した内容（持ち物・お土産・割り勘メモ）は、他の家族には共有されず、あなたのお使いのスマホ（端末）のみに保存されます！
-        </p>
-      </div>
-
-      <!-- キッズ印刷用しおりへの案内カード -->
-      <div class="bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl p-4 text-white shadow-md flex items-center justify-between gap-3">
-        <div class="space-y-1">
-          <span class="bg-white/20 text-[10px] font-bold px-2 py-0.5 rounded-full">A4印刷用</span>
-          <h3 class="font-extrabold text-sm">🖨️ こども用しおり印刷</h3>
-          <p class="text-[11px] text-emerald-100">お絵かきスペース＆持ち物チェック付き！</p>
-        </div>
-        <a href="kids.html" target="_blank" class="bg-white text-emerald-700 font-extrabold text-xs px-3.5 py-2 rounded-xl shadow hover:bg-emerald-50 transition-colors whitespace-nowrap">
-          開く <i class="fa-solid fa-arrow-right ml-0.5"></i>
-        </a>
-      </div>
-
-      <!-- 持ち物チェックリスト -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
-        <h2 class="font-bold text-slate-800 text-sm flex items-center justify-between">
-          <span><i class="fa-solid fa-list-check text-emerald-600 mr-1.5"></i> 持ち物チェックリスト</span>
-        </h2>
-        <form onsubmit="addBelongingItem(event)" class="flex gap-2">
-          <input type="text" id="belongingInput" placeholder="持ち物を追加..." class="flex-1 text-xs border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
-          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition-colors">追加</button>
-        </form>
-        <div id="todoList" class="space-y-2 pt-1"></div>
-      </div>
-
-      <!-- お土産チェックリスト -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
-        <h2 class="font-bold text-slate-800 text-sm flex items-center justify-between">
-          <span><i class="fa-solid fa-gift text-amber-500 mr-1.5"></i> お土産チェックリスト</span>
-        </h2>
-        <form onsubmit="addSouvenirItem(event)" class="flex gap-2">
-          <input type="text" id="souvenirItemInput" placeholder="買いたいお土産（例: 笹かま、ずんだ餅）" class="flex-1 text-xs border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
-          <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-3 py-2 rounded-xl transition-colors">追加</button>
-        </form>
-        <div id="souvenirList" class="space-y-2 pt-1"></div>
-      </div>
-
-      <!-- 割り勘・立替計算ツール -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-4">
-        <h2 class="font-bold text-slate-800 text-sm flex items-center justify-between">
-          <span><i class="fa-solid fa-calculator text-blue-600 mr-1.5"></i> 家族間 割り勘・立替メモ</span>
-        </h2>
-        
-        <!-- 立替入力フォーム -->
-        <form onsubmit="addPayment(event)" class="space-y-2 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-          <div class="flex gap-2">
-            <select id="payFamily" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white font-bold text-slate-700">
-              <option value="あかり">あかり家</option>
-              <option value="かすみ">かすみ家</option>
-              <option value="みはる">みはる家</option>
-              <option value="なつき">なつき家</option>
-            </select>
-            <input type="text" id="payTitle" placeholder="支払内容（例: 高速代、おやつ）" class="flex-1 text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none">
-          </div>
-          <div class="flex gap-2">
-            <input type="number" id="payAmount" placeholder="金額 (円)" class="flex-1 text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-1.5 rounded-lg transition-colors">記録</button>
-          </div>
-        </form>
-
-        <!-- 立替履歴 -->
-        <div class="space-y-2">
-          <h3 class="text-xs font-bold text-slate-600">立替記録一覧</h3>
-          <div id="paymentList" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
-        </div>
-
-        <!-- 精算実行ボタン＆結果 -->
-        <div class="pt-2 border-t border-slate-100">
-          <button onclick="calculateSettlement()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-scale-balanced"></i> 精算計算を実行
-          </button>
-          <div id="settlementResult" class="mt-3 p-3 bg-slate-50 rounded-xl text-xs space-y-1.5 hidden"></div>
-        </div>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- お疲れさま ポップアップ -->
-  <div id="finishModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-slate-100">
-      <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-3xl mx-auto">
-        <i class="fa-solid fa-champagne-glasses"></i>
-      </div>
-      <div>
-        <h3 class="text-lg font-extrabold text-slate-800">お疲れさまでした！</h3>
-        <p class="text-xs text-slate-500 mt-1.5">またみんなで遊びに行きましょう♪</p>
-      </div>
-      <button onclick="closeFinishModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-2.5 rounded-xl shadow-md transition-all">
-        閉じる
-      </button>
+      <h3>お疲れさまでした！</h3>
+      <p>またみんなで遊びに行きましょう♪</p>
+      <button onclick="closeFinishModal()" class="btn btn-wide">閉じる</button>
     </div>
   </div>
 
@@ -418,6 +883,10 @@
     let payments = [];
     let simTime = null;
 
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     // 初期化
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalStorage();
@@ -433,24 +902,23 @@
       const tabs = ['schedule', 'members', 'spots', 'gourmet', 'other'];
       tabs.forEach(t => {
         const content = document.getElementById(`content-${t}`);
-        if(content) content.classList.add('hidden');
+        if (content) content.classList.add('hidden');
         const btn = document.getElementById(`tab-btn-${t}`);
-        if(btn) { btn.classList.remove('active'); btn.classList.add('text-slate-600'); }
+        if (btn) btn.classList.remove('active');
       });
-
       const activeContent = document.getElementById(`content-${tab}`);
-      if(activeContent) activeContent.classList.remove('hidden');
+      if (activeContent) activeContent.classList.remove('hidden');
       const activeBtn = document.getElementById(`tab-btn-${tab}`);
-      if(activeBtn) { activeBtn.classList.add('active'); activeBtn.classList.remove('text-slate-600'); }
+      if (activeBtn) activeBtn.classList.add('active');
     }
 
     // 持ち物描画
     function renderTodoList() {
       const container = document.getElementById('todoList');
-      if(!container) return;
+      if (!container) return;
       container.innerHTML = '';
-      if(belongings.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">持ち物を追加してください♪</p>';
+      if (belongings.length === 0) {
+        container.innerHTML = '<p class="empty">持ち物を追加してください♪</p>';
         return;
       }
       belongings.forEach((item, index) => {
@@ -461,10 +929,10 @@
     // お土産描画
     function renderSouvenirList() {
       const container = document.getElementById('souvenirList');
-      if(!container) return;
+      if (!container) return;
       container.innerHTML = '';
-      if(souvenirItems.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">買いたいお土産を追加してください♪</p>';
+      if (souvenirItems.length === 0) {
+        container.innerHTML = '<p class="empty">買いたいお土産を追加してください♪</p>';
         return;
       }
       souvenirItems.forEach((item, index) => {
@@ -475,18 +943,16 @@
 
     function createTodoElement(index, text, isChecked, type) {
       const div = document.createElement('div');
-      div.className = `flex items-center justify-between p-2.5 rounded-xl border ${isChecked ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-white border-slate-200'} transition-all`;
+      div.className = `check-item${isChecked ? ' done' : ''}`;
       const fn = type === 'todo' ? 'toggleTodo' : 'toggleSouvenir';
       const rmFn = type === 'todo' ? 'removeBelongingItem' : 'removeSouvenirItem';
-      
       div.innerHTML = `
-        <label class="flex items-center gap-2.5 flex-1 cursor-pointer">
-          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="${fn}(${index}, this.checked)" class="w-4 h-4 accent-emerald-600 rounded">
-          <span class="text-xs font-medium ${isChecked ? 'line-through text-slate-400' : 'text-slate-700'}">${text}</span>
+        <label>
+          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="${fn}(${index}, this.checked)">
+          <span class="check-box"></span>
+          <span class="text">${esc(text)}</span>
         </label>
-        <button onclick="${rmFn}(${index})" class="text-slate-400 hover:text-red-500 text-xs px-1.5 py-0.5">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
+        <button onclick="${rmFn}(${index})" class="icon-btn" aria-label="削除"><i class="fa-solid fa-xmark"></i></button>
       `;
       return div;
     }
@@ -520,9 +986,7 @@
       const family = document.getElementById('payFamily').value;
       const title = document.getElementById('payTitle').value.trim();
       const amount = parseInt(document.getElementById('payAmount').value);
-
       if (!title || !amount || amount <= 0) return;
-
       payments.push({ family, title, amount });
       document.getElementById('payTitle').value = '';
       document.getElementById('payAmount').value = '';
@@ -538,26 +1002,20 @@
 
     function renderPaymentList() {
       const container = document.getElementById('paymentList');
-      if(!container) return;
+      if (!container) return;
       container.innerHTML = '';
       if (payments.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">立替記録はありません</p>';
+        container.innerHTML = '<p class="empty">立替記録はありません</p>';
         return;
       }
-
       payments.forEach((p, idx) => {
         const div = document.createElement('div');
-        div.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg text-xs';
+        div.className = 'pay-item';
         div.innerHTML = `
-          <div>
-            <span class="font-bold text-slate-700">[${p.family}家]</span>
-            <span class="text-slate-600 ml-1">${p.title}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-blue-600">¥${p.amount.toLocaleString()}</span>
-            <button onclick="removePayment(${idx})" class="text-slate-400 hover:text-red-500 text-xs">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+          <div><span class="who">${esc(p.family)}家</span> <span class="what">${esc(p.title)}</span></div>
+          <div style="display:flex;align-items:center;gap:2px">
+            <span class="amt">¥${p.amount.toLocaleString()}</span>
+            <button onclick="removePayment(${idx})" class="icon-btn" aria-label="削除"><i class="fa-solid fa-xmark"></i></button>
           </div>
         `;
         container.appendChild(div);
@@ -566,10 +1024,10 @@
 
     function calculateSettlement() {
       const resultDiv = document.getElementById('settlementResult');
-      if(!resultDiv) return;
+      if (!resultDiv) return;
       if (payments.length === 0) {
         resultDiv.classList.remove('hidden');
-        resultDiv.innerHTML = '<p class="text-slate-500 text-center">記録されている支払いがありません。</p>';
+        resultDiv.innerHTML = '<p class="empty">記録されている支払いがありません。</p>';
         return;
       }
 
@@ -584,16 +1042,16 @@
 
       const avg = Math.round(grandTotal / 4);
 
-      let html = `<div class="font-bold text-slate-700 mb-1 border-b pb-1">総額: ¥${grandTotal.toLocaleString()} (1家あたり ¥${avg.toLocaleString()})</div>`;
-      
+      let html = `<div class="settle-head"><div class="settle-row"><span>総額</span><span>¥${grandTotal.toLocaleString()}</span></div><div class="settle-row"><span>1家あたり</span><span>¥${avg.toLocaleString()}</span></div></div>`;
+
       families.forEach(f => {
         const diff = totals[f] - avg;
         if (diff > 0) {
-          html += `<div class="text-emerald-600 font-bold">・${f}家: +¥${diff.toLocaleString()} (受取る)</div>`;
+          html += `<div class="settle-row"><span>${f}家</span><span class="plus">+¥${diff.toLocaleString()} 受取</span></div>`;
         } else if (diff < 0) {
-          html += `<div class="text-red-500 font-bold">・${f}家: -¥${Math.abs(diff).toLocaleString()} (支払う)</div>`;
+          html += `<div class="settle-row"><span>${f}家</span><span class="minus">-¥${Math.abs(diff).toLocaleString()} 支払</span></div>`;
         } else {
-          html += `<div class="text-slate-500">・${f}家: 精算なし</div>`;
+          html += `<div class="settle-row"><span>${f}家</span><span>精算なし</span></div>`;
         }
       });
 
@@ -602,24 +1060,29 @@
     }
 
     function saveLocalStorage() {
-      localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
-      localStorage.setItem('miyagi_trip_souvenir_items', JSON.stringify(souvenirItems));
-      localStorage.setItem('miyagi_trip_souvenir_checked', JSON.stringify(souvenirChecked));
-      localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
+      try {
+        localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
+        localStorage.setItem('miyagi_trip_souvenir_items', JSON.stringify(souvenirItems));
+        localStorage.setItem('miyagi_trip_souvenir_checked', JSON.stringify(souvenirChecked));
+        localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
+      } catch (e) {}
     }
 
     function loadLocalStorage() {
-      const b = localStorage.getItem('miyagi_trip_belongings_v2');
-      const s = localStorage.getItem('miyagi_trip_souvenir_items');
-      const sc = localStorage.getItem('miyagi_trip_souvenir_checked');
-      const p = localStorage.getItem('miyagi_trip_payments');
-      
+      let b = null, s = null, sc = null, p = null;
+      try {
+        b = localStorage.getItem('miyagi_trip_belongings_v2');
+        s = localStorage.getItem('miyagi_trip_souvenir_items');
+        sc = localStorage.getItem('miyagi_trip_souvenir_checked');
+        p = localStorage.getItem('miyagi_trip_payments');
+      } catch (e) {}
+
       if (b) {
         belongings = JSON.parse(b);
       } else {
         belongings = initialBelongings.map(item => ({ text: item, checked: false }));
       }
-      
+
       if (s) souvenirItems = JSON.parse(s);
       if (sc) souvenirChecked = JSON.parse(sc);
       if (p) payments = JSON.parse(p);
@@ -656,7 +1119,7 @@
           if (badge) badge.classList.remove('hidden');
 
           const schedContent = document.getElementById('content-schedule');
-          if (schedContent && !schedContent.classList.contains('hidden')) {
+          if (el && schedContent && !schedContent.classList.contains('hidden')) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
@@ -686,7 +1149,7 @@
 
     function closeFinishModal() {
       const finishModal = document.getElementById('finishModal');
-      if(finishModal) finishModal.classList.add('hidden');
+      if (finishModal) finishModal.classList.add('hidden');
     }
   </script>
 </body>

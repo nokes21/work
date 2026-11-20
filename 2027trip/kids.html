@@ -4,202 +4,207 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>きっずぺーじ - たびのしおり</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
   <style>
     /* いんさつきほんせってい */
     @page {
       size: A4;
       margin: 8mm;
     }
-
     :root {
-      --main-color: #4CAF50;
-      --text-color: #222222;
-      --border-color: #777777;
+      --ink: #1f3550;
+      --soft: #5a6b80;
+      --line: #8a8070;
+      --stamp: #c8553d;
+      --sea: #2b7a8c;
+      --mustard: #e3a72f;
+      --paper: #fbf7ee;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
     }
-
+    * { box-sizing: border-box; }
     body {
-      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
-      color: var(--text-color);
-      background-color: #FFFFFF;
+      font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+      color: var(--ink);
+      background: #e8dcc4;
       margin: 0;
-      padding: 0;
+      padding: 16px;
       -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
-
     .page-container {
       width: 100%;
       max-width: 800px;
       margin: 0 auto;
-      box-sizing: border-box;
+      background: #fff;
+      padding: 14px 16px;
+      border-radius: 8px;
     }
 
-    .header-title {
+    /* ===== チケットふう ヘッダー ===== */
+    .ticket {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .ticket-main { padding: 8px 14px 9px; }
+    .ticket-k { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; color: var(--stamp); }
+    .header-title { margin: 1px 0 2px; font-size: 1.45rem; font-weight: 900; line-height: 1.25; }
+    .ticket-route { font-size: .82rem; font-weight: 700; color: var(--soft); }
+    .ticket-stub {
+      border-left: 2.5px dashed var(--ink);
+      background: var(--paper);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
-      font-size: 1.5rem;
-      color: var(--main-color);
-      border-bottom: 3px dashed var(--main-color);
-      padding-bottom: 4px;
-      margin-top: 0;
-      margin-bottom: 10px;
+      padding: 6px;
+    }
+    .ticket-stub .k { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--soft); }
+    .ticket-stub .v { font-size: 1.05rem; font-weight: 900; line-height: 1.2; }
+    .ticket-stub .barcode {
+      width: 80%; height: 14px; margin-top: 5px;
+      background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px);
     }
 
+    /* ===== せくしょん ===== */
     .section-box {
-      border: 2px solid var(--border-color);
+      position: relative;
+      border: 2px solid var(--line);
       border-radius: 10px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      background-color: #FFFFFF;
+      padding: 14px 12px 9px;
+      margin: 0 0 13px;
     }
-
     .section-title {
-      font-size: 1rem;
-      font-weight: bold;
-      color: var(--main-color);
-      margin-top: 0;
-      margin-bottom: 6px;
+      position: absolute;
+      top: -11px; left: 12px;
+      background: #fff;
+      padding: 0 8px;
+      font-size: .98rem;
+      font-weight: 900;
+      line-height: 1.3;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .section-title .no {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: #fff;
+      background: var(--sea);
+      border-radius: 4px;
+      padding: 0 5px;
     }
 
     /* 1. じこしょうかい */
-    .profile-fields {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .profile-fields { display: flex; flex-direction: column; gap: 7px; }
+    .field-line { display: flex; align-items: flex-end; font-size: .92rem; font-weight: 700; }
+    .field-line .line { flex-grow: 1; border-bottom: 2px dotted #999; margin-left: 6px; height: 1.15rem; }
 
-    .field-line {
-      display: flex;
-      align-items: flex-end;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
+    /* 2. まめちしき */
+    .info-list { margin: 0; padding: 0; list-style: none; font-size: .84rem; line-height: 1.45; font-weight: 700; }
+    .info-list li { margin-bottom: 3px; }
+    .info-list b { color: var(--stamp); }
 
-    .field-line .line {
-      flex-grow: 1;
-      border-bottom: 2px dotted #999;
-      margin-left: 6px;
-      height: 1.1rem;
-    }
-
-    /* 2. みやぎの まめちしき */
-    .info-list {
-      margin: 0;
-      padding-left: 18px;
-      font-size: 0.82rem;
-      line-height: 1.4;
-      font-weight: bold;
-    }
-
-    .info-list li {
-      margin-bottom: 3px;
-    }
-
-    /* 3. たびの 5x5 びんご */
-    .bingo-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 4px;
-    }
-
+    /* 3. びんご */
+    .bingo-table { width: 100%; border-collapse: separate; border-spacing: 4px; margin: 0 -4px; width: calc(100% + 8px); }
     .bingo-table td {
       width: 20%;
-      height: 48px;
-      border: 2px solid var(--border-color);
+      height: 46px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
       text-align: center;
       vertical-align: middle;
-      font-size: 0.72rem;
-      font-weight: bold;
+      font-size: .72rem;
+      font-weight: 700;
       padding: 2px;
-      box-sizing: border-box;
       line-height: 1.2;
     }
-
     .bingo-center {
-      background-color: #FFFDE7;
-      font-size: 0.8rem !important;
-      color: #D84315;
+      background: #fdf0d2;
+      border-color: var(--mustard) !important;
+      font-size: .8rem !important;
+      color: var(--stamp);
+      font-weight: 900 !important;
     }
 
-    /* 5. もちもの ちぇっく */
+    /* 4. もちもの ちぇっく */
     .check-list {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 4px 10px;
-      margin: 0;
-      padding: 0;
+      gap: 5px 10px;
+      margin: 0; padding: 0;
       list-style: none;
-      font-size: 0.82rem;
-      font-weight: bold;
+      font-size: .84rem;
+      font-weight: 700;
     }
-    .check-list li {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .check-list li { display: flex; align-items: center; gap: 6px; }
     .check-box {
       display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid var(--border-color);
-      border-radius: 3px;
+      width: 15px; height: 15px;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
       flex-shrink: 0;
     }
-    /* 4. おえかき・ぬりえ */
-    .drawing-space {
-      border: 2px dashed #999;
-      border-radius: 8px;
-      height: 110px;
-      position: relative;
-      background-color: #FAFAFA;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
 
-    .drawing-hint {
-      color: #CCC;
-      font-size: 0.95rem;
-      font-weight: bold;
+    /* 5. おえかき */
+    .drawing-space {
+      border: 2px dashed #aaa;
+      border-radius: 8px;
+      height: 280px;
+      display: flex; align-items: center; justify-content: center;
+      background-image: radial-gradient(#ddd 1px, transparent 1px);
+      background-size: 12px 12px;
     }
+    .drawing-hint { color: #bbb; font-size: .95rem; font-weight: 700; background: #fff; padding: 0 8px; }
 
     /* がめんひょうじよう */
-    .no-print {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
+    .no-print { text-align: center; margin-bottom: 12px; }
     .print-btn {
-      background-color: var(--main-color);
-      color: white;
+      background-color: var(--ink);
+      color: #fff;
       border: none;
-      padding: 8px 20px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 20px;
+      padding: 9px 22px;
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 700;
+      border-radius: 999px;
       cursor: pointer;
     }
+    .print-btn:hover { opacity: .9; }
 
     @media print {
-      .no-print {
-        display: none;
-      }
-      .section-box {
-        break-inside: avoid;
-      }
+      body { background: #fff; padding: 0; }
+      .page-container { padding: 0; border-radius: 0; max-width: none; }
+      .no-print { display: none; }
     }
   </style>
 </head>
 <body>
 
 <div class="no-print">
-  <button class="print-btn" onclick="window.print()">🛈 このぺーじを いんさつする</button>
+  <button class="print-btn" onclick="window.print()">🖨️ このぺーじを いんさつする</button>
 </div>
 
 <div class="page-container">
-  <h1 class="header-title">🌸 はるやすみ！たびの きっずのーと 🌸</h1>
+
+  <!-- チケット -->
+  <header class="ticket">
+    <div class="ticket-main">
+      <div class="ticket-k">KIDS TRAVEL NOTE</div>
+      <h1 class="header-title">🌸 はるやすみ！たびの きっずのーと</h1>
+      <div class="ticket-route">おうち 🚗 ･･････ みやぎ ･ せんだい 🦕</div>
+    </div>
+    <div class="ticket-stub">
+      <span class="k">DATE</span>
+      <span class="v">3/20–21</span>
+      <span class="barcode"></span>
+    </div>
+  </header>
 
   <!-- 1. じこしょうかい & めあて -->
   <section class="section-box">
-    <div class="section-title">✏️ じこしょうかい & めあて</div>
+    <div class="section-title"><span class="no">01</span>✏️ じこしょうかい & めあて</div>
     <div class="profile-fields">
       <div class="field-line">
         <span>なまえ：</span>
@@ -214,7 +219,7 @@
 
   <!-- 2. みやぎの まめちしき -->
   <section class="section-box">
-    <div class="section-title">💡 はるのみやぎ まめちしき</div>
+    <div class="section-title"><span class="no">02</span>💡 はるのみやぎ まめちしき</div>
     <ul class="info-list">
       <li>🍡 <b>「ずんだ」</b>は、えだまめをつぶして つくった あまい おかしだよ！</li>
       <li>🌙 昔のえらいひと<b>「だてまさむね」</b>は、かぶとに まんまるなお月さまをつけていたよ！</li>
@@ -224,7 +229,7 @@
 
   <!-- 3. たびの 5x5 びんご -->
   <section class="section-box">
-    <div class="section-title">🎲 たびの 5×5 びんご（みつけたら 〇をつけよう！）</div>
+    <div class="section-title"><span class="no">03</span>🎲 たびの 5×5 びんご（みつけたら 〇をつけよう！）</div>
     <table class="bingo-table">
       <tr>
         <td>あかい<br>くるま</td>
@@ -266,7 +271,7 @@
 
   <!-- 4. もちもの ちぇっく -->
   <section class="section-box">
-    <div class="section-title">🎒 もちもの ちぇっく（じゅんびできたら ✓ を つけよう！）</div>
+    <div class="section-title"><span class="no">04</span>🎒 もちもの ちぇっく（じゅんびできたら ✓ を つけよう！）</div>
     <ul class="check-list">
       <li><span class="check-box"></span>きがえ</li>
       <li><span class="check-box"></span>パジャマ</li>
@@ -282,7 +287,7 @@
 
   <!-- 5. おえかき・ぬりえ -->
   <section class="section-box">
-    <div class="section-title">🎨 じゆうに おえかきスペース</div>
+    <div class="section-title"><span class="no">05</span>🎨 じゆうに おえかきスペース</div>
     <div class="drawing-space">
       <span class="drawing-hint">ここに すきな えを かいてね！</span>
     </div>
