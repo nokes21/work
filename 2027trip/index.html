@@ -617,6 +617,40 @@
     @keyframes flash-ring { 0% { box-shadow: 0 0 0 0 rgba(200,85,61,.6); } 100% { box-shadow: 0 0 0 12px rgba(200,85,61,0); } }
     .flash { border-color: var(--stamp) !important; animation: flash-ring 1s 2; }
 
+    /* 家族タイル（2×2・開閉式） */
+    .fam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fam-tile {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: #fff;
+      border: 2px solid var(--paper-line);
+      border-radius: 12px;
+      padding: 10px 6px 8px;
+      cursor: pointer;
+      font: inherit; color: inherit;
+      transition: border-color .2s, transform .15s;
+    }
+    .fam-tile:active { transform: scale(.98); }
+    .fam-tile.open { border-color: var(--fc); box-shadow: 0 0 0 2px var(--fc) inset; }
+    .fam-tile.open::after {
+      content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -8px;
+      border: 8px solid transparent; border-top-color: var(--fc);
+    }
+    .fam-house { width: 48px; height: 51px; image-rendering: pixelated; }
+    .fam-name { font-size: 14px; font-weight: 900; }
+    .fam-count { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .fam-art { width: 100%; height: 36px; image-rendering: pixelated; }
+    .fam-open-hint { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .fam-panel {
+      grid-column: 1 / -1;
+      border: 2px solid var(--fc);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      margin-top: 2px;
+    }
+    .fam-panel .kid-cards { margin-top: 0; }
+
     /* 自己紹介カード */
     .pass { grid-template-columns: 46px 1fr; }
     .kid-cards { display: grid; gap: 8px; margin-top: 10px; }
@@ -877,36 +911,9 @@
       <section id="content-members" class="hidden">
         <div class="page">
           <div class="page-head"><h2>乗客名簿</h2><span class="en">PASSENGERS</span></div>
-          <p class="memo">メンバーの自己紹介カードです。「書く」から名前とプロフィールを入力できます（全員に共有されます）。<br><b>※ 自分（と自分の子ども）以外のプロフィールは変更しないでください。</b></p>
+          <p class="memo">おうちをタップすると、その家族の自己紹介カードが開きます。「書く」から名前とプロフィールを入力できます（全員に共有されます）。<br><b>※ 自分（と自分の子ども）以外のプロフィールは変更しないでください。</b></p>
 
-          <div class="pass">
-            <div class="pass-side c1"><span class="no">NO.</span><span class="num">01</span></div>
-            <div class="pass-body">
-              <div class="pass-top"><span class="pass-name">あかりファミリー</span><span class="pass-count">×4</span></div>
-              <div class="kid-cards" data-kids="akari-papa,akari-mama,minori,akari"></div>
-            </div>
-          </div>
-          <div class="pass">
-            <div class="pass-side c2"><span class="no">NO.</span><span class="num">02</span></div>
-            <div class="pass-body">
-              <div class="pass-top"><span class="pass-name">かすみファミリー</span><span class="pass-count">×4</span></div>
-              <div class="kid-cards" data-kids="kasumi-papa,kasumi-mama,kasumi,miori"></div>
-            </div>
-          </div>
-          <div class="pass">
-            <div class="pass-side c3"><span class="no">NO.</span><span class="num">03</span></div>
-            <div class="pass-body">
-              <div class="pass-top"><span class="pass-name">みはるファミリー</span><span class="pass-count">×3</span></div>
-              <div class="kid-cards" data-kids="miharu-papa,miharu-mama,miharu"></div>
-            </div>
-          </div>
-          <div class="pass">
-            <div class="pass-side c4"><span class="no">NO.</span><span class="num">04</span></div>
-            <div class="pass-body">
-              <div class="pass-top"><span class="pass-name">なつきファミリー</span><span class="pass-count">×4</span></div>
-              <div class="kid-cards" data-kids="natsuki-papa,natsuki-mama,natsuki,fuji"></div>
-            </div>
-          </div>
+          <div class="fam-grid" id="famGrid"></div>
 
           <div class="total">
             <span>合計</span>
@@ -1145,6 +1152,7 @@
       loadNotes(); renderNotes();
       if (newsRead()) document.getElementById('newsDot').classList.add('hidden');
       initProfiles();
+      renderFamilies();
       requestAnimationFrame(animateKidCards);
       loadMemories();
       checkCurrentStatus();
@@ -1544,6 +1552,23 @@
       const art = window.KID_ART;
       if (art && !document.getElementById('content-members').classList.contains('hidden')) {
         const t = now / 1000, S = 3;
+        document.querySelectorAll('.fam-art').forEach(c => {
+          const ids = c.dataset.ids.split(','), dpr = window.devicePixelRatio || 1;
+          const cw = c.clientWidth, ch = 36, S2 = 2;
+          if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = ch * dpr; }
+          const g = c.getContext('2d');
+          g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false; g.clearRect(0, 0, cw, ch);
+          const step = 22, x0 = (cw - (ids.length - 1) * step - art.W * S2) / 2;
+          ids.forEach((id, n) => {
+            const ki = KID_IDS.indexOf(id), fr = ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id];
+            if (!fr) return;
+            const img = fr[Math.floor(t * 2.4 + n * 0.7) % 2];
+            const x = Math.round(x0 + n * step), y = ch - img.height * S2;
+            g.save(); g.translate(x + art.W * S2, 0); g.scale(-1, 1);
+            g.drawImage(img, 0, y, art.W * S2, img.height * S2);
+            g.restore();
+          });
+        });
         document.querySelectorAll('.kid-sprite').forEach(c => {
           const id = c.dataset.id, ki = KID_IDS.indexOf(id);
           const frames = ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id];
@@ -1565,6 +1590,80 @@
         });
       }
       requestAnimationFrame(animateKidCards);
+    }
+
+    /* ===== 家族タイル（2×2・開閉式・並びは毎回ランダム） ===== */
+    const FAMILIES = [
+      { id: 'akari',   name: 'あかり家',  home: 'mansion', color: '#c8553d', members: ['akari-papa', 'akari-mama', 'minori', 'akari'] },
+      { id: 'kasumi',  name: 'かすみ家',  home: 'house',   color: '#2b7a8c', members: ['kasumi-papa', 'kasumi-mama', 'kasumi', 'miori'] },
+      { id: 'miharu',  name: 'みはる家',  home: 'mansion', color: '#d9961c', members: ['miharu-papa', 'miharu-mama', 'miharu'] },
+      { id: 'natsuki', name: 'なつき家',  home: 'house',   color: '#7a6aa8', members: ['natsuki-papa', 'natsuki-mama', 'natsuki', 'fuji'] },
+    ];
+    for (let i = FAMILIES.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [FAMILIES[i], FAMILIES[j]] = [FAMILIES[j], FAMILIES[i]]; }
+    let openFam = null;
+
+    // おうちの ドット絵（オリジナル）
+    const HOME_PIX = {
+      mansion: [ // マンション 14×17
+        '.RRRRRRRRRRRR.', '.WWWWWWWWWWWW.', '.WGGWGGWGGWGGW', '.WGGWGGWGGWGGW', '.AAAAAAAAAAAAA',
+        '.WGGWGGWGGWGGW', '.WGGWGGWGGWGGW', '.AAAAAAAAAAAAA', '.WGGWGGWGGWGGW', '.WGGWGGWGGWGGW', '.AAAAAAAAAAAAA',
+        '.WGGWGGWGGWGGW', '.WGGWGGWGGWGGW', '.WWWWWDDDWWWWW', '.WWWWWDDDWWWWW', '.WWWWWDDDWWWWW', 'FFFFFFFFFFFFFF',
+      ],
+      house: [ // こだて 16×15
+        '................', '.......RR..CC...', '......RRRR.CC...', '.....RRRRRRCC...', '....RRRRRRRRC...',
+        '...RRRRRRRRRR...', '..RRRRRRRRRRRR..', '.RRRRRRRRRRRRRR.', '..WWWWWWWWWWWW..', '..WGGWWWWWWGGW..',
+        '..WGGWWDDWWGGW..', '..WWWWWDDWWWWW..', '..WWWWWDKWWWWW..', '..WWWWWDDWWWWW..', 'FFFFFFFFFFFFFFFF',
+      ],
+    };
+    const HOME_PAL = {
+      akari:   { R: '#c8553d', W: '#f3e6cf', G: '#9fd8f5', A: '#c8553d', D: '#7a5a3a', F: '#7cc46a' },
+      miharu:  { R: '#5a6b80', W: '#e8ecef', G: '#9fd8f5', A: '#e3a72f', D: '#4a5670', F: '#7cc46a' },
+      kasumi:  { R: '#2b7a8c', W: '#fbf3dc', G: '#bfe6fa', D: '#8a5a3a', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', T: '#3f9b6e', N: '#8a5a3a' },
+      natsuki: { R: '#7a6aa8', W: '#fff4ee', G: '#bfe6fa', D: '#c46a7f', K: '#ffd34e', C: '#8a6a5a', F: '#7cc46a', P: '#ff86b3', Y: '#ffd34e' },
+    };
+    function homeRows(fam) {
+      const rows = HOME_PIX[fam.home].map(r => r.split(''));
+      if (fam.id === 'kasumi') { // にわの き
+        [[8, 0], [8, 1], [9, 0], [9, 1], [10, 0], [10, 1], [7, 0]].forEach(([y, x]) => rows[y][x] = 'T');
+        rows[11][0] = 'N'; rows[12][0] = 'N'; rows[13][0] = 'N';
+      }
+      if (fam.id === 'natsuki') { // はなだん
+        [[13, 3], [13, 5], [13, 10], [13, 12]].forEach(([y, x], k) => rows[y][x] = k % 2 ? 'Y' : 'P');
+      }
+      return rows;
+    }
+    function drawHome(canvas, fam) {
+      const rows = homeRows(fam), pal = HOME_PAL[fam.id], S = 3, dpr = window.devicePixelRatio || 1;
+      const w = 16 * S, h = 17 * S;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      const g = canvas.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false;
+      const ox = Math.floor((16 - rows[0].length) / 2) * S, oy = (17 - rows.length) * S;
+      rows.forEach((row, y) => row.forEach((ch, x) => { if (ch === '.' || !pal[ch]) return; g.fillStyle = pal[ch]; g.fillRect(ox + x * S, oy + y * S, S, S); }));
+    }
+
+    function renderFamilies() {
+      const grid = document.getElementById('famGrid');
+      if (!grid) return;
+      let html = '';
+      for (let r = 0; r < FAMILIES.length; r += 2) {
+        const row = FAMILIES.slice(r, r + 2);
+        html += row.map(f => `<button class="fam-tile ${openFam === f.id ? 'open' : ''}" style="--fc:${f.color}" onclick="toggleFam('${f.id}')" aria-expanded="${openFam === f.id}">
+            <canvas class="fam-house" data-fam="${f.id}"></canvas>
+            <span class="fam-name">${f.name}</span>
+            <canvas class="fam-art" data-ids="${f.members.join(',')}"></canvas>
+            <span class="fam-count">×${f.members.length}</span>
+          </button>`).join('');
+        const open = row.find(f => f.id === openFam);
+        if (open) html += `<div class="fam-panel" style="--fc:${open.color}"><div class="kid-cards" data-kids="${open.members.join(',')}"></div></div>`;
+      }
+      grid.innerHTML = html;
+      grid.querySelectorAll('.fam-house').forEach(c => drawHome(c, FAMILIES.find(f => f.id === c.dataset.fam)));
+      renderKidCards();
+    }
+    function toggleFam(id) {
+      openFam = openFam === id ? null : id;
+      editingKid = null;
+      renderFamilies();
     }
 
     /* ===== なんでもメモ ===== */
