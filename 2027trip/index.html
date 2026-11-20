@@ -915,7 +915,15 @@
        Firebase コンソール → プロジェクトの設定 → マイアプリ（ウェブ）に表示される
        firebaseConfig をここに貼り付けると、割り勘メモが全員で共有されます。
        null のままなら、これまでどおり この端末だけに保存されます。 */
-    const FIREBASE_CONFIG = null;
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCd_NHgMbzPLGp50I_ZRsyzdvSnD6zrbmE",
+      authDomain: "tripmiyagi-3e86e.firebaseapp.com",
+      databaseURL: "https://tripmiyagi-3e86e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tripmiyagi-3e86e",
+      storageBucket: "tripmiyagi-3e86e.firebasestorage.app",
+      messagingSenderId: "362875220346",
+      appId: "1:362875220346:web:f7ad807799a0faced1e6c3"
+    };
     const TRIP_ID = 'miyagi2027';
     const FIREBASE_VERSION = '10.12.2';
     let paymentsRef = null;
