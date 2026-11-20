@@ -50,9 +50,17 @@
     .hidden { display: none !important; }
 
     /* ===== チケット（ヘッダー） ===== */
+    .parade {
+      position: relative;
+      height: 40px;
+      margin-top: 6px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .parade canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; image-rendering: pixelated; }
     .ticket {
       position: relative;
-      margin-top: 20px;
+      margin-top: 0;
       background: var(--paper);
       border-radius: 14px;
       box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 24px -12px rgba(60,40,10,.45);
@@ -726,6 +734,11 @@
 
   <div class="wrap">
     <!-- ===== チケット ===== -->
+    <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
+    <div class="parade" onclick="paradeJump()" title="タップすると ジャンプ！">
+      <canvas id="parade" aria-label="こどもたちが歩いているドット絵"></canvas>
+    </div>
+
     <header class="ticket">
       <div class="ticket-band">
         <span>FAMILY TRIP TICKET</span>
@@ -1784,6 +1797,103 @@
         document.getElementById('mvDownload').click();
       }
     }
+
+
+    /* ===== ドット絵の こどもたち（オリジナルの キャラクター） ===== */
+    (function () {
+      // H:かみ S:はだ E:め K:ほっぺ C:ふく D:スカート・ズボン L:あし B:くつ R:リボン
+      const BIG = {
+        head: ['....HHHH....', '...HHHHHH...', '..HHHHHHHH..', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
+        body: ['.....CCC....', '....CCCCC...', '....CCCCSS..', '....DDDDD...', '...DDDDDDD..'],
+        legs: [['....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....BBB....']],
+      };
+      const SMALL = {
+        head: ['....HHHH....', '...HHHHHH...', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
+        body: ['.....CCCS...', '....DDDD....'],
+        legs: [['....L..L....', '...BB..BB...'], ['.....LL.....', '.....BB.....']],
+      };
+      // かみがたの つけたし（うしろがわ）
+      const STYLE = {
+        long:     [[6, 2], [6, 3], [7, 3], [8, 3]],
+        pony:     [[2, 1], [3, 0], [3, 1], [4, 1], [2, 2, 'R']],
+        bob:      [],
+        twin:     [[4, 1], [5, 0], [5, 1], [6, 1], [4, 2, 'R']],
+        bun:      [[0, 2], [0, 3], [-1, 3]],
+        short:    [],
+      };
+      const KIDS = [ // みのり あかり かすみ みはる なつき みおり ふじ
+        { size: BIG, style: 'pony', H: '#4a2c1d', C: '#e0544a', D: '#2f3f6b', R: '#ffd34e' },
+        { size: BIG, style: 'long', H: '#1d1b22', C: '#ff8db8', D: '#c9467f' },
+        { size: BIG, style: 'bob',  H: '#7a4a28', C: '#ffd34e', D: '#c97a2b' },
+        { size: BIG, style: 'twin', H: '#1d1b22', C: '#6fd3b0', D: '#2f8f6b', R: '#ff6fa3' },
+        { size: BIG, style: 'long', H: '#5a3522', C: '#8fd3f5', D: '#2f7fc4' },
+        { size: SMALL, style: 'bun', H: '#3a2418', C: '#ffb37a', D: '#e0544a' },
+        { size: SMALL, style: 'short', H: '#2b2420', C: '#7cc46a', D: '#3a62a8', boy: true },
+      ];
+      const PAL = { S: '#ffd9b8', E: '#2b2420', K: '#ff9aa8', L: '#ffd9b8', B: '#5a3a2a' };
+      const PX = 2, W = 12;
+
+      function sprite(kid, frame) {
+        const sz = kid.size;
+        const rows = [...sz.head, ...sz.body, ...sz.legs[frame]].map(r => r.split(''));
+        let top = 0;
+        (STYLE[kid.style] || []).forEach(([r, c, ch]) => {
+          if (r < 0) { rows.unshift('............'.split('')); top++; }
+        });
+        (STYLE[kid.style] || []).forEach(([r, c, ch]) => { const row = rows[r + top]; if (row) row[c] = ch || 'H'; });
+        if (kid.boy) { rows[top + 5][3] = '.'; }
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = rows.length;
+        const g = cv.getContext('2d');
+        rows.forEach((row, y) => row.forEach((ch, x) => {
+          if (ch === '.') return;
+          g.fillStyle = kid[ch] || PAL[ch] || '#000';
+          g.fillRect(x, y, 1, 1);
+        }));
+        return cv;
+      }
+      const SPR = KIDS.map(k => [sprite(k, 0), sprite(k, 1)]);
+
+      const cv = document.getElementById('parade');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      let jumpAt = -10;
+      window.paradeJump = () => { jumpAt = performance.now() / 1000; };
+      const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function frame(now) {
+        const t = now / 1000;
+        const dpr = window.devicePixelRatio || 1;
+        const cw = cv.clientWidth, ch = cv.clientHeight;
+        if (cv.width !== Math.round(cw * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(0, 0, cw, ch);
+        // じめん
+        ctx.fillStyle = 'rgba(120,90,50,.35)';
+        for (let x = 0; x < cw; x += 6) ctx.fillRect(x, ch - 4, 3, 2);
+
+        const gap = 27, partyW = gap * KIDS.length;
+        const speed = 26; // px/秒
+        const span = cw + partyW + 40;
+        const lead = reduce ? (cw + partyW) / 2 : ((t * speed) % span) - 20;
+        const jump = t - jumpAt;
+        KIDS.forEach((k, i) => {
+          const x = Math.round(lead - i * gap - (k.size === SMALL ? 2 : 0));
+          if (x < -30 || x > cw + 10) return;
+          const step = reduce ? 0 : Math.floor(t * (k.size === SMALL ? 7 : 5.5) + i) % 2;
+          const img = SPR[i][step];
+          let y = ch - 4 - img.height * PX;
+          if (step === 1) y -= 1;
+          const jt = jump - i * 0.06;
+          if (jt > 0 && jt < 0.45) y -= Math.round(Math.sin(jt / 0.45 * Math.PI) * 10);
+          ctx.drawImage(img, x, y, W * PX, img.height * PX);
+        });
+        if (!reduce || jump < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      if (reduce) cv.addEventListener('click', () => requestAnimationFrame(frame));
+    })();
 
     /* ===== カウントダウン ===== */
     const TRIP_DAYS = ['2027-03-20', '2027-03-21'];
