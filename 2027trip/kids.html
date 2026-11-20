@@ -3,296 +3,686 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>きっずぺーじ - たびのしおり</title>
+  <title>たびの しおり（こども よう）</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
-    /* いんさつきほんせってい */
-    @page {
-      size: A4;
-      margin: 8mm;
-    }
+    @page { size: A4; margin: 0; }
     :root {
-      --ink: #1f3550;
-      --soft: #5a6b80;
-      --line: #8a8070;
-      --stamp: #c8553d;
-      --sea: #2b7a8c;
-      --mustard: #e3a72f;
-      --paper: #fbf7ee;
-      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --sea: #2f9bd6;
+      --sea-d: #1f6fa3;
+      --sea-l: #e3f4ff;
+      --pink: #ff86b3;
+      --pink-l: #ffe8f1;
+      --sun: #ffc93c;
+      --sun-l: #fff4cf;
+      --mint: #5cc79a;
+      --mint-l: #e2f7ee;
+      --ink: #263a52;
+      --soft: #6b7f96;
+      --z: 1;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
-      color: var(--ink);
-      background: #e8dcc4;
       margin: 0;
-      padding: 16px;
+      font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+      font-weight: 700;
+      color: var(--ink);
+      background: #cfe9f7;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .page-container {
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
+
+    /* ===== がめん ようの ボタン ===== */
+    .toolbar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+      padding: 10px 16px;
+      background: rgba(207,233,247,.92);
+    }
+    .print-btn {
+      border: 0; border-radius: 999px;
+      background: var(--sea); color: #fff;
+      font-family: inherit; font-size: 16px; font-weight: 900;
+      padding: 10px 22px; cursor: pointer;
+      box-shadow: 0 4px 0 var(--sea-d);
+    }
+    .toolbar p { margin: 0; align-self: center; font-size: 13px; color: var(--soft); }
+
+    /* ===== ページ ===== */
+    .book { padding: 8px 0 40px; }
+    .sheet {
+      width: 210mm; height: 297mm;
+      margin: 0 auto 14px;
+      padding: 13mm 14mm 16mm;
       background: #fff;
-      padding: 14px 16px;
-      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      zoom: var(--z);
+      box-shadow: 0 6px 20px rgba(31,111,163,.25);
+      break-after: page;
+      page-break-after: always;
+    }
+    .sheet:last-child { break-after: auto; page-break-after: auto; }
+    .sheet::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0; height: 9mm;
+      background:
+        radial-gradient(circle at 10px -4px, transparent 12px, var(--sea-l) 13px) 0 0 / 24px 9mm repeat-x;
+    }
+    .pageno {
+      position: absolute; bottom: 3mm; left: 50%; transform: translateX(-50%);
+      z-index: 2;
+      width: 9mm; height: 9mm; border-radius: 50%;
+      background: var(--sea); color: #fff;
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 900;
     }
 
-    /* ===== チケットふう ヘッダー ===== */
-    .ticket {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      border: 2.5px solid var(--ink);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 10px;
+    .head {
+      display: flex; align-items: center; gap: 4mm;
+      margin-bottom: 6mm;
     }
-    .ticket-main { padding: 8px 14px 9px; }
-    .ticket-k { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; color: var(--stamp); }
-    .header-title { margin: 1px 0 2px; font-size: 1.45rem; font-weight: 900; line-height: 1.25; }
-    .ticket-route { font-size: .82rem; font-weight: 700; color: var(--soft); }
-    .ticket-stub {
-      border-left: 2.5px dashed var(--ink);
-      background: var(--paper);
+    .head h2 {
+      margin: 0;
+      font-size: 30px; font-weight: 900; line-height: 1.2;
+      background: var(--c, var(--sea-l));
+      border-radius: 999px;
+      padding: 2mm 7mm;
+    }
+    .head .lead { font-size: 17px; color: var(--soft); margin-top: 1.5mm; }
+    .head .pk { margin-left: auto; width: 30mm; height: 30mm; flex-shrink: 0; }
+    .pk { display: block; object-fit: contain; }
+
+    .lines { display: grid; gap: 0; }
+    .lines span { display: block; height: 13mm; border-bottom: 2.5px dashed #b9cbd9; }
+
+    /* ===== ひょうし ===== */
+    .cover {
+      background: linear-gradient(180deg, #bfe6fa 0%, #e8f6ff 55%, #fff 100%);
+      text-align: center;
+      padding-top: 16mm;
+    }
+    .cover .tag {
+      display: inline-block;
+      font-size: 22px; font-weight: 900;
+      color: #fff; background: var(--pink);
+      border-radius: 999px; padding: 2mm 8mm;
+      box-shadow: 0 4px 0 #e05d93;
+    }
+    .cover h1 {
+      margin: 5mm 0 2mm;
+      font-size: 72px; font-weight: 900; line-height: 1.1;
+      color: var(--sea-d);
+      letter-spacing: .06em;
+      text-shadow: 4px 4px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    }
+    .cover .sub { font-size: 28px; font-weight: 900; color: var(--pink); margin: 0; }
+    .cover-art { position: relative; height: 150mm; margin: 6mm -4mm 0; }
+    .cover-art svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .cover-art .pk { position: absolute; }
+    .cover .date {
+      font-size: 22px; margin: 6mm 0 4mm;
+    }
+    .name-box {
+      margin: 0 auto;
+      width: 150mm;
+      display: flex; align-items: flex-end; gap: 4mm;
+      font-size: 26px;
+      background: #fff;
+      border: 3px solid var(--sea);
+      border-radius: 6mm;
+      padding: 4mm 7mm 5mm;
+    }
+    .name-box .line { flex: 1; border-bottom: 3px dashed #9cc3dc; height: 11mm; }
+
+    /* ===== わたしの こと ===== */
+    .me-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .box {
+      border: 3px solid var(--bc, var(--sea));
+      border-radius: 6mm;
+      padding: 4mm 6mm 5mm;
+      background: var(--bg, #fff);
+    }
+    .box h3 { margin: 0 0 2mm; font-size: 22px; font-weight: 900; }
+    .box.full { grid-column: 1 / -1; }
+    .friends { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin-top: 3mm; }
+    .friend {
+      border: 2.5px dashed #9cc3dc;
+      border-radius: 5mm;
+      height: 26mm;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      padding-bottom: 2.5mm;
+      font-size: 20px; font-weight: 900;
+      background: #fff;
+    }
+    .friend small { font-size: 12px; color: var(--soft); font-weight: 700; }
+
+    /* ===== まめちしき ===== */
+    .facts { display: grid; gap: 4mm; }
+    .fact {
+      display: grid; grid-template-columns: 34mm 1fr; gap: 5mm; align-items: center;
+      border-radius: 6mm;
+      background: var(--bg);
+      padding: 3mm 6mm 3mm 4mm;
+    }
+    .fact svg, .fact .pk { width: 34mm; height: 34mm; }
+    .fact h3 { margin: 0 0 1mm; font-size: 24px; font-weight: 900; }
+    .fact p { margin: 0; font-size: 18px; line-height: 1.5; font-weight: 700; word-break: keep-all; overflow-wrap: anywhere; }
+    .fact b { color: #e05d93; }
+
+    /* ===== びんご ===== */
+    .bingo {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2.5mm;
+      grid-template-rows: repeat(5, 1fr);
+      flex: 1;
+      margin-bottom: 6mm;
+    }
+    .cell {
+      border: 3px solid var(--sea);
+      border-radius: 5mm;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
-      padding: 6px;
-    }
-    .ticket-stub .k { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--soft); }
-    .ticket-stub .v { font-size: 1.05rem; font-weight: 900; line-height: 1.2; }
-    .ticket-stub .barcode {
-      width: 80%; height: 14px; margin-top: 5px;
-      background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px);
-    }
-
-    /* ===== せくしょん ===== */
-    .section-box {
-      position: relative;
-      border: 2px solid var(--line);
-      border-radius: 10px;
-      padding: 14px 12px 9px;
-      margin: 0 0 13px;
-    }
-    .section-title {
-      position: absolute;
-      top: -11px; left: 12px;
+      font-size: 17px; line-height: 1.25; font-weight: 900;
+      word-break: keep-all; overflow-wrap: anywhere;
       background: #fff;
-      padding: 0 8px;
-      font-size: .98rem;
-      font-weight: 900;
-      line-height: 1.3;
-      display: flex; align-items: center; gap: 6px;
+      padding: 1.5mm;
     }
-    .section-title .no {
-      font-family: var(--mono);
-      font-size: .7rem;
-      color: #fff;
-      background: var(--sea);
-      border-radius: 4px;
-      padding: 0 5px;
-    }
+    .cell .e { font-size: 44px; line-height: 1.2; margin-bottom: 1mm; }
+    .cell:nth-child(odd) { border-color: var(--pink); }
+    .cell.free { background: var(--sun-l); border-color: var(--sun); }
+    .cell.free .pk { width: 22mm; height: 22mm; }
 
-    /* 1. じこしょうかい */
-    .profile-fields { display: flex; flex-direction: column; gap: 7px; }
-    .field-line { display: flex; align-items: flex-end; font-size: .92rem; font-weight: 700; }
-    .field-line .line { flex-grow: 1; border-bottom: 2px dotted #999; margin-left: 6px; height: 1.15rem; }
-
-    /* 2. まめちしき */
-    .info-list { margin: 0; padding: 0; list-style: none; font-size: .84rem; line-height: 1.45; font-weight: 700; }
-    .info-list li { margin-bottom: 3px; }
-    .info-list b { color: var(--stamp); }
-
-    /* 3. びんご */
-    .bingo-table { width: 100%; border-collapse: separate; border-spacing: 4px; margin: 0 -4px; width: calc(100% + 8px); }
-    .bingo-table td {
-      width: 20%;
-      height: 46px;
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      text-align: center;
-      vertical-align: middle;
-      font-size: .72rem;
-      font-weight: 700;
-      padding: 2px;
-      line-height: 1.2;
-    }
-    .bingo-center {
-      background: #fdf0d2;
-      border-color: var(--mustard) !important;
-      font-size: .8rem !important;
-      color: var(--stamp);
-      font-weight: 900 !important;
-    }
-
-    /* 4. もちもの ちぇっく */
-    .check-list {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px 10px;
-      margin: 0; padding: 0;
+    /* ===== もちもの ===== */
+    .mochi { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 8mm; }
+    .mochi li {
       list-style: none;
-      font-size: .84rem;
-      font-weight: 700;
+      display: flex; align-items: center; gap: 4mm;
+      font-size: 24px; font-weight: 900;
+      border-bottom: 2.5px dashed #b9cbd9;
+      padding: 3mm 0 4mm;
     }
-    .check-list li { display: flex; align-items: center; gap: 6px; }
-    .check-box {
-      display: inline-block;
-      width: 15px; height: 15px;
-      border: 2px solid var(--ink);
-      border-radius: 4px;
-      flex-shrink: 0;
+    .mochi { margin: 0; padding: 0; }
+    .cb {
+      width: 11mm; height: 11mm; flex-shrink: 0;
+      border: 3.5px solid var(--sea);
+      border-radius: 2.5mm;
+      background: #fff;
     }
+    .mochi .e { font-size: 26px; }
+    .mochi li.blank span.write { flex: 1; }
 
-    /* 5. おえかき */
-    .drawing-space {
-      border: 2px dashed #aaa;
-      border-radius: 8px;
-      height: 280px;
+    /* ===== めいろ・まちがいさがし・ぬりえ・おえかき ===== */
+    .art {
+      flex: 1;
+      border: 3px solid var(--sea);
+      border-radius: 6mm;
+      position: relative;
       display: flex; align-items: center; justify-content: center;
-      background-image: radial-gradient(#ddd 1px, transparent 1px);
-      background-size: 12px 12px;
+      overflow: hidden;
     }
-    .drawing-hint { color: #bbb; font-size: .95rem; font-weight: 700; background: #fff; padding: 0 8px; }
-
-    /* がめんひょうじよう */
-    .no-print { text-align: center; margin-bottom: 12px; }
-    .print-btn {
-      background-color: var(--ink);
-      color: #fff;
-      border: none;
-      padding: 9px 22px;
-      font-family: inherit;
-      font-size: .95rem;
-      font-weight: 700;
-      border-radius: 999px;
-      cursor: pointer;
+    .art > svg { width: 100%; height: 100%; display: block; }
+    .diff { display: grid; gap: 4mm; flex: 1; }
+    .diff .art { flex: none; height: 100mm; }
+    .diff-label {
+      position: absolute; top: 2mm; left: 3mm; z-index: 1;
+      font-size: 18px; font-weight: 900;
+      background: #fff; border-radius: 999px; padding: .5mm 4mm;
+      border: 2.5px solid var(--sea);
     }
-    .print-btn:hover { opacity: .9; }
+    .found { display: flex; gap: 4mm; align-items: center; justify-content: center; font-size: 20px; margin-top: 4mm; }
+    .found i { width: 11mm; height: 11mm; border-radius: 50%; border: 3px dashed var(--pink); display: inline-block; }
+    .draw-art { border-style: dashed; background-image: radial-gradient(#d6e6f2 1.2px, transparent 1.2px); background-size: 7mm 7mm; }
+    .corner-pk { position: absolute; width: 30mm; height: 30mm; }
 
+    /* ===== にっき ===== */
+    .diary { display: grid; gap: 6mm; flex: 1; }
+    .diary .box { display: flex; flex-direction: column; }
+    .faces { display: flex; gap: 6mm; align-items: center; font-size: 19px; margin-top: 3mm; }
+    .faces span { font-size: 34px; }
+
+    @media screen {
+      .sheet { border-radius: 4px; }
+    }
     @media print {
-      body { background: #fff; padding: 0; }
-      .page-container { padding: 0; border-radius: 0; max-width: none; }
-      .no-print { display: none; }
+      body { background: #fff; }
+      .toolbar { display: none; }
+      .book { padding: 0; }
+      .sheet { margin: 0; box-shadow: none; zoom: 1; }
     }
   </style>
 </head>
 <body>
 
-<div class="no-print">
-  <button class="print-btn" onclick="window.print()">🖨️ このぺーじを いんさつする</button>
+<!-- ===== え の ぶひん（ぜんぶ オリジナル） ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3f5"/><stop offset="1" stop-color="#2f9bd6"/></linearGradient>
+    <symbol id="isle" viewBox="0 0 120 200">
+      <path d="M14 200C16 160 20 132 32 114c10-14 40-18 54-8 14 10 20 46 22 94z" fill="#eadfc6" stroke="#c9b48c" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 142h18M62 130h20M40 166h26M80 160h16" stroke="#c9b48c" stroke-width="3" stroke-linecap="round"/>
+      <path d="M52 110c-3-16 2-32 8-46" stroke="#8a5a3a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M86 108c0-8 1-16 4-24" stroke="#8a5a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <g fill="#3f9b6e"><ellipse cx="46" cy="98" rx="28" ry="10"/><ellipse cx="52" cy="82" rx="21" ry="9"/><ellipse cx="58" cy="67" rx="14" ry="7"/></g>
+      <g fill="#55b585"><ellipse cx="86" cy="98" rx="18" ry="8"/><ellipse cx="90" cy="85" rx="12" ry="6"/></g>
+    </symbol>
+    <symbol id="flower" viewBox="-20 -20 40 40">
+      <g fill="#ffb3cf"><ellipse cy="-9" rx="6" ry="9"/><ellipse cy="-9" rx="6" ry="9" transform="rotate(72)"/><ellipse cy="-9" rx="6" ry="9" transform="rotate(144)"/><ellipse cy="-9" rx="6" ry="9" transform="rotate(216)"/><ellipse cy="-9" rx="6" ry="9" transform="rotate(288)"/></g>
+      <circle r="4" fill="#ffc93c"/>
+    </symbol>
+
+    <!-- まめちしき の え -->
+    <symbol id="f-zunda" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="74" rx="44" ry="14" fill="#fff" stroke="#9cc3dc" stroke-width="3"/>
+      <g stroke="#e0d3b8" stroke-width="2"><circle cx="30" cy="60" r="15" fill="#fffaf0"/><circle cx="70" cy="60" r="15" fill="#fffaf0"/><circle cx="50" cy="52" r="16" fill="#fffaf0"/></g>
+      <g fill="#8cc63f"><path d="M17 58c2-10 24-12 27 0-6 4-21 5-27 0z"/><path d="M57 58c2-10 24-12 27 0-6 4-21 5-27 0z"/><path d="M36 49c2-11 26-13 29 0-6 5-23 5-29 0z"/></g>
+      <g fill="#5f9e2a"><circle cx="26" cy="55" r="2"/><circle cx="36" cy="56" r="2"/><circle cx="66" cy="55" r="2"/><circle cx="74" cy="56" r="2"/><circle cx="46" cy="46" r="2"/><circle cx="55" cy="47" r="2"/></g>
+    </symbol>
+    <symbol id="f-gyutan" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="62" rx="44" ry="22" fill="#fff" stroke="#9cc3dc" stroke-width="3"/>
+      <g stroke="#9a5d36" stroke-width="2.5">
+        <rect x="18" y="44" width="40" height="20" rx="10" fill="#d4936a" transform="rotate(-12 38 54)"/>
+        <rect x="34" y="52" width="40" height="20" rx="10" fill="#c98a5a" transform="rotate(8 54 62)"/>
+        <rect x="46" y="40" width="38" height="19" rx="9.5" fill="#d99c72" transform="rotate(-4 65 50)"/>
+      </g>
+      <g stroke="#7a4426" stroke-width="2.5" stroke-linecap="round"><path d="M30 48l-4 10M40 46l-4 10M46 56l-3 10M56 57l-3 10M60 43l-2 10M70 43l-2 10"/></g>
+      <circle cx="84" cy="66" r="6" fill="#fff36e" stroke="#e8c92c" stroke-width="2"/>
+    </symbol>
+    <symbol id="f-matsushima" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="#e3f4ff"/>
+      <circle cx="76" cy="26" r="9" fill="#ffc93c"/>
+      <use href="#isle" x="6" y="22" width="44" height="70"/>
+      <use href="#isle" x="50" y="40" width="34" height="54"/>
+      <path d="M2 70h96v6a48 48 0 0 1-96 0z" fill="url(#gSea)"/>
+      <path d="M14 82q6-4 12 0t12 0M56 86q6-4 12 0t12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="f-kabuto" viewBox="0 0 100 100">
+      <path d="M50 44C38 30 22 18 6 14c14 10 26 22 36 34zM50 44c12-14 28-26 44-30-14 10-26 22-36 34z" fill="#ffc93c" stroke="#d9a21c" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M20 78c0-20 13-34 30-34s30 14 30 34z" fill="#3a4458" stroke="#262d3b" stroke-width="3"/>
+      <path d="M12 80c10-4 66-4 76 0l-4 10c-12-3-56-3-68 0z" fill="#4a5670" stroke="#262d3b" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 60h40M27 70h46" stroke="#5c6a86" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="4" fill="#ffc93c"/>
+    </symbol>
+    <symbol id="f-sasakama" viewBox="0 0 100 100">
+      <path d="M10 56C24 30 64 24 90 46 76 74 34 82 10 56z" fill="#f7ecd2" stroke="#d6bf90" stroke-width="3"/>
+      <path d="M10 56l-6 4" stroke="#d6bf90" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#c88f4a" opacity=".8"><ellipse cx="38" cy="46" rx="6" ry="3"/><ellipse cx="58" cy="44" rx="7" ry="3"/><ellipse cx="48" cy="58" rx="6" ry="3"/><ellipse cx="68" cy="56" rx="5" ry="2.5"/></g>
+      <path d="M24 72c10 8 30 10 50 0" stroke="#5cc79a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="f-kokeshi" viewBox="0 0 100 100">
+      <rect x="32" y="44" width="36" height="52" rx="14" fill="#ffd36b" stroke="#c99a26" stroke-width="3"/>
+      <use href="#flower" x="36" y="56" width="16" height="16"/><use href="#flower" x="50" y="70" width="16" height="16"/><use href="#flower" x="36" y="80" width="12" height="12"/>
+      <circle cx="50" cy="30" r="22" fill="#fff4e6" stroke="#c9b08a" stroke-width="3"/>
+      <path d="M28 28a22 22 0 0 1 44 0c-6-8-14-11-22-11s-16 3-22 11z" fill="#2b2b2b"/>
+      <path d="M41 32q3 3 6 0M53 32q3 3 6 0" stroke="#2b2b2b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="50" cy="40" r="2.5" fill="#e05d5d"/>
+      <circle cx="38" cy="38" r="3" fill="#ff9fb8" opacity=".7"/><circle cx="62" cy="38" r="3" fill="#ff9fb8" opacity=".7"/>
+    </symbol>
+    <symbol id="f-tanabata" viewBox="0 0 100 100">
+      <path d="M50 2v10" stroke="#8a5a3a" stroke-width="4"/>
+      <circle cx="50" cy="22" r="13" fill="#ff86b3" stroke="#e05d93" stroke-width="2.5"/>
+      <g stroke="#fff" stroke-width="1.5" opacity=".7"><path d="M40 16l20 12M40 28l20-12M50 9v26"/></g>
+      <rect x="30" y="33" width="40" height="5" rx="2.5" fill="#ffc93c"/>
+      <g stroke-linecap="round" stroke-width="5">
+        <path d="M33 38c-2 20 2 40-3 58" stroke="#2f9bd6"/><path d="M40 38c-1 20 3 38 0 56" stroke="#5cc79a"/>
+        <path d="M47 38c1 20-2 40 1 58" stroke="#ffc93c"/><path d="M54 38c-1 20 3 38 0 56" stroke="#ff86b3"/>
+        <path d="M61 38c1 20-2 40 2 58" stroke="#a98bff"/><path d="M68 38c2 20-2 38 3 54" stroke="#ff9f5a"/>
+      </g>
+    </symbol>
+    <symbol id="f-kaki" viewBox="0 0 100 100">
+      <path d="M14 56C10 34 30 18 54 20c22 2 36 18 32 38-4 20-24 28-42 26C26 82 16 72 14 56z" fill="#a9b2bd" stroke="#7c8693" stroke-width="3"/>
+      <path d="M24 56c-2-14 12-26 30-24 16 2 26 12 24 26-2 12-16 18-30 17-13-1-22-8-24-19z" fill="#f4f0e6"/>
+      <path d="M32 56c2-8 12-14 22-12 10 2 16 8 14 16-2 6-12 10-20 9-9-1-17-6-16-13z" fill="#e9dcc0" stroke="#d1c09c" stroke-width="2"/>
+      <circle cx="54" cy="56" r="5" fill="#fff" stroke="#d9d4e6" stroke-width="1.5"/>
+      <path d="M16 46c6-2 6-8 12-10M78 36c4 4 10 4 10 10" stroke="#7c8693" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="f-juhyo" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="#dff1fb"/>
+      <path d="M18 92c-4-20 0-36 8-48 4-14 14-22 18-22s10 10 10 20c8 8 10 26 6 50z" fill="#fff" stroke="#9cc3dc" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M58 92c-2-14 0-26 8-34 2-10 8-16 12-16s8 8 8 16c6 8 6 22 2 34z" fill="#fff" stroke="#9cc3dc" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="34" cy="52" r="3" fill="#263a52"/><circle cx="46" cy="52" r="3" fill="#263a52"/><path d="M36 62q4 4 8 0" stroke="#263a52" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="70" cy="66" r="2.5" fill="#263a52"/><circle cx="80" cy="66" r="2.5" fill="#263a52"/>
+      <g fill="#9cc3dc"><circle cx="20" cy="22" r="2.5"/><circle cx="78" cy="20" r="2.5"/><circle cx="88" cy="40" r="2"/><circle cx="12" cy="40" r="2"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="toolbar">
+  <button class="print-btn" onclick="window.print()">🖨️ いんさつする</button>
+  <p>A4・たて／「ふちなし」または よはく「なし」で いんさつしてね</p>
 </div>
 
-<div class="page-container">
+<div class="book">
 
-  <!-- チケット -->
-  <header class="ticket">
-    <div class="ticket-main">
-      <div class="ticket-k">KIDS TRAVEL NOTE</div>
-      <h1 class="header-title">🌸 はるやすみ！たびの きっずのーと</h1>
-      <div class="ticket-route">おうち 🚗 ･･････ みやぎ ･ せんだい 🦕</div>
+  <!-- ===== 1. ひょうし ===== -->
+  <section class="sheet cover">
+    <div><span class="tag">みやぎ りょこう</span></div>
+    <h1>たびの しおり</h1>
+    <p class="sub">ラプラスに あいに いこう！</p>
+    <div class="cover-art">
+      <svg class="scene" viewBox="0 0 320 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <circle cx="272" cy="40" r="30" fill="#ffe08a" opacity=".45"/><circle cx="272" cy="40" r="19" fill="#ffc93c"/>
+        <use href="#isle" x="4" y="40" width="70" height="116"/>
+        <use href="#isle" x="252" y="70" width="60" height="96"/>
+        <path d="M0 140H320V200H0z" fill="url(#gSea)"/>
+        <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M20 162q10-6 20 0t20 0"/><path d="M230 176q10-6 20 0t20 0"/><path d="M120 188q10-6 20 0t20 0"/></g>
+        <use href="#flower" x="80" y="20" width="16" height="16"/><use href="#flower" x="226" y="96" width="12" height="12"/><use href="#flower" x="40" y="10" width="10" height="10"/>
+      </svg>
+      <!-- ポケモンの え（あとで さしかえ） -->
+      <img class="pk" src="kids-img/sample.svg" alt="" style="width:78mm;height:78mm;left:50%;top:6mm;transform:translateX(-50%)">
+      <img class="pk" src="kids-img/sample.svg" alt="" style="width:40mm;height:40mm;left:22mm;top:58mm">
+      <img class="pk" src="kids-img/sample.svg" alt="" style="width:40mm;height:40mm;right:22mm;top:56mm">
+      <img class="pk" src="kids-img/sample.svg" alt="" style="width:30mm;height:30mm;left:4mm;top:2mm">
+      <img class="pk" src="kids-img/sample.svg" alt="" style="width:30mm;height:30mm;right:40mm;top:2mm">
     </div>
-    <div class="ticket-stub">
-      <span class="k">DATE</span>
-      <span class="v">3/20–21</span>
-      <span class="barcode"></span>
-    </div>
-  </header>
+    <p class="date">2027ねん 3がつ 20にち（ど）〜 21にち（にち）</p>
+    <div class="name-box"><span>なまえ</span><span class="line"></span></div>
+  </section>
 
-  <!-- 1. じこしょうかい & めあて -->
-  <section class="section-box">
-    <div class="section-title"><span class="no">01</span>✏️ じこしょうかい & めあて</div>
-    <div class="profile-fields">
-      <div class="field-line">
-        <span>なまえ：</span>
-        <div class="line"></div>
+  <!-- ===== 2. わたしの こと ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--pink-l)">
+      <div><h2>✏️ わたしの こと</h2><div class="lead">じぶんの ことを かいてみよう！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="me-grid">
+      <div class="box" style="--bc:var(--pink)"><h3>なまえ</h3><div class="lines"><span></span></div></div>
+      <div class="box" style="--bc:var(--pink)"><h3>なんさい？</h3><div class="lines"><span></span></div></div>
+      <div class="box full" style="--bc:var(--sea)"><h3>すきな ポケモン</h3><div class="lines"><span></span></div></div>
+      <div class="box full" style="--bc:var(--mint)"><h3>たびで たのしみな こと</h3><div class="lines"><span></span><span></span><span></span></div></div>
+      <div class="box full" style="--bc:var(--sun);--bg:var(--sun-l)">
+        <h3>いっしょに いく おともだち</h3>
+        <div style="font-size:16px;color:var(--soft)">おともだちに サインや シールを もらおう！</div>
+        <div class="friends">
+          <div class="friend">あかり</div><div class="friend">みのり</div><div class="friend">かすみ</div><div class="friend">みおり</div>
+          <div class="friend">みはる</div><div class="friend">なつき</div><div class="friend">ふじ</div><div class="friend"><small>ほかの ひと</small></div>
+        </div>
       </div>
-      <div class="field-line">
-        <span>たびの めあて：</span>
-        <div class="line"></div>
+    </div>
+    <span class="pageno">2</span>
+  </section>
+
+  <!-- ===== 3. まめちしき ① ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--mint-l)">
+      <div><h2>💡 みやぎの まめちしき ①</h2><div class="lead">しってるかな？ よんでみよう！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="facts">
+      <div class="fact" style="--bg:var(--sea-l)">
+        <img class="pk" src="kids-img/sample.svg" alt="">
+        <div><h3>ラプラス</h3><p>みやぎを おうえんしている ポケモン！ みやぎの あちこちに <b>ラプラスの こうえん</b>や マンホールが あるよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--mint-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-zunda"/></svg>
+        <div><h3>ずんだ もち</h3><p><b>えだまめ</b>を つぶして つくった みどりいろの あまい あんこを、おもちに のせた おかしだよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--pink-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-gyutan"/></svg>
+        <div><h3>ぎゅうたん</h3><p><b>うしの した</b>の おにくを やいた りょうり。せんだいの いちばん ゆうめいな ごはんだよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--sea-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-matsushima"/></svg>
+        <div><h3>まつしま</h3><p>うみに <b>260こ</b>いじょうの しまが ある、にっぽんで とくべつ きれいな ばしょの ひとつだよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--sun-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-kabuto"/></svg>
+        <div><h3>だて まさむね</h3><p>むかしの えらい ひと。かぶとに <b>おつきさま</b>の かざりを つけていたよ。</p></div>
       </div>
     </div>
+    <span class="pageno">3</span>
   </section>
 
-  <!-- 2. みやぎの まめちしき -->
-  <section class="section-box">
-    <div class="section-title"><span class="no">02</span>💡 はるのみやぎ まめちしき</div>
-    <ul class="info-list">
-      <li>🍡 <b>「ずんだ」</b>は、えだまめをつぶして つくった あまい おかしだよ！</li>
-      <li>🌙 昔のえらいひと<b>「だてまさむね」</b>は、かぶとに まんまるなお月さまをつけていたよ！</li>
-      <li>🌸 3がつ・4がつは<b>「さくらの はな」</b>や おいしいものが いっぱいの きせつだよ！</li>
-    </ul>
-  </section>
-
-  <!-- 3. たびの 5x5 びんご -->
-  <section class="section-box">
-    <div class="section-title"><span class="no">03</span>🎲 たびの 5×5 びんご（みつけたら 〇をつけよう！）</div>
-    <table class="bingo-table">
-      <tr>
-        <td>あかい<br>くるま</td>
-        <td>お友達と<br>てをつなぐ</td>
-        <td>しんかんせん<br>（でんしゃ）</td>
-        <td>ピンクの<br>おはな</td>
-        <td>あおい<br>かんばん</td>
-      </tr>
-      <tr>
-        <td>みはるちゃんと<br>おはなし</td>
-        <td>「ありがとう」<br>をいう</td>
-        <td>あかりちゃんと<br>あそぶ</td>
-        <td>バス</td>
-        <td>コンビニ</td>
-      </tr>
-      <tr>
-        <td>みのりちゃんと<br>たっち</td>
-        <td>へんがおを<br>する</td>
-        <td class="bingo-center">★<br>FREE</td>
-        <td>おにぎりを<br>たべる</td>
-        <td>みおりちゃんと<br>にっこり</td>
-      </tr>
-      <tr>
-        <td>たかい<br>やま</td>
-        <td>かすみちゃんと<br>あるく</td>
-        <td>ふじくんと<br>バイバイ</td>
-        <td>トンネル</td>
-        <td>なつきちゃんと<br>しゃしん</td>
-      </tr>
-      <tr>
-        <td>自動販売機<br>（じはんき）</td>
-        <td>みんなで<br>えがお</td>
-        <td>川（かわ）や<br>うみ</td>
-        <td>おてつだい<br>をする</td>
-        <td>ラプラスを<br>みつける</td>
-      </tr>
-    </table>
-  </section>
-
-  <!-- 4. もちもの ちぇっく -->
-  <section class="section-box">
-    <div class="section-title"><span class="no">04</span>🎒 もちもの ちぇっく（じゅんびできたら ✓ を つけよう！）</div>
-    <ul class="check-list">
-      <li><span class="check-box"></span>きがえ</li>
-      <li><span class="check-box"></span>パジャマ</li>
-      <li><span class="check-box"></span>ハンカチ</li>
-      <li><span class="check-box"></span>ティッシュ</li>
-      <li><span class="check-box"></span>すいとう</li>
-      <li><span class="check-box"></span>おやつ</li>
-      <li><span class="check-box"></span>ぼうし</li>
-      <li><span class="check-box"></span>くつした</li>
-      <li><span class="check-box"></span>ラプラスの おもちゃ</li>
-    </ul>
-  </section>
-
-  <!-- 5. おえかき・ぬりえ -->
-  <section class="section-box">
-    <div class="section-title"><span class="no">05</span>🎨 じゆうに おえかきスペース</div>
-    <div class="drawing-space">
-      <span class="drawing-hint">ここに すきな えを かいてね！</span>
+  <!-- ===== 4. まめちしき ② ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--mint-l)">
+      <div><h2>💡 みやぎの まめちしき ②</h2><div class="lead">みつけたら おうちの ひとに おしえてね！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
     </div>
+    <div class="facts">
+      <div class="fact" style="--bg:var(--sun-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-sasakama"/></svg>
+        <div><h3>ささかまぼこ</h3><p><b>ささの はっぱ</b>の かたちを した かまぼこ。おさかなから できているよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--pink-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-kokeshi"/></svg>
+        <div><h3>こけし</h3><p><b>き</b>で つくった まあるい あたまの にんぎょう。おかおや もようが ひとつずつ ちがうよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--sea-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-kaki"/></svg>
+        <div><h3>かき</h3><p>うみで そだつ <b>かい</b>の なかま。まつしまでは やいた かきを たべられるよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--mint-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-tanabata"/></svg>
+        <div><h3>せんだい たなばた まつり</h3><p>なつ（8がつ）に まちじゅうが <b>おおきくて カラフルな かざり</b>で いっぱいに なるよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--sea-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-juhyo"/></svg>
+        <div><h3>ざおうの じゅひょう</h3><p>さむい ふゆ、やまの きに ゆきと こおりが くっついて <b>おばけ</b>みたいな かたちに なるよ。</p></div>
+      </div>
+    </div>
+    <span class="pageno">4</span>
   </section>
+
+  <!-- ===== 5. びんご ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--sun-l)">
+      <div><h2>🎲 たびの びんご</h2><div class="lead">みつけたら <b style="color:#e05d93">シール</b>を はろう！ たて・よこ・ななめで びんご！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="bingo" id="bingo"></div>
+    <span class="pageno">5</span>
+  </section>
+
+  <!-- ===== 6. もちもの ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--pink-l)">
+      <div><h2>🎒 もちもの ちぇっく</h2><div class="lead">じゅんび できたら ✓ を かこう！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <ul class="mochi" id="mochi"></ul>
+    <div class="box" style="margin-top:7mm;--bc:var(--mint);--bg:var(--mint-l)">
+      <h3>✨ じぶんで きめる もちもの</h3>
+      <ul class="mochi" id="mochiBlank"></ul>
+    </div>
+    <span class="pageno">6</span>
+  </section>
+
+  <!-- ===== 7. めいろ ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--sea-l)">
+      <div><h2>🌀 めいろ</h2><div class="lead">ふねに のって、ゴールの しままで いけるかな？</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="art" id="maze"></div>
+    <span class="pageno">7</span>
+  </section>
+
+  <!-- ===== 8. まちがいさがし ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--mint-l)">
+      <div><h2>🔍 まちがい さがし</h2><div class="lead">うえと したの え、ちがう ところが <b style="color:#e05d93">5つ</b> あるよ！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="diff">
+      <div class="art" id="diffA"><span class="diff-label">あ</span></div>
+      <div class="art" id="diffB"><span class="diff-label">い</span></div>
+    </div>
+    <div class="found">みつけたら ぬってね →<i></i><i></i><i></i><i></i><i></i></div>
+    <span class="pageno">8</span>
+  </section>
+
+  <!-- ===== 9. ぬりえ ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--pink-l)">
+      <div><h2>🖍️ ぬりえ</h2><div class="lead">すきな いろで ぬってね！ ポケモンも かきたしてみよう</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="art" id="nurie"></div>
+    <span class="pageno">9</span>
+  </section>
+
+  <!-- ===== 10. おえかき ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--sun-l)">
+      <div><h2>🎨 おえかき</h2><div class="lead">たびで いちばん たのしかった ことを かこう！</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="art draw-art"></div>
+    <span class="pageno">10</span>
+  </section>
+
+  <!-- ===== 11. おもいで にっき ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--sea-l)">
+      <div><h2>📖 おもいで にっき</h2><div class="lead">どんな 1にちだったかな？</div></div>
+      <img class="pk" src="kids-img/sample.svg" alt="">
+    </div>
+    <div class="diary">
+      <div class="box" style="--bc:var(--pink)">
+        <h3>1にちめ（3がつ 20にち）</h3>
+        <div class="lines"><span></span><span></span><span></span><span></span></div>
+        <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
+      </div>
+      <div class="box" style="--bc:var(--sea)">
+        <h3>2にちめ（3がつ 21にち）</h3>
+        <div class="lines"><span></span><span></span><span></span><span></span></div>
+        <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
+      </div>
+    </div>
+    <span class="pageno">11</span>
+  </section>
+
 </div>
 
+<script>
+  /* ===== びんご ===== */
+  const BINGO = [
+    ['🚗','あかい くるま'], ['🚄','しんかんせん'], ['🌊','うみ'], ['🚢','ふね'], ['🐦','とり'],
+    ['🏝️','しま'], ['🍡','ずんだ'], ['🌸','ピンクの はな'], ['🚇','トンネル'], ['🎁','おみやげ やさん'],
+    ['🌉','はし'], ['🥩','ぎゅうたん'], null, ['🪆','こけし'], ['🥤','じはんき'],
+    ['🔵','あおい かんばん'], ['🍙','おにぎり'], ['🐚','かいがら'], ['🛝','ラプラスの ゆうぐ'], ['⛰️','やま'],
+    ['🤝','てを つなぐ'], ['💬','「ありがとう」を いう'], ['📷','みんなで しゃしん'], ['🚌','バス'], ['🧹','おてつだい']
+  ];
+  document.getElementById('bingo').innerHTML = BINGO.map(c => c
+    ? `<div class="cell"><span class="e">${c[0]}</span>${c[1]}</div>`
+    : `<div class="cell free"><img class="pk" src="kids-img/sample.svg" alt="">フリー</div>`).join('');
+
+  /* ===== もちもの ===== */
+  const MOCHI = [
+    ['👕','きがえ'], ['🩳','パジャマ'], ['🧦','くつした'], ['🧢','ぼうし'],
+    ['🧻','ハンカチ'], ['🤧','ティッシュ'], ['🥤','すいとう'], ['🍬','おやつ'],
+    ['🧸','おもちゃ'], ['📖','この しおり'], ['🖍️','いろえんぴつ'], ['⭐','シール']
+  ];
+  document.getElementById('mochi').innerHTML = MOCHI.map(m => `<li><span class="cb"></span><span class="e">${m[0]}</span>${m[1]}</li>`).join('');
+  document.getElementById('mochiBlank').innerHTML = Array.from({length: 6}, () => `<li class="blank"><span class="cb"></span><span class="write"></span></li>`).join('');
+
+  /* ===== めいろ ===== */
+  (function () {
+    const C = 11, R = 14, S = 40, P = 30;
+    let seed = 20270320;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+    const wall = [];
+    for (let y = 0; y < R; y++) { wall.push([]); for (let x = 0; x < C; x++) wall[y].push({ t: 1, r: 1, b: 1, l: 1, v: 0 }); }
+    const stack = [[0, 0]]; wall[0][0].v = 1;
+    while (stack.length) {
+      const [x, y] = stack[stack.length - 1];
+      const n = [[0, -1, 't', 'b'], [1, 0, 'r', 'l'], [0, 1, 'b', 't'], [-1, 0, 'l', 'r']]
+        .map(d => [x + d[0], y + d[1], d[2], d[3]])
+        .filter(d => d[0] >= 0 && d[1] >= 0 && d[0] < C && d[1] < R && !wall[d[1]][d[0]].v);
+      if (!n.length) { stack.pop(); continue; }
+      const d = n[Math.floor(rnd() * n.length)];
+      wall[y][x][d[2]] = 0; wall[d[1]][d[0]][d[3]] = 0; wall[d[1]][d[0]].v = 1;
+      stack.push([d[0], d[1]]);
+    }
+    wall[0][0].l = 0; wall[R - 1][C - 1].r = 0;
+    const W = C * S + P * 2, H = R * S + P * 2;
+    let d = '';
+    for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
+      const c = wall[y][x], X = P + x * S, Y = P + y * S;
+      if (c.t) d += `M${X} ${Y}h${S}`;
+      if (c.l) d += `M${X} ${Y}v${S}`;
+      if (y === R - 1 && c.b) d += `M${X} ${Y + S}h${S}`;
+      if (x === C - 1 && c.r) d += `M${X + S} ${Y}v${S}`;
+    }
+    document.getElementById('maze').innerHTML =
+      `<svg viewBox="-60 0 ${W + 120} ${H}" preserveAspectRatio="xMidYMid meet">
+        <rect x="${P}" y="${P}" width="${C * S}" height="${R * S}" fill="#f2faff"/>
+        <path d="${d}" stroke="#2f9bd6" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <g transform="translate(-52 ${P + 2})">
+          <path d="M40 4V-26" stroke="#8a5a3a" stroke-width="3"/><path d="M43-24l20 24H43z" fill="#fff" stroke="#9cc3dc" stroke-width="2"/>
+          <path d="M14 4h62l-10 14H24z" fill="#ff86b3" stroke="#e05d93" stroke-width="2.5"/>
+          <text x="45" y="44" text-anchor="middle" font-size="20" font-weight="900" fill="#e05d93">スタート</text>
+        </g>
+        <g transform="translate(${P + C * S + 6} ${P + (R - 1) * S - 60})">
+          <use href="#isle" x="0" y="0" width="60" height="100"/>
+          <text x="30" y="122" text-anchor="middle" font-size="20" font-weight="900" fill="#1f6fa3">ゴール</text>
+        </g>
+      </svg>`;
+  })();
+
+  /* ===== まちがいさがし ===== */
+  function diffScene(b) {
+    const fish = (x, y, c) => `<g transform="translate(${x} ${y})"><path d="M0 0c10-12 30-12 40 0-10 12-30 12-40 0z" fill="${c}" stroke="#263a52" stroke-width="2.5"/><path d="M40 0l12-9v18z" fill="${c}" stroke="#263a52" stroke-width="2.5" stroke-linejoin="round"/><circle cx="10" cy="-2" r="2.5" fill="#263a52"/></g>`;
+    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+      <rect width="400" height="220" fill="#dff1fb"/>
+      ${b ? '' : '<g fill="#fff" stroke="#bcd8e8" stroke-width="2"><ellipse cx="120" cy="40" rx="34" ry="14"/><ellipse cx="142" cy="30" rx="20" ry="13"/></g>'}
+      <circle cx="330" cy="44" r="22" fill="#ffc93c" stroke="#e0a21c" stroke-width="2.5"/>
+      ${b ? '' : '<g stroke="#ffc93c" stroke-width="4" stroke-linecap="round"><path d="M330 10v-6M330 84v-6M296 44h-6M370 44h-6M306 20l-4-4M358 72l-4-4M306 68l-4 4M358 16l-4 4"/></g>'}
+      <use href="#isle" x="18" y="40" width="80" height="134"/>
+      <use href="#isle" x="290" y="84" width="60" height="100"/>
+      <path d="M0 150H400V220H0z" fill="#8fd3f5"/>
+      <g transform="translate(160 150)">
+        <path d="M30 0V-56" stroke="#8a5a3a" stroke-width="4"/>
+        <path d="M34-54l34 46H34z" fill="#fff" stroke="#9cc3dc" stroke-width="2.5"/>
+        ${b ? '' : '<path d="M30-56l-16 6 16 6z" fill="#ff86b3"/>'}
+        <path d="M-6 0h86l-14 18H8z" fill="#ff86b3" stroke="#e05d93" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+      ${fish(40, 196, '#ffc93c')}${fish(260, 188, '#ff9f5a')}${b ? '' : fish(330, 206, '#5cc79a')}
+      ${b ? '<path d="M120 196l6 12 13 2-10 9 3 13-12-7-12 7 3-13-10-9 13-2z" fill="#ff9f5a" stroke="#d8743a" stroke-width="2" transform="translate(0 -14)"/>'
+           : '<path d="M120 196l6 12 13 2-10 9 3 13-12-7-12 7 3-13-10-9 13-2z" fill="#ff86b3" stroke="#e05d93" stroke-width="2" transform="translate(0 -14)"/>'}
+      <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M70 170q10-6 20 0t20 0"/><path d="M200 196q10-6 20 0t20 0"/></g>
+    </svg>`;
+  }
+  document.getElementById('diffA').insertAdjacentHTML('beforeend', diffScene(false));
+  document.getElementById('diffB').insertAdjacentHTML('beforeend', diffScene(true));
+
+  /* ===== ぬりえ（せんだけ） ===== */
+  document.getElementById('nurie').innerHTML = `<svg viewBox="0 0 300 380" preserveAspectRatio="xMidYMid meet" fill="#fff" stroke="#263a52" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="240" cy="62" r="28"/>
+    <path d="M240 20v-10M240 114v-10M198 62h-10M292 62h-10M210 32l-7-7M277 99l-7-7M210 92l-7 7M277 25l-7 7" fill="none"/>
+    <path d="M40 70c0-12 14-18 24-12 4-12 24-14 30-2 12-2 20 8 14 18H44c-4 0-4-4-4-4z"/>
+    <path d="M60 120c8 4 12 4 20 0M88 106c6 3 10 3 16 0" fill="none"/>
+    <path d="M10 270C14 220 22 190 38 170c14-18 54-22 72-10 18 12 24 56 26 110z"/>
+    <path d="M60 172c-4-20 2-40 10-58M110 166c0-10 2-20 6-30" fill="none"/>
+    <ellipse cx="52" cy="160" rx="36" ry="13"/><ellipse cx="60" cy="140" rx="27" ry="11"/><ellipse cx="68" cy="121" rx="18" ry="9"/>
+    <ellipse cx="110" cy="158" rx="22" ry="9"/><ellipse cx="114" cy="142" rx="15" ry="7"/>
+    <path d="M36 210h22M70 196h24M46 236h30" fill="none"/>
+    <path d="M190 270c2-30 8-48 18-60 10-12 34-14 46-6 12 8 16 34 18 66z"/>
+    <path d="M222 212c-2-12 2-24 6-34" fill="none"/><ellipse cx="220" cy="204" rx="24" ry="9"/><ellipse cx="226" cy="190" rx="16" ry="7"/>
+    <path d="M0 262c20-12 40-12 60 0s40 12 60 0 40-12 60 0 40 12 60 0 40-12 60 0V380H0z"/>
+    <path d="M30 300q12-8 24 0t24 0M170 316q12-8 24 0t24 0M90 350q12-8 24 0t24 0" fill="none"/>
+    <g transform="translate(120 266)"><path d="M34 0V-70"/><path d="M38-68l40 58H38z"/><path d="M34-70l-18 7 18 7z"/><path d="M-10 0h96l-16 22H6z"/><circle cx="16" cy="10" r="4"/><circle cx="36" cy="10" r="4"/><circle cx="56" cy="10" r="4"/></g>
+    <g transform="translate(40 330)"><path d="M0 0c12-14 34-14 46 0-12 14-34 14-46 0z"/><path d="M46 0l14-10v20z"/><circle cx="12" cy="-2" r="2.5" fill="#263a52"/></g>
+    <g transform="translate(200 352)"><path d="M0 0c10-12 28-12 38 0-10 12-28 12-38 0z"/><path d="M38 0l12-8v16z"/><circle cx="10" cy="-2" r="2.2" fill="#263a52"/></g>
+    <path d="M150 140q8-8 16 0q8-8 16 0M184 112q6-6 12 0q6-6 12 0" fill="none"/>
+    <path d="M262 318l6 12 13 2-10 9 3 13-12-7-12 7 3-13-10-9 13-2z"/>
+  </svg>`;
+
+  /* ===== がめんの はばに あわせる ===== */
+  function fit() {
+    const w = Math.min(window.innerWidth, document.documentElement.clientWidth) - 16;
+    const page = 210 * 96 / 25.4;
+    document.documentElement.style.setProperty('--z', Math.min(1, w / page).toFixed(3));
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('beforeprint', () => document.documentElement.style.setProperty('--z', 1));
+  window.addEventListener('afterprint', fit);
+</script>
 </body>
 </html>
