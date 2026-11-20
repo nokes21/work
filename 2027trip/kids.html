@@ -119,6 +119,30 @@
       color: #D84315;
     }
 
+    /* 5. もちもの ちぇっく */
+    .check-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.82rem;
+      font-weight: bold;
+    }
+    .check-list li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .check-box {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border-color);
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
     /* 4. おえかき・ぬりえ */
     .drawing-space {
       border: 2px dashed #999;
@@ -239,7 +263,23 @@
     </table>
   </section>
 
-  <!-- 4. おえかき・ぬりえ -->
+  <!-- 4. もちもの ちぇっく -->
+  <section class="section-box">
+    <div class="section-title">🎒 もちもの ちぇっく（じゅんびできたら ✓ を つけよう！）</div>
+    <ul class="check-list">
+      <li><span class="check-box"></span>きがえ</li>
+      <li><span class="check-box"></span>パジャマ</li>
+      <li><span class="check-box"></span>ハンカチ</li>
+      <li><span class="check-box"></span>ティッシュ</li>
+      <li><span class="check-box"></span>すいとう</li>
+      <li><span class="check-box"></span>おやつ</li>
+      <li><span class="check-box"></span>ぼうし</li>
+      <li><span class="check-box"></span>くつした</li>
+      <li><span class="check-box"></span>ラプラスの おもちゃ</li>
+    </ul>
+  </section>
+
+  <!-- 5. おえかき・ぬりえ -->
   <section class="section-box">
     <div class="section-title">🎨 じゆうに おえかきスペース</div>
     <div class="drawing-space">
