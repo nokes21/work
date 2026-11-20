@@ -1848,10 +1848,9 @@
       const ctx = cv.getContext('2d');
       let jumpAt = -10;
       window.paradeJump = () => { jumpAt = performance.now() / 1000; };
-      const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // うごき：ふだんは あるく、ときどき はしる
-      let lead = -20, last = 0, factor = 1, runUntil = 0;
+      // うごき：みぎ から ひだり へ。ふだんは あるく、ときどき はしる
+      let lead = null, last = 0, factor = 1, runUntil = 0;
       let nextRun = 6 + Math.random() * 8;
       const phase = KIDS.map((_, i) => i * 0.5);
       function frame(now) {
@@ -1868,44 +1867,46 @@
         for (let x = 0; x < cw; x += 6) ctx.fillRect(x, ch - 4, 3, 2);
 
         const gap = 27, partyW = gap * KIDS.length;
+        if (lead === null) lead = cw * 0.6;
         // はしる タイミング
-        if (!reduce && t > nextRun && t > runUntil) { runUntil = t + 2 + Math.random() * 1.5; nextRun = runUntil + 10 + Math.random() * 10; }
+        if (t > nextRun && t > runUntil) { runUntil = t + 2 + Math.random() * 1.5; nextRun = runUntil + 10 + Math.random() * 10; }
         const running = t < runUntil;
         factor += ((running ? 3.2 : 1) - factor) * Math.min(1, dt * 3);
-        if (!reduce) {
-          lead += 26 * factor * dt;
-          if (lead - partyW > cw + 20) lead = -20;
-        } else lead = (cw + partyW) / 2;
+        lead -= 26 * factor * dt;
+        if (lead + partyW < -20) lead = cw + 20;
 
         const jump = t - jumpAt;
+        const sw = W * PX;
         KIDS.forEach((k, i) => {
           const small = k.size === SMALL;
           phase[i] += dt * (small ? 7 : 5.5) * Math.pow(factor, 0.75);
-          const x = Math.round(lead - i * gap - (small ? 2 : 0));
+          const x = Math.round(lead + i * gap + (small ? 2 : 0));
           if (x < -30 || x > cw + 10) return;
-          const step = reduce ? 0 : Math.floor(phase[i]) % 2;
+          const step = Math.floor(phase[i]) % 2;
           const img = SPR[i][step];
-          let y = ch - 4 - img.height * PX;
+          const sh = img.height * PX;
+          let y = ch - 4 - sh;
           if (step === 1) y -= factor > 2 ? 2 : 1;
           const jt = jump - i * 0.06;
           if (jt > 0 && jt < 0.45) y -= Math.round(Math.sin(jt / 0.45 * Math.PI) * 10);
-          // はしってる ときは まえかがみ ＋ すなぼこり
-          if (factor > 1.6) {
+          // ひだりむきに はんてん。はしってる ときは まえかがみ ＋ すなぼこり（うしろ＝みぎがわ）
+          const runPose = factor > 1.6;
+          if (runPose) {
             ctx.fillStyle = 'rgba(160,130,90,.45)';
             const puff = Math.floor(phase[i] * 2) % 3;
-            ctx.fillRect(x - 4 - puff * 3, ch - 7 - (puff % 2) * 2, 3, 3);
-            ctx.fillRect(x - 9 - puff * 2, ch - 6, 2, 2);
-            ctx.save(); ctx.translate(x + W, y + img.height * PX); ctx.rotate(0.08);
-            ctx.drawImage(img, -W * PX, -img.height * PX, W * PX, img.height * PX);
-            ctx.restore();
-          } else {
-            ctx.drawImage(img, x, y, W * PX, img.height * PX);
+            ctx.fillRect(x + sw + 1 + puff * 3, ch - 7 - (puff % 2) * 2, 3, 3);
+            ctx.fillRect(x + sw + 7 + puff * 2, ch - 6, 2, 2);
           }
+          ctx.save();
+          ctx.translate(x, y + sh);
+          if (runPose) ctx.rotate(-0.08);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, -sw, -sh, sw, sh);
+          ctx.restore();
         });
-        if (!reduce || jump < 1) requestAnimationFrame(frame);
+        requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
-      if (reduce) cv.addEventListener('click', () => requestAnimationFrame(frame));
     })();
 
     /* ===== カウントダウン ===== */
