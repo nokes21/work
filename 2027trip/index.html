@@ -2159,7 +2159,7 @@
         { size: SMALL, style: 'bun', H: '#3a2418', C: '#ffb37a', D: '#e0544a' },
         { size: CRAWL, style: 'short', H: '#2b2420', C: '#7cc46a', D: '#3a62a8' },
       ];
-      const PAL = { S: '#ffd9b8', E: '#2b2420', K: '#ff9aa8', L: '#ffd9b8', B: '#5a3a2a' };
+      const PAL = { S: '#ffd9b8', E: '#2b2420', K: '#ff9aa8', L: '#e8a77c', B: '#5a3a2a' };
       const PX = 2, W = 12;
 
       function sprite(kid, frame) {
@@ -2264,6 +2264,9 @@
             ctx.fillRect(x + sw + 1 + puff * 3, ch - 7 - (puff % 2) * 2, 3, 3);
             ctx.fillRect(x + sw + 7 + puff * 2, ch - 6, 2, 2);
           }
+          // あしもとの かげ（じめんに たっている かんじ）
+          ctx.fillStyle = 'rgba(90,60,30,.22)';
+          ctx.beginPath(); ctx.ellipse(x + sw / 2, ch - 4, sw / 2 - 3, 2, 0, 0, Math.PI * 2); ctx.fill();
           ctx.save();
           ctx.translate(x, y + sh);
           if (runPose) ctx.rotate(-0.08);
