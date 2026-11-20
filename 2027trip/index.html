@@ -600,14 +600,6 @@
 
     /* 共有の じょうたい */
     .notice-share { color: var(--ink); border-color: var(--sea); background: rgba(43,122,140,.08); }
-    .url-box {
-      display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center;
-      background: var(--paper); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px;
-      box-shadow: 0 8px 18px -14px rgba(60,40,10,.6);
-    }
-    .url-label { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: var(--ink-soft); }
-    .url-box a { font-family: var(--mono); font-size: 12px; color: var(--sea); word-break: break-all; }
-    .url-box .btn { padding: 6px 12px; font-size: 12px; }
     .sync-status {
       display: flex; align-items: center; gap: 6px;
       font-size: 12px; font-weight: 700; color: var(--ink-soft);
@@ -866,11 +858,6 @@
           </div>
           <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
         </div>
-        <div class="url-box">
-          <span class="url-label">ゲームのURL</span>
-          <a id="gameUrl" href="game/" target="_blank">game/</a>
-          <button class="btn" onclick="copyGameUrl(this)">コピー</button>
-        </div>
       </section>
 
     </main>
@@ -953,8 +940,6 @@
       renderSouvenirList();
       renderSpots();
       initPayments();
-      const gu = document.getElementById('gameUrl');
-      gu.href = gameUrl(); gu.textContent = gameUrl();
       checkCurrentStatus();
       setInterval(checkCurrentStatus, 10000);
     });
@@ -984,13 +969,6 @@
           </div>
         </div>`).join('');
     }
-    function gameUrl() { return new URL('game/', location.href).href; }
-    function copyGameUrl(btn) {
-      const done = () => { btn.textContent = 'コピーしました'; setTimeout(() => btn.textContent = 'コピー', 1500); };
-      if (navigator.clipboard) navigator.clipboard.writeText(gameUrl()).then(done, () => prompt('このURLをコピーしてください', gameUrl()));
-      else prompt('このURLをコピーしてください', gameUrl());
-    }
-
     function flashEl(el) {
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
