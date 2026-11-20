@@ -2124,11 +2124,17 @@
         body: ['....CCCCC...', '...CCCCCCC..', '...CCCCCCC..', '...CCCCCSS..', '....DDDDD...', '...DDDDDDD..', '..DDDDDDDDD.'],
         legs: [['....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....BBB....']],
       };
-      // ハイハイ（ふじくん・1さい）みぎむき 12×9
+      // ハイハイ（ふじくん・0さい）みぎむき
       const CRAWL = {
         head: ['.......HHHH.', '......HHHHHH', '......HSSSSH', '......HSSESS', '......SSSSKS'],
         body: ['..CCCCCSSSS.', '.DDCCCCCC...', '.DDDCCCCC...'],
         legs: [['.L.L....CS..', 'B..L.....SS.'], ['..LL...SC...', '..BL...SS...']],
+      };
+      // せが たかめ（みのりちゃん）
+      const TALL = {
+        head: ['....HHHH....', '...HHHHHH...', '..HHHHHHHH..', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
+        body: ['.....CCC....', '....CCCCC...', '....CCCCC...', '....CCCCSS..', '....DDDDD...', '...DDDDDDD..'],
+        legs: [['....L...L...', '....L...L...', '....L...L...', '...BB...BB..'], ['.....LL.....', '.....LL.....', '.....LL.....', '.....BBB....']],
       };
       const SMALL = {
         head: ['....HHHH....', '...HHHHHH...', '..HHHSSSSH..', '..HHSSSESS..', '..HHSSSSKS..', '...H.SSSS...'],
@@ -2145,7 +2151,7 @@
         short:    [],
       };
       const KIDS = [ // みのり あかり かすみ みはる なつき みおり ふじ
-        { size: BIG, style: 'pony', H: '#4a2c1d', C: '#e0544a', D: '#2f3f6b', R: '#ffd34e' },
+        { size: TALL, style: 'pony', H: '#4a2c1d', C: '#e0544a', D: '#2f3f6b', R: '#ffd34e' },
         { size: BIG, style: 'long', H: '#1d1b22', C: '#ff8db8', D: '#c9467f' },
         { size: BIG, style: 'bob',  H: '#7a4a28', C: '#ffd34e', D: '#c97a2b' },
         { size: BIG, style: 'twin', H: '#1d1b22', C: '#6fd3b0', D: '#2f8f6b', R: '#ff6fa3' },
