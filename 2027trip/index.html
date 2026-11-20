@@ -51,16 +51,20 @@
 
     /* ===== チケット（ヘッダー） ===== */
     .parade {
-      position: relative;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 40;
       height: 40px;
-      margin-top: 6px;
+      background-color: var(--kraft);
+      box-shadow: 0 2px 6px -4px rgba(60,40,10,.5);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
     .parade canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+    body { padding-top: 40px; }
     .ticket {
       position: relative;
-      margin-top: 0;
+      margin-top: 12px;
       background: var(--paper);
       border-radius: 14px;
       box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 24px -12px rgba(60,40,10,.45);
@@ -157,7 +161,7 @@
     }
 
     /* ===== タブ（インデックスシール） ===== */
-    .tabs-wrap { position: sticky; top: 0; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
+    .tabs-wrap { position: sticky; top: 40px; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
     .tabs { display: flex; gap: 4px; }
     .tab-btn {
       flex: 1;
@@ -1861,8 +1865,13 @@
       window.paradeJump = () => { jumpAt = performance.now() / 1000; };
       const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      // うごき：ふだんは あるく、ときどき はしる
+      let lead = -20, last = 0, factor = 1, runUntil = 0;
+      let nextRun = 6 + Math.random() * 8;
+      const phase = KIDS.map((_, i) => i * 0.5);
       function frame(now) {
         const t = now / 1000;
+        const dt = last ? Math.min(0.05, t - last) : 0; last = t;
         const dpr = window.devicePixelRatio || 1;
         const cw = cv.clientWidth, ch = cv.clientHeight;
         if (cv.width !== Math.round(cw * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
@@ -1874,20 +1883,39 @@
         for (let x = 0; x < cw; x += 6) ctx.fillRect(x, ch - 4, 3, 2);
 
         const gap = 27, partyW = gap * KIDS.length;
-        const speed = 26; // px/秒
-        const span = cw + partyW + 40;
-        const lead = reduce ? (cw + partyW) / 2 : ((t * speed) % span) - 20;
+        // はしる タイミング
+        if (!reduce && t > nextRun && t > runUntil) { runUntil = t + 2 + Math.random() * 1.5; nextRun = runUntil + 10 + Math.random() * 10; }
+        const running = t < runUntil;
+        factor += ((running ? 3.2 : 1) - factor) * Math.min(1, dt * 3);
+        if (!reduce) {
+          lead += 26 * factor * dt;
+          if (lead - partyW > cw + 20) lead = -20;
+        } else lead = (cw + partyW) / 2;
+
         const jump = t - jumpAt;
         KIDS.forEach((k, i) => {
-          const x = Math.round(lead - i * gap - (k.size === SMALL ? 2 : 0));
+          const small = k.size === SMALL;
+          phase[i] += dt * (small ? 7 : 5.5) * Math.pow(factor, 0.75);
+          const x = Math.round(lead - i * gap - (small ? 2 : 0));
           if (x < -30 || x > cw + 10) return;
-          const step = reduce ? 0 : Math.floor(t * (k.size === SMALL ? 7 : 5.5) + i) % 2;
+          const step = reduce ? 0 : Math.floor(phase[i]) % 2;
           const img = SPR[i][step];
           let y = ch - 4 - img.height * PX;
-          if (step === 1) y -= 1;
+          if (step === 1) y -= factor > 2 ? 2 : 1;
           const jt = jump - i * 0.06;
           if (jt > 0 && jt < 0.45) y -= Math.round(Math.sin(jt / 0.45 * Math.PI) * 10);
-          ctx.drawImage(img, x, y, W * PX, img.height * PX);
+          // はしってる ときは まえかがみ ＋ すなぼこり
+          if (factor > 1.6) {
+            ctx.fillStyle = 'rgba(160,130,90,.45)';
+            const puff = Math.floor(phase[i] * 2) % 3;
+            ctx.fillRect(x - 4 - puff * 3, ch - 7 - (puff % 2) * 2, 3, 3);
+            ctx.fillRect(x - 9 - puff * 2, ch - 6, 2, 2);
+            ctx.save(); ctx.translate(x + W, y + img.height * PX); ctx.rotate(0.08);
+            ctx.drawImage(img, -W * PX, -img.height * PX, W * PX, img.height * PX);
+            ctx.restore();
+          } else {
+            ctx.drawImage(img, x, y, W * PX, img.height * PX);
+          }
         });
         if (!reduce || jump < 1) requestAnimationFrame(frame);
       }
