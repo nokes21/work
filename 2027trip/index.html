@@ -149,7 +149,7 @@
     }
 
     /* ===== タブ（インデックスシール） ===== */
-    .tabs-wrap { position: sticky; top: 0; z-index: 30; padding: 10px 0 8px; background: linear-gradient(var(--kraft) 70%, rgba(232,220,196,0)); }
+    .tabs-wrap { position: sticky; top: 0; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
     .tabs { display: flex; gap: 4px; }
     .tab-btn {
       flex: 1;
@@ -489,9 +489,10 @@
     }
     .receipt-title { text-align: center; font-weight: 600; letter-spacing: .2em; margin-bottom: 8px; }
     .receipt hr { border: 0; border-top: 1.5px dashed #b8b0a0; margin: 8px 0; }
-    .pay-form { display: grid; gap: 6px; font-family: 'Zen Kaku Gothic New', sans-serif; }
-    .pay-row { display: flex; gap: 6px; }
-    .pay-row select.field { flex: 0 0 auto; font-weight: 700; }
+    .pay-form { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .pay-form .field { width: 100%; min-width: 0; font-size: 16px; }
+    .pay-form select.field { font-weight: 700; }
+    .span2 { grid-column: 1 / -1; }
     .pay-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 2px 0; }
     .pay-item .who { font-weight: 600; }
     .pay-item .what { font-family: 'Zen Kaku Gothic New', sans-serif; color: var(--ink-soft); }
@@ -551,8 +552,73 @@
     .modal-card h3 { margin: 0; font-size: 18px; font-weight: 900; }
     .modal-card p { margin: 6px 0 16px; font-family: var(--hand); font-size: 14px; color: var(--ink-soft); }
 
+
+    /* タブとページを つなげる */
+    main > section > :first-child { border-top-left-radius: 0; border-top-right-radius: 0; margin-top: 0; }
+    .tab-btn.active { transform: none; box-shadow: 0 3px 0 var(--stamp) inset; }
+
+    /* 行き先 */
+    .spot-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      font-size: 12px; font-weight: 700;
+      color: var(--stamp);
+      background: none;
+      border: 1.5px solid var(--stamp);
+      border-radius: 999px;
+      padding: 3px 11px;
+      cursor: pointer;
+    }
+    .spot-card {
+      display: grid; grid-template-columns: 46px 1fr; gap: 12px;
+      background: #fff;
+      border: 1.5px solid var(--paper-line);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .spot-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: rgba(43,122,140,.12);
+      display: grid; place-items: center; font-size: 24px;
+    }
+    .spot-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .spot-card h3 { margin: 0; font-size: 15px; font-weight: 900; }
+    .spot-card .sub { font-size: 11px; color: var(--ink-soft); }
+    .spot-card p { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+    .spot-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .when-chip {
+      font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+      border: 0; border-radius: 999px;
+      background: var(--ink); color: var(--paper);
+      padding: 4px 10px; cursor: pointer;
+    }
+    .spot-actions .map-link { margin-top: 0; }
+    @keyframes flash-ring { 0% { box-shadow: 0 0 0 0 rgba(200,85,61,.6); } 100% { box-shadow: 0 0 0 12px rgba(200,85,61,0); } }
+    .flash { border-color: var(--stamp) !important; animation: flash-ring 1s 2; }
+
+    /* 共有の じょうたい */
+    .notice-share { color: var(--ink); border-color: var(--sea); background: rgba(43,122,140,.08); }
+    .url-box {
+      display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center;
+      background: var(--paper); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px;
+      box-shadow: 0 8px 18px -14px rgba(60,40,10,.6);
+    }
+    .url-label { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .url-box a { font-family: var(--mono); font-size: 12px; color: var(--sea); word-break: break-all; }
+    .url-box .btn { padding: 6px 12px; font-size: 12px; }
+    .sync-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; color: var(--ink-soft);
+      margin: -4px 0 10px;
+    }
+    .sync-status .dot { width: 8px; height: 8px; border-radius: 50%; background: #b8b0a0; flex-shrink: 0; }
+    .sync-status.on .dot { background: #3a9b6a; }
+    .sync-status.err .dot { background: var(--stamp); }
+
     @media (prefers-reduced-motion: reduce) {
-      .is-now-card { animation: none; }
+      .is-now-card, .flash { animation: none; }
     }
   </style>
 </head>
@@ -603,8 +669,8 @@
       <nav class="tabs">
         <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn active"><i class="fa-solid fa-route"></i>日程</button>
         <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn"><i class="fa-solid fa-user-group"></i>メンバー</button>
-        <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn"><i class="fa-solid fa-map-pin"></i>スポット</button>
-        <button onclick="switchTab('gourmet')" id="tab-btn-gourmet" class="tab-btn"><i class="fa-solid fa-utensils"></i>グルメ</button>
+        <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn"><i class="fa-solid fa-map-location-dot"></i>行き先</button>
+        <button onclick="switchTab('memo')" id="tab-btn-memo" class="tab-btn"><i class="fa-solid fa-pen-to-square"></i>メモ</button>
         <button onclick="switchTab('other')" id="tab-btn-other" class="tab-btn"><i class="fa-solid fa-suitcase"></i>その他</button>
       </nav>
     </div>
@@ -631,13 +697,14 @@
                 <div class="stop-time">12:00</div>
                 <h3>松島海岸でお昼ごはん＆散策 🦪</h3>
                 <p>日本三景の松島に到着。美味しい海鮮ランチや焼き牡蠣を堪能！散策や食べ歩きを楽しみます。</p>
-                <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="map-link"><i class="fa-solid fa-location-dot"></i>地図を開く</a>
+                <button class="spot-link" onclick="goSpot('matsushima')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-3" class="stop">
                 <span id="badge-sched-3" class="now-stamp hidden">いまココ！</span>
                 <div class="stop-time">15:30</div>
                 <h3>宿チェックイン＆のんびりタイム ♨️</h3>
                 <p>宿にチェックイン。お部屋で休憩したり、子供たちみんなでお部屋遊び！</p>
+                <button class="spot-link" onclick="goSpot('yado')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-4" class="stop">
                 <span id="badge-sched-4" class="now-stamp hidden">いまココ！</span>
@@ -656,13 +723,14 @@
                 <div class="stop-time">10:00</div>
                 <h3>ラプラス公園inせんだい 🦕</h3>
                 <p>楽しみにしていたラプラス公園へ！巨大なラプラス遊具やふわふわドームで子供たちと一緒に全力遊び！</p>
-                <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="map-link"><i class="fa-solid fa-location-dot"></i>地図を開く</a>
+                <button class="spot-link" onclick="goSpot('lapras')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-6" class="stop">
                 <span id="badge-sched-6" class="now-stamp hidden">いまココ！</span>
                 <div class="stop-time">13:00</div>
                 <h3>仙台市内ランチ＆お土産購入 🛍️</h3>
                 <p>牛タンやお寿司など名物ランチを堪能。ずんだスイーツを食べたり、家族へのお土産を探します。</p>
+                <button class="spot-link" onclick="goSpot('sendai')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-7" class="stop">
                 <span id="badge-sched-7" class="now-stamp hidden">いまココ！</span>
@@ -716,94 +784,22 @@
         </div>
       </section>
 
-      <!-- ===== 3. スポット ===== -->
+      <!-- ===== 3. 行き先 ===== -->
       <section id="content-spots" class="hidden">
-        <div class="postcard">
-          <span class="tape"></span>
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="ラプラス公園">
-          <div class="postcard-body">
-            <div class="postcard-top">
-              <div>
-                <h3>ラプラス公園inせんだい</h3>
-                <div class="sub">仙台市海岸公園冒険広場</div>
-              </div>
-              <span class="label-stamp ls-red">メイン</span>
-            </div>
-            <p>みやぎ応援ポケモンの「ラプラス」をモチーフにした遊具が揃う公園！巨大なラプラスの滑り台やふわふわドームなど、子供たちが大興奮できるポイントがいっぱいです。</p>
-            <a href="https://maps.google.com/?q=仙台市海岸公園冒険広場" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>ナビを見る</a>
-          </div>
-        </div>
-
-        <div class="postcard">
-          <span class="tape sea"></span>
-          <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80" alt="松島海岸エリア">
-          <div class="postcard-body">
-            <div class="postcard-top">
-              <div>
-                <h3>松島海岸エリア</h3>
-                <div class="sub">日本三景・松島</div>
-              </div>
-              <span class="label-stamp ls-sea">観光</span>
-            </div>
-            <p>日本三景の一つで絶景を眺めながら散策！焼き牡蠣の食べ歩きや笹かまぼこの手焼き体験など、大人も子供も満足できる食べ歩きスポットです。</p>
-            <a href="https://maps.google.com/?q=松島海岸" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>ナビを見る</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 4. グルメ ===== -->
-      <section id="content-gourmet" class="hidden">
-        <div class="postcard">
-          <span class="tape mustard"></span>
-          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80" alt="仙台牛タン">
-          <div class="postcard-body">
-            <div class="postcard-top">
-              <h3>仙台牛タン</h3>
-              <span class="label-stamp ls-mustard">名物</span>
-            </div>
-            <p>厚切りでジューシーな炭火焼き牛タン。定番の塩焼きだけでなく、テールスープや麦飯との相性も抜群です！</p>
-          </div>
-        </div>
-
-        <div class="postcard">
-          <span class="tape"></span>
-          <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80" alt="ずんだスイーツ">
-          <div class="postcard-body">
-            <div class="postcard-top">
-              <h3>ずんだスイーツ</h3>
-              <span class="label-stamp ls-sea">スイーツ</span>
-            </div>
-            <p>風味豊かな枝豆ペーストのずんだ餅や、手軽に持ち運べる大人気の「ずんだシェイク」は子供たちのおやつにもぴったり！</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 5. その他 ===== -->
-      <section id="content-other" class="hidden">
-        <div class="notice">
-          <i class="fa-solid fa-lock" style="margin-top:3px"></i>
-          <span>このページで追加・記録した内容（持ち物・お土産・割り勘メモ）は他の家族には共有されず、このスマホ（端末）にだけ保存されます。</span>
-        </div>
-
-        <div class="coupon">
-          <div class="coupon-main">
-            <div class="k">PRINT · A4</div>
-            <h3>🖨️ こども用しおり</h3>
-            <p>11ページの本。ビンゴ・めいろ・ぬりえ付き！</p>
-          </div>
-          <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-
-        <div class="coupon" style="background:#8fd3f5">
-          <div class="coupon-main">
-            <div class="k">GAME · SMARTPHONE</div>
-            <h3>🎮 みやぎ チャレンジ</h3>
-            <p>移動中のひまつぶしに。子どもたちの名前で遊べます</p>
-          </div>
-          <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-
         <div class="page">
+          <div class="page-head"><h2>行き先リスト</h2><span class="en">DESTINATIONS</span></div>
+          <p class="memo">※ いまはサンプルです。日程が決まったら差し替えます。日時をタップすると日程に移動します。</p>
+          <div id="spotList"></div>
+        </div>
+      </section>
+
+      <!-- ===== 4. メモ（この端末だけ） ===== -->
+      <section id="content-memo" class="hidden">
+        <div class="page">
+          <div class="notice">
+            <i class="fa-solid fa-lock" style="margin-top:3px"></i>
+            <span>このページの内容（持ち物・お土産）は、このスマホにだけ保存されます。他の家族には表示されません。</span>
+          </div>
           <div class="page-head"><h2>持ち物チェック</h2><span class="en">PACKING</span></div>
           <form onsubmit="addBelongingItem(event)" class="add-form">
             <input type="text" id="belongingInput" placeholder="持ち物を追加…" class="field">
@@ -820,23 +816,27 @@
           </form>
           <div id="souvenirList"></div>
         </div>
+      </section>
 
+      <!-- ===== 5. その他 ===== -->
+      <section id="content-other" class="hidden">
         <div class="page">
+          <div class="notice notice-share">
+            <i class="fa-solid fa-user-group" style="margin-top:3px"></i>
+            <span>このページの割り勘・立替メモは、参加する4家族全員に共有されます。記録・削除するとみんなの画面に反映されます。</span>
+          </div>
           <div class="page-head"><h2>割り勘・立替メモ</h2><span class="en">RECEIPT</span></div>
+          <div id="syncStatus" class="sync-status"></div>
           <form onsubmit="addPayment(event)" class="pay-form">
-            <div class="pay-row">
-              <select id="payFamily" class="field">
-                <option value="あかり">あかり家</option>
-                <option value="かすみ">かすみ家</option>
-                <option value="みはる">みはる家</option>
-                <option value="なつき">なつき家</option>
-              </select>
-              <input type="text" id="payTitle" placeholder="内容（例: 高速代）" class="field">
-            </div>
-            <div class="pay-row">
-              <input type="number" inputmode="numeric" id="payAmount" placeholder="金額（円）" class="field">
-              <button type="submit" class="btn">記録</button>
-            </div>
+            <select id="payFamily" class="field">
+              <option value="あかり">あかり家</option>
+              <option value="かすみ">かすみ家</option>
+              <option value="みはる">みはる家</option>
+              <option value="なつき">なつき家</option>
+            </select>
+            <input type="number" inputmode="numeric" id="payAmount" placeholder="金額（円）" class="field">
+            <input type="text" id="payTitle" placeholder="内容（例: 高速代）" class="field span2">
+            <button type="submit" class="btn span2">記録する</button>
           </form>
 
           <div class="receipt">
@@ -847,6 +847,29 @@
             <button onclick="calculateSettlement()" class="btn btn-wide"><i class="fa-solid fa-scale-balanced"></i>精算する</button>
             <div id="settlementResult" class="settle hidden"></div>
           </div>
+        </div>
+
+        <div class="coupon" style="margin-top:16px">
+          <div class="coupon-main">
+            <div class="k">PRINT · A4</div>
+            <h3>🖨️ こども用しおり</h3>
+            <p>11ページの本。ビンゴ・めいろ・ぬりえ付き！</p>
+          </div>
+          <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="coupon" style="background:#8fd3f5">
+          <div class="coupon-main">
+            <div class="k">GAME · SMARTPHONE</div>
+            <h3>🎮 みやぎ チャレンジ</h3>
+            <p>移動中のひまつぶしに。子どもたちの名前で遊べます</p>
+          </div>
+          <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="url-box">
+          <span class="url-label">ゲームのURL</span>
+          <a id="gameUrl" href="game/" target="_blank">game/</a>
+          <button class="btn" onclick="copyGameUrl(this)">コピー</button>
         </div>
       </section>
 
@@ -901,19 +924,85 @@
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
+    /* ===== Firebase（割り勘メモの共有） =====
+       Firebase コンソール → プロジェクトの設定 → マイアプリ（ウェブ）に表示される
+       firebaseConfig をここに貼り付けると、割り勘メモが全員で共有されます。
+       null のままなら、これまでどおり この端末だけに保存されます。 */
+    const FIREBASE_CONFIG = null;
+    const TRIP_ID = 'miyagi2027';
+    const FIREBASE_VERSION = '10.12.2';
+    let paymentsRef = null;
+
+    /* ===== 行き先（サンプル） =====
+       sched: この行き先に関係する日程の id（日程タブの sched-1〜7） */
+    const SPOTS = [
+      { id: 'matsushima', icon: '🦪', name: '松島海岸', area: '宮城郡松島町', tag: '観光',
+        desc: '日本三景のひとつ。焼き牡蠣の食べ歩きや遊覧船も楽しめます。', map: '松島海岸', sched: ['sched-2'] },
+      { id: 'yado', icon: '♨️', name: '宿（未定）', area: '決まったら住所を入れます', tag: '宿泊',
+        desc: '宿名・住所・チェックイン時間・駐車場などをここにまとめます。', map: '', sched: ['sched-3', 'sched-4'] },
+      { id: 'lapras', icon: '🦕', name: 'ラプラス公園inせんだい', area: '仙台市海岸公園冒険広場', tag: 'メイン',
+        desc: 'ラプラスの大きな遊具やふわふわドームがある公園。', map: '仙台市海岸公園冒険広場', sched: ['sched-5'] },
+      { id: 'sendai', icon: '🛍️', name: '仙台駅周辺', area: '仙台市青葉区', tag: 'ランチ・お土産',
+        desc: '牛タンランチ、ずんだスイーツ、お土産探し。', map: '仙台駅', sched: ['sched-6'] },
+    ];
+
     // 初期化
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalStorage();
       renderTodoList();
       renderSouvenirList();
-      renderPaymentList();
+      renderSpots();
+      initPayments();
+      const gu = document.getElementById('gameUrl');
+      gu.href = gameUrl(); gu.textContent = gameUrl();
       checkCurrentStatus();
       setInterval(checkCurrentStatus, 10000);
     });
 
+    /* ===== 行き先 ===== */
+    function schedLabel(id) {
+      const el = document.getElementById(id);
+      if (!el) return '';
+      const day = el.closest('.day').querySelector('.day-date').textContent;
+      return `${day} ${el.querySelector('.stop-time').textContent}`;
+    }
+    function renderSpots() {
+      const list = document.getElementById('spotList');
+      list.innerHTML = SPOTS.map(sp => `
+        <div class="spot-card" id="spot-${sp.id}">
+          <div class="spot-icon">${sp.icon}</div>
+          <div>
+            <div class="spot-top">
+              <div><h3>${esc(sp.name)}</h3><div class="sub">${esc(sp.area)}</div></div>
+              <span class="label-stamp ls-red">${esc(sp.tag)}</span>
+            </div>
+            <p>${esc(sp.desc)}</p>
+            <div class="spot-actions">
+              ${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}
+              ${sp.map ? `<a href="https://maps.google.com/?q=${encodeURIComponent(sp.map)}" target="_blank" class="map-link"><i class="fa-solid fa-location-arrow"></i>地図</a>` : ''}
+            </div>
+          </div>
+        </div>`).join('');
+    }
+    function gameUrl() { return new URL('game/', location.href).href; }
+    function copyGameUrl(btn) {
+      const done = () => { btn.textContent = 'コピーしました'; setTimeout(() => btn.textContent = 'コピー', 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(gameUrl()).then(done, () => prompt('このURLをコピーしてください', gameUrl()));
+      else prompt('このURLをコピーしてください', gameUrl());
+    }
+
+    function flashEl(el) {
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 2100);
+    }
+    function goSpot(id) { switchTab('spots'); flashEl(document.getElementById(`spot-${id}`)); }
+    function goSched(id) { switchTab('schedule'); flashEl(document.getElementById(id)); }
+
     // タブ切り替え
     function switchTab(tab) {
-      const tabs = ['schedule', 'members', 'spots', 'gourmet', 'other'];
+      const tabs = ['schedule', 'members', 'spots', 'memo', 'other'];
       tabs.forEach(t => {
         const content = document.getElementById(`content-${t}`);
         if (content) content.classList.add('hidden');
@@ -1001,17 +1090,75 @@
       const title = document.getElementById('payTitle').value.trim();
       const amount = parseInt(document.getElementById('payAmount').value);
       if (!title || !amount || amount <= 0) return;
-      payments.push({ family, title, amount });
       document.getElementById('payTitle').value = '';
       document.getElementById('payAmount').value = '';
+      if (paymentsRef) {
+        paymentsRef.push({ family, title, amount, createdAt: firebase.database.ServerValue.TIMESTAMP })
+          .catch(() => setSyncStatus('err', '記録できませんでした。通信状況を確認してください'));
+        return;
+      }
+      payments.push({ family, title, amount });
       saveLocalStorage();
       renderPaymentList();
     }
 
     function removePayment(index) {
+      const p = payments[index];
+      if (!p) return;
+      if (paymentsRef) {
+        if (!confirm(`「${p.family}家 ${p.title} ¥${p.amount.toLocaleString()}」を削除しますか？\n（全員の画面から消えます）`)) return;
+        paymentsRef.child(p.key).remove();
+        return;
+      }
       payments.splice(index, 1);
       saveLocalStorage();
       renderPaymentList();
+    }
+
+    function setSyncStatus(cls, text) {
+      const el = document.getElementById('syncStatus');
+      el.className = 'sync-status ' + cls;
+      el.innerHTML = `<span class="dot"></span>${esc(text)}`;
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const sc = document.createElement('script');
+        sc.src = src; sc.onload = resolve; sc.onerror = reject;
+        document.head.appendChild(sc);
+      });
+    }
+
+    async function initPayments() {
+      renderPaymentList();
+      if (!FIREBASE_CONFIG) {
+        setSyncStatus('', '共有設定前：この端末だけに保存されます');
+        return;
+      }
+      setSyncStatus('', '共有データに接続中…');
+      try {
+        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
+        await loadScript(`${base}/firebase-app-compat.js`);
+        await loadScript(`${base}/firebase-database-compat.js`);
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.database();
+        paymentsRef = db.ref(`trips/${TRIP_ID}/payments`);
+        paymentsRef.on('value', snap => {
+          const v = snap.val() || {};
+          payments = Object.entries(v)
+            .map(([key, p]) => ({ key, family: p.family, title: p.title, amount: Number(p.amount) || 0, createdAt: p.createdAt || 0 }))
+            .sort((a, b) => a.createdAt - b.createdAt);
+          renderPaymentList();
+          if (!document.getElementById('settlementResult').classList.contains('hidden')) calculateSettlement();
+        }, () => setSyncStatus('err', '共有データを読み込めませんでした（権限・設定を確認）'));
+        db.ref('.info/connected').on('value', snap => {
+          if (snap.val()) setSyncStatus('on', '全家族で共有中');
+          else setSyncStatus('err', 'オフライン：つながると自動で反映されます');
+        });
+      } catch (e) {
+        paymentsRef = null;
+        setSyncStatus('err', '共有に接続できませんでした：この端末だけに保存します');
+      }
     }
 
     function renderPaymentList() {
@@ -1050,7 +1197,7 @@
       let grandTotal = 0;
 
       payments.forEach(p => {
-        totals[p.family] += p.amount;
+        if (p.family in totals) totals[p.family] += p.amount;
         grandTotal += p.amount;
       });
 
@@ -1078,7 +1225,7 @@
         localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
         localStorage.setItem('miyagi_trip_souvenir_items', JSON.stringify(souvenirItems));
         localStorage.setItem('miyagi_trip_souvenir_checked', JSON.stringify(souvenirChecked));
-        localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
+        if (!paymentsRef) localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
       } catch (e) {}
     }
 
@@ -1099,7 +1246,7 @@
 
       if (s) souvenirItems = JSON.parse(s);
       if (sc) souvenirChecked = JSON.parse(sc);
-      if (p) payments = JSON.parse(p);
+      if (p && !FIREBASE_CONFIG) payments = JSON.parse(p);
     }
 
     // スケジュール＆お疲れさま判定
@@ -1142,7 +1289,7 @@
       const finishTime = new Date('2027-03-21T18:00:00');
       const finishModal = document.getElementById('finishModal');
       if (finishModal) {
-        if (now >= finishTime) {
+        if (now >= finishTime && !finishDismissed()) {
           finishModal.classList.remove('hidden');
         } else {
           finishModal.classList.add('hidden');
@@ -1150,8 +1297,16 @@
       }
     }
 
+    // おつかれさま：一度閉じたら もう出さない（テスト中は テストの間だけ）
+    let simFinishClosed = false;
+    function finishDismissed() {
+      if (simTime) return simFinishClosed;
+      try { return localStorage.getItem('miyagi_trip_finish_closed') === '1'; } catch (e) { return false; }
+    }
+
     function setSimTime(timeStr) {
       simTime = timeStr;
+      simFinishClosed = false;
       switchTab('schedule');
       checkCurrentStatus();
     }
@@ -1164,6 +1319,8 @@
     function closeFinishModal() {
       const finishModal = document.getElementById('finishModal');
       if (finishModal) finishModal.classList.add('hidden');
+      if (simTime) simFinishClosed = true;
+      else { try { localStorage.setItem('miyagi_trip_finish_closed', '1'); } catch (e) {} }
     }
   </script>
 </body>
