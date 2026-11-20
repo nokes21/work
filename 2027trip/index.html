@@ -61,6 +61,27 @@
       -webkit-tap-highlight-color: transparent;
     }
     .parade canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+    .news-btn {
+      position: absolute; right: 8px; top: 4px; z-index: 2;
+      width: 32px; height: 32px;
+      border: 0; border-radius: 50%;
+      background: var(--ink); color: var(--paper);
+      display: grid; place-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(31,53,80,.35);
+    }
+    .news-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .news-dot {
+      position: absolute; right: 2px; top: 2px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--stamp); border: 2px solid var(--kraft);
+    }
+    .news-dot.hidden { display: none; }
+    .news-card { text-align: left; }
+    .news-card .news-k { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--stamp); text-align: center; }
+    .news-card h3 { text-align: center; margin: 2px 0 12px; }
+    .news-body { font-family: var(--hand); font-size: 16px; font-weight: 600; line-height: 1.7; background: #fff; border-radius: 8px; padding: 12px 14px; margin: 0 0 16px; }
+    .news-body .by { display: block; text-align: right; font-size: 14px; color: var(--ink-soft); margin-top: 6px; }
     body { padding-top: 40px; }
     .ticket {
       position: relative;
@@ -723,6 +744,10 @@
     <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
     <div class="parade" onclick="paradeJump()" title="タップすると ジャンプ！">
       <canvas id="parade" aria-label="こどもたちが歩いているドット絵"></canvas>
+      <button class="news-btn" id="newsBtn" onclick="event.stopPropagation(); openNews()" aria-label="お知らせ">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a6 6 0 0 0-6 6v4.2L4.3 15.6a1 1 0 0 0 .9 1.5h13.6a1 1 0 0 0 .9-1.5L18 12.7V8.5a6 6 0 0 0-6-6zM9.5 18.5a2.5 2.5 0 0 0 5 0z"/></svg>
+        <span class="news-dot" id="newsDot"></span>
+      </button>
     </div>
 
     <header class="ticket">
@@ -1039,6 +1064,15 @@
   </div>
 
   <!-- ===== おつかれさま ===== -->
+  <div id="newsModal" class="modal hidden" onclick="if (event.target === this) closeNews()">
+    <div class="modal-card news-card">
+      <div class="news-k">NOTICE</div>
+      <h3>お知らせ</h3>
+      <p class="news-body">スケジュールが色々決まったら更新していきます<span class="by">by あかり父</span></p>
+      <button onclick="closeNews()" class="btn btn-wide">閉じる</button>
+    </div>
+  </div>
+
   <div id="finishModal" class="modal hidden">
     <div class="modal-card">
       <div class="big-stamp">
@@ -1113,6 +1147,7 @@
       renderSpots();
       initPayments();
       loadNotes(); renderNotes();
+      if (newsRead()) document.getElementById('newsDot').classList.add('hidden');
       initProfiles();
       requestAnimationFrame(animateKidCards);
       loadMemories();
@@ -1428,6 +1463,16 @@
 
 
 
+
+    /* ===== お知らせ ===== */
+    const NEWS_ID = '2026-11-20';   // お知らせを かえたら ここも かえると 赤い点が また つく
+    function newsRead() { try { return localStorage.getItem('miyagi_trip_news_read') === NEWS_ID; } catch (e) { return false; } }
+    function openNews() {
+      document.getElementById('newsModal').classList.remove('hidden');
+      try { localStorage.setItem('miyagi_trip_news_read', NEWS_ID); } catch (e) {}
+      document.getElementById('newsDot').classList.add('hidden');
+    }
+    function closeNews() { document.getElementById('newsModal').classList.add('hidden'); }
 
     /* ===== 自己紹介カード（ドット絵・共有） ===== */
     const KID_IDS = ['minori', 'akari', 'kasumi', 'miharu', 'natsuki', 'miori', 'fuji']; // ドット絵の ならびと おなじ
