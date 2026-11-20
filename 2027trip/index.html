@@ -12,7 +12,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Klee+One:wght@400;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -27,7 +27,7 @@
       --sea: #2b7a8c;
       --sakura: #e8a0a8;
       --mono: 'IBM Plex Mono', ui-monospace, monospace;
-      --hand: 'Klee One', 'Zen Kaku Gothic New', sans-serif;
+      --hand: 'Zen Maru Gothic', 'Zen Kaku Gothic New', sans-serif;
     }
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
@@ -1914,7 +1914,7 @@
       ctx.fillStyle = '#1f3550'; ctx.font = '900 64px "Zen Kaku Gothic New", sans-serif';
       const title = document.getElementById('mvTitle').value || '宮城旅行の思い出';
       wrapJa(ctx, title, W - 120).forEach((l, i) => ctx.fillText(l, W / 2, 860 + i * 80));
-      ctx.font = '600 38px "Klee One", sans-serif'; ctx.fillStyle = '#5a6b80';
+      ctx.font = '700 38px "Zen Maru Gothic", sans-serif'; ctx.fillStyle = '#5a6b80';
       ctx.fillText('4家族 15人の たび', W / 2, 1060);
       ctx.globalAlpha = 1;
     }
@@ -1922,7 +1922,7 @@
       const { W, H } = MV;
       ctx.globalAlpha = a; paperBg(ctx);
       ctx.fillStyle = '#1f3550'; ctx.textAlign = 'center';
-      ctx.font = '600 56px "Klee One", sans-serif';
+      ctx.font = '700 56px "Zen Maru Gothic", sans-serif';
       ctx.fillText('また みんなで', W / 2, 560); ctx.fillText('いこうね！', W / 2, 650);
       ctx.fillStyle = '#c8553d'; ctx.font = '600 28px "IBM Plex Mono", monospace';
       ctx.fillText('THE END', W / 2, 780);
@@ -1960,7 +1960,7 @@
       const ly = 930, lh = 74;
       ctx.strokeStyle = 'rgba(31,53,80,.22)'; ctx.lineWidth = 2;
       for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(60, ly + i * lh + 18); ctx.lineTo(W - 60, ly + i * lh + 18); ctx.stroke(); }
-      ctx.fillStyle = '#1f3550'; ctx.textAlign = 'left'; ctx.font = '600 46px "Klee One", sans-serif';
+      ctx.fillStyle = '#1f3550'; ctx.textAlign = 'left'; ctx.font = '700 46px "Zen Maru Gothic", sans-serif';
       const text = m.msg || '';
       const shown = Math.floor(text.length * ease((t - 0.4) / 1.6));
       wrapJa(ctx, text.slice(0, shown), W - 140).slice(0, 4).forEach((l, i) => ctx.fillText(l, 70, ly + i * lh));
@@ -1990,7 +1990,7 @@
     async function prepareMovie() {
       if (!memories.length) { alert('写真を1枚以上追加してください'); return null; }
       if (mvBusy) return null;
-      try { await Promise.all(['600 46px "Klee One"', '900 64px "Zen Kaku Gothic New"', '600 26px "IBM Plex Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
+      try { await Promise.all(['700 46px "Zen Maru Gothic"', '900 64px "Zen Kaku Gothic New"', '600 26px "IBM Plex Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
       const imgs = await Promise.all(memories.map(m => loadImg(m.url)));
       document.getElementById('mvStage').classList.remove('hidden');
       return { imgs, tl: timeline(), ctx: document.getElementById('mvCanvas').getContext('2d') };
