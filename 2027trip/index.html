@@ -970,29 +970,38 @@
             <div class="stops">
               <div id="sched-1" class="stop">
                 <span id="badge-sched-1" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">09:30</div>
-                <h3>出発・移動 🚗</h3>
-                <p>みんなで合流して宮城へ出発！車内でおしゃべりを楽しみながら向かいます。</p>
+                <div class="stop-time">12:00</div>
+                <h3>ラプラス公園に集合 🦕</h3>
+                <p>お昼ごろに現地集合！ラプラスの遊具で子どもたちと思いきり遊びます。</p>
+                <button class="spot-link" onclick="goSpot('lapras')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-2" class="stop">
                 <span id="badge-sched-2" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">12:00</div>
-                <h3>松島海岸でお昼ごはん＆散策 🦪</h3>
-                <p>日本三景の松島に到着。美味しい海鮮ランチや焼き牡蠣を堪能！散策や食べ歩きを楽しみます。</p>
-                <button class="spot-link" onclick="goSpot('matsushima')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
+                <div class="stop-time">13:00</div>
+                <h3>仙台駅の近くで美味しいものめぐり 🍡</h3>
+                <p>笹かまぼこやずんだもちなど、仙台の名物を食べ歩きします。</p>
+                <button class="spot-link" onclick="goSpot('sendai')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-3" class="stop">
                 <span id="badge-sched-3" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">15:30</div>
-                <h3>宿チェックイン＆のんびりタイム ♨️</h3>
-                <p>宿にチェックイン。お部屋で休憩したり、子供たちみんなでお部屋遊び！</p>
-                <button class="spot-link" onclick="goSpot('yado')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
+                <div class="stop-time">17:00</div>
+                <h3>早めの夜ごはんに牛タン 🥩</h3>
+                <p>混む前に、少し早めの時間に牛タンを食べに行きます。</p>
+                <button class="spot-link" onclick="goSpot('gyutan')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-4" class="stop">
                 <span id="badge-sched-4" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">18:00</div>
-                <h3>みんなで夕食＆お風呂 🍲</h3>
-                <p>4家族一緒に賑やかな夜ご飯！美味しいご飯のあとは温泉でゆったり過ごします。</p>
+                <div class="stop-time">18:30</div>
+                <h3>プラネタリウム ✨</h3>
+                <p>みんなで星空を楽しみます。</p>
+                <button class="spot-link" onclick="goSpot('planetarium')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
+              </div>
+              <div id="sched-5" class="stop">
+                <span id="badge-sched-5" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">20:30</div>
+                <h3>ホテルへ・就寝 🛏️</h3>
+                <p>ホテルに着いたら、ゆっくり休みます。</p>
+                <button class="spot-link" onclick="goSpot('hotel')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
             </div>
           </div>
@@ -1001,24 +1010,24 @@
             <div class="day-label"><span class="day-no">DAY 2</span><span class="day-date">3月21日(日)</span></div>
             <div class="day-flow" data-day="2"></div>
             <div class="stops">
-              <div id="sched-5" class="stop">
-                <span id="badge-sched-5" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">10:00</div>
-                <h3>ラプラス公園inせんだい 🦕</h3>
-                <p>楽しみにしていたラプラス公園へ！巨大なラプラス遊具やふわふわドームで子供たちと一緒に全力遊び！</p>
-                <button class="spot-link" onclick="goSpot('lapras')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
-              </div>
               <div id="sched-6" class="stop">
                 <span id="badge-sched-6" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">13:00</div>
-                <h3>仙台市内ランチ＆お土産購入 🛍️</h3>
-                <p>牛タンやお寿司など名物ランチを堪能。ずんだスイーツを食べたり、家族へのお土産を探します。</p>
-                <button class="spot-link" onclick="goSpot('sendai')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
+                <div class="stop-time">08:00</div>
+                <h3>ホテルで朝ごはん 🍳</h3>
+                <p>ホテルで朝ごはんを食べて、出発の準備をします。</p>
+                <button class="spot-link" onclick="goSpot('hotel')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-7" class="stop">
                 <span id="badge-sched-7" class="now-stamp hidden">いまココ！</span>
-                <div class="stop-time">16:00</div>
-                <h3>現地解散・帰路 🏠</h3>
+                <div class="stop-time">10:00</div>
+                <h3>いちご狩り 🍓</h3>
+                <p>みんなでいちご狩りを楽しみます。</p>
+                <button class="spot-link" onclick="goSpot('strawberry')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
+              </div>
+              <div id="sched-8" class="stop">
+                <span id="badge-sched-8" class="now-stamp hidden">いまココ！</span>
+                <div class="stop-time">12:00</div>
+                <h3>解散 🏠</h3>
                 <p>楽しかった思い出を胸に帰路につきます。みんな無事に帰れるように気をつけて！</p>
               </div>
             </div>
@@ -1028,8 +1037,8 @@
         <details class="test-panel">
           <summary><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト</summary>
           <div class="row">
-            <button onclick="setSimTime('2027-03-20T11:00:00')">1日目昼</button>
-            <button onclick="setSimTime('2027-03-21T10:30:00')">2日目公園</button>
+            <button onclick="setSimTime('2027-03-20T13:30:00')">1日目昼</button>
+            <button onclick="setSimTime('2027-03-21T10:30:00')">2日目いちご狩り</button>
             <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
             <button onclick="resetSimTime()">解除</button>
           </div>
@@ -1266,8 +1275,8 @@
 
     /* ===== その日の ながれ（ざっくりした予定） ===== */
     const DAY_FLOW = {
-      1: ['ラプラス公園に集合', '牛タン食べる！', 'おやつにずんだもち！', '旅館に移動'],
-      2: [],   // 決まったら ここに 追加
+      1: ['昼ごろ ラプラス公園に集合', '仙台駅の近くで美味しいものめぐり（笹かまぼこ・ずんだもち）', '夜は早めに牛タン！', 'プラネタリウム', 'ホテルで就寝'],
+      2: ['ホテルで朝ごはん', 'いちご狩り', '解散'],
     };
     function renderDayFlow() {
       document.querySelectorAll('.day-flow').forEach(box => {
@@ -1282,14 +1291,18 @@
        sched: この行き先に関係する日程の id（日程タブの sched-1〜7）
        photo: 写真のファイル（例 'spot-img/matsushima.jpg'）、url: 公式サイトなどの URL */
     const SPOTS = [
-      { id: 'matsushima', name: '松島海岸', area: '宮城郡松島町', tag: '観光',
-        desc: '日本三景のひとつ。焼き牡蠣の食べ歩きや遊覧船も楽しめます。', map: '松島海岸', sched: ['sched-2'], photo: '', url: '' },
-      { id: 'yado', name: '宿（未定）', area: '決まったら住所を入れます', tag: '宿泊',
-        desc: '宿名・住所・チェックイン時間・駐車場などをここにまとめます。', map: '', sched: ['sched-3', 'sched-4'], photo: '', url: '' },
-      { id: 'lapras', name: 'ラプラス公園inせんだい', area: '仙台市海岸公園冒険広場', tag: 'メイン',
-        desc: 'ラプラスの大きな遊具やふわふわドームがある公園。', map: '仙台市海岸公園冒険広場', sched: ['sched-5'], photo: '', url: '' },
-      { id: 'sendai', name: '仙台駅周辺', area: '仙台市青葉区', tag: 'ランチ・お土産',
-        desc: '牛タンランチ、ずんだスイーツ、お土産探し。', map: '仙台駅', sched: ['sched-6'], photo: '', url: '' },
+      { id: 'lapras', name: 'ラプラス公園inせんだい', area: '仙台市海岸公園冒険広場', tag: '集合',
+        desc: 'ラプラスの大きな遊具がある公園。お昼ごろに集合します。', map: '仙台市海岸公園冒険広場', sched: ['sched-1'], photo: '', url: '' },
+      { id: 'sendai', name: '仙台駅周辺', area: '仙台市青葉区', tag: 'お昼',
+        desc: '笹かまぼこやずんだもちなど、名物の食べ歩き。', map: '', mapUrl: 'https://share.google/RKqgcXxI6mIMhHgQS', sched: ['sched-2'], photo: '', url: '' },
+      { id: 'gyutan', name: '牛タン（お店は未定）', area: '決まったら入れます', tag: '夜ごはん',
+        desc: '混む前に、早めの時間に行く予定です。', map: '', sched: ['sched-3'], photo: '', url: '' },
+      { id: 'planetarium', name: 'プラネタリウム（場所は未定）', area: '決まったら入れます', tag: 'おでかけ',
+        desc: '上映時間が決まったら、ここに入れます。', map: '', sched: ['sched-4'], photo: '', url: '' },
+      { id: 'hotel', name: 'ホテル（秋保）', area: '名前・住所は確認中です', tag: '宿泊',
+        desc: 'チェックイン・チェックアウトの時間や駐車場などを、ここにまとめます。', map: '', sched: ['sched-5', 'sched-6'], photo: '', url: 'https://www.akiu-rantei.com/guestrooms.html' },
+      { id: 'strawberry', name: 'いちご狩り（場所は未定）', area: '決まったら入れます', tag: 'おでかけ',
+        desc: 'みんなでいちご狩りを楽しみます。', map: '', sched: ['sched-7'], photo: '', url: '' },
     ];
 
     // 初期化
@@ -1333,7 +1346,7 @@
             <p>${esc(sp.desc)}</p>
             <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
             <div class="spot-btns">
-              ${sp.map ? `<a href="https://maps.google.com/?q=${encodeURIComponent(sp.map)}" target="_blank" class="spot-btn"><i class="fa-solid fa-location-dot"></i>地図</a>` : `<span class="spot-btn off">地図（準備中）</span>`}
+              ${sp.mapUrl || sp.map ? `<a href="${esc(sp.mapUrl || 'https://maps.google.com/?q=' + encodeURIComponent(sp.map))}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-location-dot"></i>地図</a>` : `<span class="spot-btn off">地図（準備中）</span>`}
               ${sp.url ? `<a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-globe"></i>Web</a>` : `<span class="spot-btn off">Web（準備中）</span>`}
             </div>
           </div>
@@ -1686,13 +1699,14 @@
 
     // スケジュール＆お疲れさま判定
     const scheduleTimes = [
-      { id: 'sched-1', start: '2027-03-20T09:30:00', end: '2027-03-20T12:00:00' },
-      { id: 'sched-2', start: '2027-03-20T12:00:00', end: '2027-03-20T15:30:00' },
-      { id: 'sched-3', start: '2027-03-20T15:30:00', end: '2027-03-20T18:00:00' },
-      { id: 'sched-4', start: '2027-03-20T18:00:00', end: '2027-03-21T09:59:59' },
-      { id: 'sched-5', start: '2027-03-21T10:00:00', end: '2027-03-21T13:00:00' },
-      { id: 'sched-6', start: '2027-03-21T13:00:00', end: '2027-03-21T16:00:00' },
-      { id: 'sched-7', start: '2027-03-21T16:00:00', end: '2027-03-21T18:00:00' },
+      { id: 'sched-1', start: '2027-03-20T11:30:00', end: '2027-03-20T13:00:00' },
+      { id: 'sched-2', start: '2027-03-20T13:00:00', end: '2027-03-20T17:00:00' },
+      { id: 'sched-3', start: '2027-03-20T17:00:00', end: '2027-03-20T18:30:00' },
+      { id: 'sched-4', start: '2027-03-20T18:30:00', end: '2027-03-20T20:30:00' },
+      { id: 'sched-5', start: '2027-03-20T20:30:00', end: '2027-03-21T07:59:59' },
+      { id: 'sched-6', start: '2027-03-21T08:00:00', end: '2027-03-21T10:00:00' },
+      { id: 'sched-7', start: '2027-03-21T10:00:00', end: '2027-03-21T12:00:00' },
+      { id: 'sched-8', start: '2027-03-21T12:00:00', end: '2027-03-21T13:00:00' },
     ];
 
 
@@ -2470,12 +2484,12 @@
 
     /* ===== 天気（Open-Meteo・登録不要） ===== */
     const WX_PLACES = {
-      matsushima: { name: '松島', lat: 38.37, lon: 141.06 },
-      sendai: { name: '仙台', lat: 38.22, lon: 140.98 },
+      sendai: { name: '仙台', lat: 38.26, lon: 140.88 },
+      akiu: { name: '秋保', lat: 38.23, lon: 140.72 },
     };
     const WX_PLAN = [ // 旅行の日 と その日の おもな場所
-      { date: TRIP_DAYS[0], place: 'matsushima' },
-      { date: TRIP_DAYS[1], place: 'sendai' },
+      { date: TRIP_DAYS[0], place: 'sendai' },
+      { date: TRIP_DAYS[1], place: 'akiu' },
     ];
     function wxInfo(code) {
       if (code === 0) return ['☀️', '晴れ'];
@@ -2576,7 +2590,7 @@
         }
       });
 
-      const finishTime = new Date('2027-03-21T18:00:00');
+      const finishTime = new Date('2027-03-21T15:00:00');
       const finishModal = document.getElementById('finishModal');
       if (finishModal) {
         if (now >= finishTime && !finishDismissed()) {
