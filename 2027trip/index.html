@@ -629,6 +629,43 @@
     @keyframes flash-ring { 0% { box-shadow: 0 0 0 0 rgba(200,85,61,.6); } 100% { box-shadow: 0 0 0 12px rgba(200,85,61,0); } }
     .flash { border-color: var(--stamp) !important; animation: flash-ring 1s 2; }
 
+    /* スプラッシュ */
+    .splash {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      background-color: var(--kraft);
+      background-image: radial-gradient(rgba(120, 90, 50, .10) 1px, transparent 1px);
+      background-size: 7px 7px;
+      transition: opacity .5s ease;
+      cursor: pointer;
+    }
+    .splash.hide { opacity: 0; pointer-events: none; }
+    .sp-card {
+      position: relative;
+      width: min(300px, 82vw);
+      background: var(--paper);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 14px 30px -14px rgba(60,40,10,.55);
+      animation: sp-pop .6s cubic-bezier(.2,1.4,.4,1) both;
+    }
+    .sp-band { background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 11px; letter-spacing: .16em; padding: 9px 16px; }
+    .sp-body { padding: 18px 18px 20px; }
+    .sp-title { font-size: 26px; font-weight: 900; letter-spacing: .02em; }
+    .sp-sub { font-size: 12px; font-weight: 700; color: var(--stamp); letter-spacing: .12em; margin-top: 2px; }
+    .sp-date { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 14px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
+    .sp-stamp {
+      position: absolute; right: 12px; bottom: 14px;
+      color: var(--stamp); border: 3px double var(--stamp); border-radius: 8px;
+      padding: 2px 8px; font-size: 13px; font-weight: 900; letter-spacing: .06em;
+      background: rgba(251,247,238,.85);
+      opacity: 0; transform: rotate(-10deg) scale(2.2);
+      animation: sp-stamp .35s .75s cubic-bezier(.3,1.6,.5,1) forwards;
+    }
+    #splashKids { width: min(320px, 90vw); height: 44px; image-rendering: pixelated; }
+    @keyframes sp-pop { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
+    @keyframes sp-stamp { to { opacity: 1; transform: rotate(-10deg) scale(1); } }
+
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
@@ -820,6 +857,22 @@
   </style>
 </head>
 <body>
+  <!-- ===== スプラッシュ（開いたときに 1回だけ） ===== -->
+  <div id="splash" class="splash" onclick="hideSplash()" aria-hidden="true">
+    <div class="sp-card">
+      <div class="sp-band">FAMILY TRIP TICKET</div>
+      <div class="sp-body">
+        <div class="sp-title">宮城旅行のしおり</div>
+        <div class="sp-sub">ラプラスに会いに行く旅</div>
+        <div class="sp-date">2027.03.20 – 03.21</div>
+      </div>
+      <div class="sp-stamp">いってきます</div>
+    </div>
+    <canvas id="splashKids"></canvas>
+  </div>
+  <script>
+    try { if (sessionStorage.getItem('miyagi_trip_splash') === '1') document.getElementById('splash').remove(); } catch (e) {}
+  </script>
 
   <div class="wrap">
     <!-- ===== チケット ===== -->
@@ -2219,6 +2272,44 @@
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
+    })();
+
+    /* ===== スプラッシュ ===== */
+    function hideSplash() {
+      const sp = document.getElementById('splash');
+      if (!sp || sp.classList.contains('hide')) return;
+      sp.classList.add('hide');
+      try { sessionStorage.setItem('miyagi_trip_splash', '1'); } catch (e) {}
+      setTimeout(() => sp.remove(), 600);
+    }
+    (function () {
+      const sp = document.getElementById('splash');
+      if (!sp) return;
+      setTimeout(hideSplash, 2600);
+      const cv = document.getElementById('splashKids'), art = window.KID_ART;
+      if (!cv || !art) return;
+      const ctx = cv.getContext('2d'), t0 = performance.now();
+      function draw(now) {
+        if (!document.getElementById('splash')) return;
+        const t = (now - t0) / 1000, dpr = window.devicePixelRatio || 1;
+        const cw = cv.clientWidth, ch = cv.clientHeight, S = 2;
+        if (cv.width !== Math.round(cw * dpr)) { cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, cw, ch);
+        ctx.fillStyle = 'rgba(120,90,50,.35)';
+        for (let x = 0; x < cw; x += 6) ctx.fillRect(x, ch - 4, 3, 2);
+        const gap = 26, lead = cw + 10 - t * 150;   // みぎ から ひだりへ はしる
+        art.SPR.forEach((fr, i) => {
+          const img = fr[Math.floor(t * 9 + i) % 2];
+          const x = Math.round(lead + i * gap);
+          if (x < -30 || x > cw + 10) return;
+          const y = ch - 4 - img.height * S - (Math.floor(t * 9 + i) % 2 ? 2 : 0);
+          ctx.save(); ctx.translate(x, y + img.height * S); ctx.rotate(-0.08); ctx.scale(-1, 1);
+          ctx.drawImage(img, -art.W * S, -img.height * S, art.W * S, img.height * S);
+          ctx.restore();
+        });
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
     })();
 
     /* ===== カウントダウン ===== */
