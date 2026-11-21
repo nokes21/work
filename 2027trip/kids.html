@@ -212,7 +212,7 @@
     .mochi .e { font-size: 26px; }
     .mochi li.blank span.write { flex: 1; }
 
-    /* ===== めいろ・まちがいさがし・ぬりえ・おえかき ===== */
+    /* ===== めいろ・まちがいさがし・おえかき ===== */
     .art {
       flex: 1;
       border: 3px solid var(--sea);
@@ -236,6 +236,10 @@
     .corner-pk { position: absolute; width: 30mm; height: 30mm; }
 
     /* ===== にっき ===== */
+    .diary-page { flex: 1; display: flex; flex-direction: column; gap: 3mm; margin-bottom: 4mm; }
+    .diary-page .diary-draw { flex: 1; border-color: var(--bc); }
+    .diary-page .lines span { height: 12mm; }
+    .diary-page .faces { margin-top: 1mm; }
     .diary { display: grid; gap: 6mm; flex: 1; }
     .diary .box { display: flex; flex-direction: column; }
     .faces { display: flex; gap: 6mm; align-items: center; font-size: 19px; margin-top: 3mm; }
@@ -291,7 +295,6 @@
     .diff { flex: none; align-content: start; margin-top: 4mm; }
     .diff + .found { margin-top: auto; margin-bottom: 6mm; }
     /* にっき：ひだりと みぎ */
-    .diary { grid-template-columns: 1fr 1fr; }
 
     @media screen {
       .sheet { border-radius: 4px; }
@@ -626,40 +629,37 @@
     <span class="pageno">8</span>
   </section>
 
-  <!-- ===== 9. ぬりえ ===== -->
-  <section class="sheet">
-    <div class="head" style="--c:var(--pink-l)">
-      <div><h2>🖍️ ぬりえ</h2><div class="lead">すきな いろで ぬってね！ ポケモンも かきたしてみよう</div></div>
-    </div>
-    <div class="art" id="nurie"></div>
-    <span class="pageno">9</span>
-  </section>
-
-  <!-- ===== 10. おえかき ===== -->
+  <!-- ===== 9. おえかき ===== -->
   <section class="sheet">
     <div class="head" style="--c:var(--sun-l)">
       <div><h2>🎨 おえかき</h2><div class="lead">たびで いちばん たのしかった ことを かこう！</div></div>
     </div>
     <div class="art draw-art"></div>
+    <span class="pageno">9</span>
+  </section>
+
+  <!-- ===== 10. おもいで にっき 1にちめ ===== -->
+  <section class="sheet">
+    <div class="head" style="--c:var(--sea-l)">
+      <div><h2>📖 おもいで にっき（1にちめ）</h2><div class="lead">3がつ 20にちは どんな 1にちだったかな？ えと ぶんで かいてね！</div></div>
+    </div>
+    <div class="diary-page" style="--bc:var(--pink)">
+      <div class="art draw-art diary-draw"></div>
+      <div class="lines"><span></span><span></span><span></span></div>
+      <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
+    </div>
     <span class="pageno">10</span>
   </section>
 
-  <!-- ===== 11. おもいで にっき ===== -->
+  <!-- ===== 11. おもいで にっき 2にちめ ===== -->
   <section class="sheet">
     <div class="head" style="--c:var(--sea-l)">
-      <div><h2>📖 おもいで にっき</h2><div class="lead">どんな 1にちだったかな？</div></div>
+      <div><h2>📖 おもいで にっき（2にちめ）</h2><div class="lead">3がつ 21にちは どんな 1にちだったかな？ えと ぶんで かいてね！</div></div>
     </div>
-    <div class="diary">
-      <div class="box" style="--bc:var(--pink)">
-        <h3>1にちめ（3がつ 20にち）</h3>
-        <div class="lines"><span></span><span></span><span></span><span></span></div>
-        <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
-      </div>
-      <div class="box" style="--bc:var(--sea)">
-        <h3>2にちめ（3がつ 21にち）</h3>
-        <div class="lines"><span></span><span></span><span></span><span></span></div>
-        <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
-      </div>
+    <div class="diary-page" style="--bc:var(--sea)">
+      <div class="art draw-art diary-draw"></div>
+      <div class="lines"><span></span><span></span><span></span></div>
+      <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
     </div>
     <span class="pageno">11</span>
   </section>
@@ -752,42 +752,6 @@
   document.getElementById('diffA').insertAdjacentHTML('beforeend', diffScene(false));
   document.getElementById('diffB').insertAdjacentHTML('beforeend', diffScene(true));
 
-  /* ===== ぬりえ（せんだけ） ===== */
-  document.getElementById('nurie').innerHTML = `<svg viewBox="0 0 300 380" preserveAspectRatio="xMidYMid meet" fill="#fff" stroke="#4a3426" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
-    <circle cx="250" cy="50" r="22"/>
-    <path d="M250 16v-8M250 92v-8M216 50h-8M292 50h-8M226 26l-6-6M280 80l-6-6M226 74l-6 6M280 20l-6 6" fill="none"/>
-    <path d="M30 60c0-10 12-15 20-10 4-10 20-12 25-2 10-2 17 7 12 15H34c-4 0-4-3-4-3z"/>
-    <path d="M0 230Q80 196 150 210T300 202V380H0z"/>
-    <g transform="translate(70 70)">
-      <path d="M8 160L22 96H158L172 160z"/>
-      <path d="M18 118H162M12 140H168M50 96v22M90 96v22M130 96v22M36 118v22M70 118v22M110 118v22M146 118v22" fill="none"/>
-      <rect x="44" y="62" width="92" height="34"/>
-      <rect x="56" y="72" width="12" height="12"/><rect x="84" y="72" width="12" height="12"/><rect x="112" y="72" width="12" height="12"/>
-      <path d="M28 64H152L134 44H46z"/>
-      <rect x="62" y="24" width="56" height="20"/><rect x="84" y="28" width="12" height="11"/>
-      <path d="M48 26H132L118 6H62z"/>
-    </g>
-    <g transform="translate(196 200)">
-      <path d="M22 120V86c0-12 10-19 24-19s24 7 24 19v34z"/>
-      <path d="M28 92h36M28 104h36M28 114h36" fill="none"/>
-      <circle cx="46" cy="54" r="21"/>
-      <path d="M22 51a24 24 0 0 1 48 0c-4-4-9-6-12-6H34c-3 0-8 2-12 6z"/>
-      <path d="M4 10Q46 58 88 10Q46 38 4 10z"/>
-      <circle cx="39" cy="57" r="2.5" fill="#4a3426"/><ellipse cx="54" cy="57" rx="5.5" ry="4.5"/>
-      <path d="M40 66q6 4 12 0" fill="none"/>
-    </g>
-    <g transform="translate(20 220)">
-      <rect x="10" y="50" width="34" height="62" rx="13"/><circle cx="27" cy="74" r="7"/>
-      <circle cx="27" cy="28" r="22"/><path d="M5 26a22 22 0 0 1 44 0c-6-8-14-11-22-11S11 18 5 26z"/>
-      <path d="M18 31q3 3 6 0M30 31q3 3 6 0" fill="none"/>
-      <rect x="58" y="72" width="26" height="46" rx="10"/><circle cx="71" cy="54" r="17"/><path d="M54 52a17 17 0 0 1 34 0c-5-6-11-8-17-8s-12 2-17 8z"/>
-    </g>
-    <g transform="translate(100 318)">
-      <ellipse cx="50" cy="26" rx="50" ry="20"/>
-      <rect x="20" y="12" width="40" height="18" rx="9" transform="rotate(-10 40 21)"/><rect x="46" y="16" width="38" height="18" rx="9" transform="rotate(8 65 25)"/>
-    </g>
-    <g transform="translate(210 336)"><path d="M4 20C16 4 46 0 76 16 62 34 28 38 4 20z"/></g>
-  </svg>`;
 
   /* ===== がめんの はばに あわせる ===== */
   function fit() {
