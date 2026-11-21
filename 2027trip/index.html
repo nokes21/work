@@ -275,8 +275,14 @@
     .page + .page { margin-top: 16px; }
     .page-head {
       display: flex; align-items: baseline; gap: 10px;
-      margin: 0 0 12px;
+      margin: 0 -10px 12px;
+      padding: 8px 10px;
+      /* スクロールしたら がめんの うえに くっつく */
+      position: sticky; top: var(--head-top, 46px); z-index: 3;
+      background: var(--paper);
+      border-radius: 8px;
     }
+    .page-head.stuck { box-shadow: 0 6px 10px -8px rgba(60,40,10,.45); }
     .page-head h2 { margin: 0; font-size: 17px; font-weight: 900; }
     .page-head .en { font-family: var(--mono); font-size: 10px; color: var(--stamp); letter-spacing: .16em; }
     .memo {
@@ -1316,7 +1322,7 @@
             <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどで共有してください。</span>
           </div>
           <div class="page-head"><h2>思い出スライドショー</h2><span class="en">PICTURE DIARY</span></div>
-          <p class="memo">とりあえず作ってみてください～<br>① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます。</p>
+          <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます。</p>
 
           <label class="field-label" for="mvTitle">タイトル</label>
           <input id="mvTitle" class="field mv-text" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
@@ -2856,6 +2862,25 @@
       }
       function later() { setTimeout(peek, 1800 + Math.random() * 3000); }
       setTimeout(peek, 2000);
+    })();
+
+    /* ===== みだしを くっつける いち（うえの おび・タブの した） ===== */
+    (function () {
+      const set = () => {
+        const tabs = document.querySelector('.tabs-wrap'), t = tabs.getBoundingClientRect();
+        const footer = getComputedStyle(tabs).position === 'fixed';
+        document.documentElement.style.setProperty('--head-top', (footer ? 44 : 40 + t.height) + 'px');
+      };
+      set(); addEventListener('resize', set);
+      // くっついている ときだけ かげを つける
+      const mark = () => {
+        const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--head-top')) || 46;
+        document.querySelectorAll('.page-head').forEach(h => {
+          const r = h.getBoundingClientRect();
+          h.classList.toggle('stuck', r.height > 0 && Math.abs(r.top - top) < 1.5 && h.parentElement.getBoundingClientRect().top < top - 4);
+        });
+      };
+      addEventListener('scroll', mark, { passive: true });
     })();
 
     /* ===== スプラッシュ ===== */
