@@ -276,7 +276,6 @@
     /* まめちしき：2れつ */
     .facts { grid-template-columns: 1fr 1fr; gap: 5mm 6mm; align-content: stretch; flex: 1; margin-bottom: 4mm; }
     .fact { grid-template-columns: 34mm 1fr; padding: 3mm 5mm 3mm 3mm; }
-    .fact:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - 3mm); justify-self: center; }
     .fact svg { width: 34mm !important; height: 34mm !important; }
     .fact h3 { font-size: 22px; }
     .fact p { font-size: 16px; }
@@ -333,6 +332,13 @@
       </g>
       <circle cx="50" cy="28" r="8" fill="#ffd34e" stroke="#d9a21c" stroke-width="2"/>
       <circle cx="50" cy="50" r="46" fill="none" stroke="#4b5563" stroke-width="2" stroke-dasharray="3 5"/>
+    </symbol>
+    <symbol id="f-hyoutan" viewBox="0 0 100 100">
+      <path d="M50 92V60" stroke="#c9a46a" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="50" cy="46" r="20" fill="#e8a94a" stroke="#b97a26" stroke-width="3"/>
+      <circle cx="50" cy="20" r="13" fill="#e8a94a" stroke="#b97a26" stroke-width="3"/>
+      <g fill="#f6cf86"><circle cx="43" cy="40" r="3"/><circle cx="56" cy="50" r="2.5"/><circle cx="46" cy="16" r="2.5"/><circle cx="52" cy="54" r="2"/></g>
+      <path d="M68 70c6 0 10-4 10-10" stroke="#e0544a" stroke-width="4" fill="none" stroke-linecap="round"/>
     </symbol>
     <symbol id="f-zunda" viewBox="0 0 100 100">
       <ellipse cx="50" cy="74" rx="44" ry="14" fill="#fff" stroke="#c9b48c" stroke-width="3"/>
@@ -535,6 +541,10 @@
         <svg viewBox="0 0 100 100"><use href="#f-kabuto"/></svg>
         <div><h3>だて まさむね</h3><p>むかしの えらい ひと。かぶとに <b>おつきさま</b>の かざりを つけていたよ。</p></div>
       </div>
+      <div class="fact" style="--bg:var(--sea-l)">
+        <svg viewBox="0 0 120 110"><use href="#castle"/></svg>
+        <div><h3>あおばじょう</h3><p>だて まさむねが つくった <b>おしろ</b>。やまの うえに あって、せんだいの まちが よく みえるよ。</p></div>
+      </div>
     </div>
     <span class="pageno">3</span>
   </section>
@@ -564,6 +574,10 @@
       <div class="fact" style="--bg:var(--sea-l)">
         <svg viewBox="0 0 100 100"><use href="#f-juhyo"/></svg>
         <div><h3>ざおうの じゅひょう</h3><p>さむい ふゆ、やまの きに ゆきと こおりが くっついて <b>おばけ</b>みたいな かたちに なるよ。</p></div>
+      </div>
+      <div class="fact" style="--bg:var(--sun-l)">
+        <svg viewBox="0 0 100 100"><use href="#f-hyoutan"/></svg>
+        <div><h3>ひょうたん あげ</h3><p><b>ひょうたん</b>の かたちを した かまぼこを、ころもを つけて あげた おやつ。ぼうに ささっているよ。</p></div>
       </div>
     </div>
     <span class="pageno">4</span>
