@@ -249,7 +249,7 @@
     .cover {
       display: grid;
       grid-template-columns: 1.2fr 1fr;
-      grid-template-rows: 1fr auto auto auto auto auto 1fr;
+      grid-template-rows: 1fr auto auto auto auto auto 0.6fr;
       column-gap: 8mm;
       padding-top: 10mm;
     }
@@ -260,6 +260,7 @@
     .cover .date { grid-row: 5; margin: 5mm 0 3mm; font-size: 19px; white-space: nowrap; }
     .cover .cover-kids { grid-row: 6; width: 100%; height: auto; margin: 0 0 0; }
     .cover .name-box { grid-row: 7; align-self: start; width: 100%; }
+    .cover .cover-pk { grid-row: 1; align-self: end; justify-self: center; width: 62mm; height: auto; margin-bottom: 2mm; filter: drop-shadow(0 4px 6px rgba(60,40,10,.25)); }
     .cover .cover-art { grid-column: 1; grid-row: 1 / -1; height: 160mm; margin: 0; align-self: center; }
     /* わたしの こと */
     .me-grid { grid-template-columns: 1fr 1.2fr; grid-template-areas: "name tano" "age tano" "poke tano" "fr fr"; gap: 4mm 6mm; }
@@ -475,6 +476,7 @@
 
   <!-- ===== 1. ひょうし ===== -->
   <section class="sheet cover">
+    <img class="cover-pk" src="spot-img/lapras-cut.png" alt="">
     <div><span class="tag">みやぎ りょこう</span></div>
     <h1>たびの しおり</h1>
     <p class="sub">ラプラスに あいに いこう！</p>
