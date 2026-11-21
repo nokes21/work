@@ -868,6 +868,38 @@
     .mv-msg { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
     .mv-result { margin-top: 12px; }
 
+
+    /* ===== タブレット・PC（スマホは かえない） ===== */
+    @media (min-width: 768px) {
+      .wrap { max-width: 760px; }
+      .fam-grid { grid-template-columns: repeat(4, 1fr); }
+      #spotList { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+      #spotList .spot-card { margin-bottom: 0; }
+      #content-memo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      #content-memo .page + .page { margin-top: 0; }
+      #content-memo .page:first-child { grid-column: 1 / -1; }
+      #content-other { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      #content-other > .page { grid-column: 1 / -1; }
+      #content-other > .coupon { margin: 0 !important; }
+      #content-memories .page { max-width: 640px; margin: 0 auto; }
+      .fam-panel .kid-cards { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1080px) {
+      .wrap {
+        max-width: 1120px;
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        column-gap: 28px;
+        align-items: start;
+      }
+      .wrap > .ticket { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 58px; margin-top: 12px; }
+      .wrap > .tabs-wrap { grid-column: 2; grid-row: 1; }
+      .wrap > main { grid-column: 2; grid-row: 2; min-width: 0; }
+      .tab-btn { font-size: 13px; padding: 11px 0 10px; }
+      .tab-btn i { font-size: 15px; }
+      #content-memo .page:first-child { grid-column: auto; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .is-now-card, .flash { animation: none; }
     }
@@ -1911,8 +1943,9 @@
       const grid = document.getElementById('famGrid');
       if (!grid) return;
       let html = '';
-      for (let r = 0; r < FAMILIES.length; r += 2) {
-        const row = FAMILIES.slice(r, r + 2);
+      const cols = window.matchMedia('(min-width: 768px)').matches ? 4 : 2;
+      for (let r = 0; r < FAMILIES.length; r += cols) {
+        const row = FAMILIES.slice(r, r + cols);
         html += row.map(f => `<button class="fam-tile ${openFam === f.id ? 'open' : ''}" style="--fc:${f.color}" onclick="toggleFam('${f.id}')" aria-expanded="${openFam === f.id}">
             <canvas class="fam-house" data-fam="${f.id}"></canvas>
             <span class="fam-name">${f.name}</span>
@@ -1925,6 +1958,7 @@
       grid.querySelectorAll('.fam-house').forEach(c => drawHome(c, FAMILIES.find(f => f.id === c.dataset.fam)));
       renderKidCards();
     }
+    window.matchMedia('(min-width: 768px)').addEventListener('change', () => renderFamilies());
     function toggleFam(id) {
       openFam = openFam === id ? null : id;
       editingKid = null;
