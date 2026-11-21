@@ -633,6 +633,20 @@
     .gyutan-tip { margin-top: 8px; background: rgba(200,85,61,.07); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--ink); }
     .gyutan-tip b { display: block; margin-bottom: 2px; }
     .gyutan-tip ol { margin: 0; padding-left: 18px; line-height: 1.6; }
+    .picks { margin-top: 12px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
+    .picks-head { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+    .picks-sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .pick { display: flex; align-items: center; gap: 6px; background: var(--paper); border-radius: 8px; padding: 8px 8px 8px 10px; margin-bottom: 6px; }
+    .pick-main { flex: 1; min-width: 0; }
+    .pick-name { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 900; color: var(--ink); text-decoration: none; word-break: break-all; }
+    .pick-name i { color: var(--stamp); font-size: 12px; }
+    .pick-note { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+    .pick-by { font-size: 10.5px; color: var(--ink-soft); margin-top: 2px; }
+    .pick-like { flex-shrink: 0; border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink); }
+    .pick-like.on { border-color: var(--stamp); background: rgba(200,85,61,.1); color: var(--stamp); }
+    .pick-form { display: grid; gap: 6px; margin-top: 8px; }
+    .pick-form .field { width: 100%; font-size: 16px; }
+    .pick-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
     .spot-tel { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--sea); text-decoration: none; }
     .spot-when { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .spot-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -1367,6 +1381,7 @@
       renderTodoList();
       renderSouvenirList();
       renderSpots();
+      initPicks();
       renderDayFlow();
       initPayments();
       renderSplitNote();
@@ -1411,6 +1426,20 @@
                 <li>「混雑する時間帯」や「現在の混雑状況」を見て、空いていそうなお店へ</li>
               </ol>
             </div>
+            <div class="picks">
+              <div class="picks-head">👍 みんなの候補 <span class="picks-sub">（全員に共有されます）</span></div>
+              <div id="gyutanPicks"></div>
+              <form class="pick-form" onsubmit="addPick(event)">
+                <input class="field" id="pickName" maxlength="30" placeholder="お店の名前（例: ○○ 仙台駅前店）" required>
+                <input class="field" id="pickNote" maxlength="40" placeholder="ひとこと（任意）例: 個室あり・子ども用いすあり">
+                <div class="pick-row">
+                  <select class="field" id="pickBy">
+                    <option value="あかり">原口家</option><option value="かすみ">小澤家</option><option value="みはる">竹内家</option><option value="なつき">坪田家</option>
+                  </select>
+                  <button type="submit" class="btn">候補に追加</button>
+                </div>
+              </form>
+            </div>
             <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
             <div class="spot-btns">
               <a href="https://www.google.com/maps/search/${q}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-location-dot"></i>Googleマップで開く</a>
@@ -1418,6 +1447,77 @@
             </div>
           </div>
         </div>`;
+    }
+
+    /* ===== 牛タンの 候補（みんなで 共有） ===== */
+    let picks = [], picksRef = null;
+    const PICK_LIKED = 'miyagi_trip_pick_liked';
+    function likedSet() { try { return new Set(JSON.parse(localStorage.getItem(PICK_LIKED) || '[]')); } catch (e) { return new Set(); } }
+    function saveLiked(set) { try { localStorage.setItem(PICK_LIKED, JSON.stringify([...set])); } catch (e) {} }
+    function saveLocalPicks() { try { localStorage.setItem('miyagi_trip_gyutan_picks', JSON.stringify(picks)); } catch (e) {} }
+    function renderPicks() {
+      const box = document.getElementById('gyutanPicks');
+      if (!box) return;
+      if (!picks.length) { box.innerHTML = '<p class="empty">まだ候補はありません。良さそうなお店を追加してください</p>'; return; }
+      const liked = likedSet();
+      const list = [...picks].sort((a, b) => (b.likes || 0) - (a.likes || 0) || (a.createdAt || 0) - (b.createdAt || 0));
+      box.innerHTML = list.map(pk => `
+        <div class="pick">
+          <div class="pick-main">
+            <a class="pick-name" href="https://www.google.com/maps/search/${encodeURIComponent(pk.name + ' 仙台')}" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i>${esc(pk.name)}</a>
+            ${pk.note ? `<div class="pick-note">${esc(pk.note)}</div>` : ''}
+            <div class="pick-by">${esc(famLabel(pk.by))}が追加</div>
+          </div>
+          <button class="pick-like ${liked.has(pk.key) ? 'on' : ''}" onclick="likePick('${pk.key}')" aria-label="いいね">👍 ${pk.likes || 0}</button>
+          <button class="icon-btn" onclick="removePick('${pk.key}')" aria-label="削除">✕</button>
+        </div>`).join('');
+    }
+    async function initPicks() {
+      const db = await getDb();
+      if (!db) {
+        try { picks = JSON.parse(localStorage.getItem('miyagi_trip_gyutan_picks') || '[]'); } catch (e) { picks = []; }
+        renderPicks(); return;
+      }
+      picksRef = db.ref(`trips/${TRIP_ID}/gyutanPicks`);
+      picksRef.on('value', snap => {
+        picks = Object.entries(snap.val() || {}).map(([key, v]) => ({ key, name: v.name, note: v.note || '', by: v.by, likes: v.likes || 0, createdAt: v.createdAt || 0 }));
+        renderPicks();
+      }, () => {});
+    }
+    function addPick(e) {
+      e.preventDefault();
+      const name = document.getElementById('pickName').value.trim().slice(0, 30);
+      const note = document.getElementById('pickNote').value.trim().slice(0, 40);
+      const by = document.getElementById('pickBy').value;
+      if (!name) return;
+      document.getElementById('pickName').value = ''; document.getElementById('pickNote').value = '';
+      const data = { name, by, likes: 0 };
+      if (note) data.note = note;
+      if (picksRef) {
+        picksRef.push({ ...data, createdAt: firebase.database.ServerValue.TIMESTAMP })
+          .catch(err => alert('追加できませんでした。\n理由: ' + ((err && (err.code || err.message)) || '不明')));
+        return;
+      }
+      picks.push({ ...data, key: 'p' + Date.now(), createdAt: Date.now() });
+      saveLocalPicks(); renderPicks();
+    }
+    function likePick(key) {
+      const liked = likedSet(), d = liked.has(key) ? -1 : 1;
+      if (d > 0) liked.add(key); else liked.delete(key);
+      saveLiked(liked);
+      if (picksRef) {
+        picksRef.child(key).child('likes').transaction(n => Math.max(0, (n || 0) + d)).catch(() => {});
+        renderPicks();
+        return;
+      }
+      const pk = picks.find(x => x.key === key); if (pk) pk.likes = Math.max(0, (pk.likes || 0) + d);
+      saveLocalPicks(); renderPicks();
+    }
+    function removePick(key) {
+      const pk = picks.find(x => x.key === key); if (!pk) return;
+      if (!confirm(`「${pk.name}」を候補から削除しますか？${picksRef ? '\n（全員の画面から消えます）' : ''}`)) return;
+      if (picksRef) { picksRef.child(key).remove(); return; }
+      picks = picks.filter(x => x.key !== key); saveLocalPicks(); renderPicks();
     }
 
     function renderSpots() {
