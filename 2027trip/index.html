@@ -52,6 +52,27 @@
     /* ページの なかの わく（この うしろからも のぞく） */
     .stop, .spot-card, .weather, .day-flow, .fam-tile, .kid-card { position: relative; z-index: 2; }
     .coupon { position: relative; }
+    .peek-bang {
+      position: absolute; z-index: 3;
+      transform: translate(-50%, -100%);
+      font-family: var(--mono); font-weight: 600; font-size: 18px; line-height: 1;
+      color: #fff; background: var(--stamp);
+      padding: 2px 5px 3px; border-radius: 3px;
+      box-shadow: 0 2px 0 #8f3524;
+      pointer-events: none;
+      animation: bang .9s ease-out forwards;
+    }
+    .peek-bang::after {
+      content: ""; position: absolute; left: 50%; bottom: -4px; margin-left: -4px;
+      border: 4px solid transparent; border-top-color: var(--stamp); border-bottom: 0;
+    }
+    @keyframes bang {
+      0% { opacity: 0; transform: translate(-50%, -60%) scale(.4); }
+      20% { opacity: 1; transform: translate(-50%, -115%) scale(1.15); }
+      35% { transform: translate(-50%, -100%) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -100%) scale(1); }
+    }
     .peek {
       position: absolute; z-index: 1;
       image-rendering: pixelated;
@@ -2729,7 +2750,10 @@
         const el = frames[Math.floor(Math.random() * frames.length)];
         // ページの なかの わくなら ページの なかに、そうでなければ ぜんたいに おく
         const inner = !el.matches('.page, .ticket, .coupon');
-        const box = inner ? el.closest('.page') || wrap : wrap;
+        // PCで ひだりに こていした れつ（チケット・バナー）は、その れつの なかに おく
+        const side = el.closest('.side-col');
+        const sideBox = side && getComputedStyle(side).display !== 'contents' ? side : null;
+        const box = inner ? el.closest('.page') || wrap : sideBox || wrap;
         const r = el.getBoundingClientRect(), w0 = box.getBoundingClientRect();
         const tabs = document.querySelector('.tabs-wrap').getBoundingClientRect().bottom;
         const ki = Math.floor(Math.random() * art.SPR.length), img = art.SPR[ki][0];
@@ -2737,16 +2761,16 @@
         // どこから のぞく？ みぎ・ひだり・うえ（うえは まえに なにかが ある わくだけ）
         const sides = ['right', 'left'];
         if ((inner || el.previousElementSibling) && r.top > tabs + 10) sides.push('top', 'top');
-        const side = sides[Math.floor(Math.random() * sides.length)];
+        const where = sides[Math.floor(Math.random() * sides.length)];
         const c = document.createElement('canvas');
         c.className = 'peek'; c.width = cw; c.height = ch;
         c.style.width = cw + 'px'; c.style.height = ch + 'px';
         const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-        if (side === 'left') { g.translate(cw, 0); g.scale(-1, 1); }   // そとを むく
+        if (where === 'left') { g.translate(cw, 0); g.scale(-1, 1); }   // そとを むく
         g.drawImage(img, 0, 0, cw, ch);
         const top = Math.max(r.top, tabs + 8), bottom = Math.min(r.bottom, innerHeight - 8);
         let x, y, out;
-        if (side === 'top') {
+        if (where === 'top') {
           x = r.left + 20 + Math.random() * Math.max(0, r.width - 40 - cw);
           y = r.top + 4;
           // うえから：くびを かしげて かおを のぞかせる
@@ -2755,18 +2779,29 @@
           c.style.transformOrigin = 'bottom center';
         } else {
           y = top + 10 + Math.random() * Math.max(0, bottom - top - ch - 20);
-          x = side === 'right' ? r.right - cw - 2 : r.left + 2;
+          x = where === 'right' ? r.right - cw - 2 : r.left + 2;
           // よこから：からだを ななめに して かおだけ だす
-          const lean = side === 'right' ? 22 : -22;
-          out = `translateX(${side === 'right' ? '' : '-'}${Math.round(cw * 0.5)}px) rotate(${lean}deg)`;
-          c.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right';
+          const lean = where === 'right' ? 22 : -22;
+          out = `translateX(${where === 'right' ? '' : '-'}${Math.round(cw * 0.5)}px) rotate(${lean}deg)`;
+          c.style.transformOrigin = where === 'right' ? 'bottom left' : 'bottom right';
         }
         c.style.left = (x - w0.left) + 'px';
         c.style.top = (y - w0.top) + 'px';
         c.style.transform = 'none';
         box.appendChild(c);
         const hide = () => { c.style.transform = 'none'; setTimeout(() => c.remove(), 500); };
-        c.onclick = () => { c.style.transform = out + ' translateY(-8px)'; setTimeout(hide, 180); };
+        c.onclick = () => {
+          // あたまの うえに「！」
+          const r2 = c.getBoundingClientRect(), b2 = box.getBoundingClientRect();
+          const bang = document.createElement('span');
+          bang.className = 'peek-bang'; bang.textContent = '！';
+          bang.style.left = (r2.left + r2.width / 2 - b2.left) + 'px';
+          bang.style.top = (r2.top - b2.top) + 'px';
+          box.appendChild(bang);
+          setTimeout(() => bang.remove(), 900);
+          c.onclick = null;
+          setTimeout(() => { c.style.transform = out + ' translateY(-8px)'; setTimeout(hide, 180); }, 350);
+        };
         requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = out; }));
         setTimeout(hide, 1600 + Math.random() * 1400);
         later();
