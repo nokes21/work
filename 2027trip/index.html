@@ -49,6 +49,8 @@
     .wrap { max-width: 460px; margin: 0 auto; padding: 0 16px; position: relative; }
     /* わくの うしろから のぞく こども */
     .page, .ticket, .coupon { z-index: 2; }
+    /* ページの なかの わく（この うしろからも のぞく） */
+    .stop, .spot-card, .weather, .day-flow, .fam-tile, .kid-card { position: relative; z-index: 2; }
     .coupon { position: relative; }
     .peek {
       position: absolute; z-index: 1;
@@ -1067,7 +1069,7 @@
           <div class="coupon-main">
             <div class="k">PRINT · A4</div>
             <h3>🖨️ こども用しおり</h3>
-            <p>11ページの本。ビンゴ・めいろ・絵日記付き！</p>
+            <p>10ページの本。ビンゴ・めいろ・絵日記付き！</p>
           </div>
           <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
         </div>
@@ -1335,7 +1337,7 @@
           <div class="coupon-main">
             <div class="k">PRINT · A4</div>
             <h3>🖨️ こども用しおり</h3>
-            <p>11ページの本。ビンゴ・めいろ・絵日記付き！</p>
+            <p>10ページの本。ビンゴ・めいろ・絵日記付き！</p>
           </div>
           <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
         </div>
@@ -2715,23 +2717,26 @@
       const S = 2;
       function visibleFrames() {
         const tabs = document.querySelector('.tabs-wrap').getBoundingClientRect().bottom;
-        return [...wrap.querySelectorAll('main .page, .ticket, main .coupon, .side-links .coupon')].filter(el => {
+        return [...wrap.querySelectorAll('main .page, .ticket, main .coupon, .side-links .coupon, main .stop, main .spot-card, main .weather, main .day-flow, main .fam-tile, main .kid-card')].filter(el => {
           if (!el.offsetParent) return false;
           const r = el.getBoundingClientRect();
-          return r.height > 80 && r.bottom > tabs + 60 && r.top < innerHeight - 60;
+          return r.height > 50 && r.bottom > tabs + 60 && r.top < innerHeight - 60;
         });
       }
       function peek() {
         const frames = visibleFrames();
         if (!frames.length || document.hidden || document.getElementById('splash')) return later();
         const el = frames[Math.floor(Math.random() * frames.length)];
-        const r = el.getBoundingClientRect(), w0 = wrap.getBoundingClientRect();
+        // ページの なかの わくなら ページの なかに、そうでなければ ぜんたいに おく
+        const inner = !el.matches('.page, .ticket, .coupon');
+        const box = inner ? el.closest('.page') || wrap : wrap;
+        const r = el.getBoundingClientRect(), w0 = box.getBoundingClientRect();
         const tabs = document.querySelector('.tabs-wrap').getBoundingClientRect().bottom;
         const ki = Math.floor(Math.random() * art.SPR.length), img = art.SPR[ki][0];
         const cw = art.W * S, ch = img.height * S;
         // どこから のぞく？ みぎ・ひだり・うえ（うえは まえに なにかが ある わくだけ）
         const sides = ['right', 'left'];
-        if (el.previousElementSibling && r.top > tabs + 10) sides.push('top', 'top');
+        if ((inner || el.previousElementSibling) && r.top > tabs + 10) sides.push('top', 'top');
         const side = sides[Math.floor(Math.random() * sides.length)];
         const c = document.createElement('canvas');
         c.className = 'peek'; c.width = cw; c.height = ch;
@@ -2754,15 +2759,15 @@
         c.style.left = (x - w0.left) + 'px';
         c.style.top = (y - w0.top) + 'px';
         c.style.transform = 'none';
-        wrap.appendChild(c);
+        box.appendChild(c);
         const hide = () => { c.style.transform = 'none'; setTimeout(() => c.remove(), 500); };
         c.onclick = () => { c.style.transform = out + ' translateY(-8px)'; setTimeout(hide, 180); };
         requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = out; }));
         setTimeout(hide, 1600 + Math.random() * 1400);
         later();
       }
-      function later() { setTimeout(peek, 5000 + Math.random() * 7000); }
-      setTimeout(peek, 3500);
+      function later() { setTimeout(peek, 1800 + Math.random() * 3000); }
+      setTimeout(peek, 2000);
     })();
 
     /* ===== スプラッシュ ===== */

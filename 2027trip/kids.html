@@ -212,7 +212,7 @@
     .mochi .e { font-size: 26px; }
     .mochi li.blank span.write { flex: 1; }
 
-    /* ===== めいろ・まちがいさがし・おえかき ===== */
+    /* ===== めいろ・おえかき ===== */
     .art {
       flex: 1;
       border: 3px solid var(--sea);
@@ -289,11 +289,6 @@
     /* もちもの：3れつ */
     .mochi { grid-template-columns: repeat(3, 1fr); gap: 2mm 8mm; }
     .mochi li { padding: 2mm 0 3mm; font-size: 22px; }
-    /* まちがいさがし：ひだりと みぎ */
-    .diff { grid-template-columns: 1fr 1fr; }
-    .diff .art { height: auto; aspect-ratio: 400 / 220; background: #fff6e6; }
-    .diff { flex: none; align-content: start; margin-top: 4mm; }
-    .diff + .found { margin-top: auto; margin-bottom: 6mm; }
     /* にっき：ひだりと みぎ */
 
     @media screen {
@@ -616,26 +611,13 @@
     <span class="pageno">7</span>
   </section>
 
-  <!-- ===== 8. まちがいさがし ===== -->
-  <section class="sheet">
-    <div class="head" style="--c:var(--mint-l)">
-      <div><h2>🔍 まちがい さがし</h2><div class="lead">ひだりと みぎの え、ちがう ところが <b style="color:#b8422f">5つ</b> あるよ！</div></div>
-    </div>
-    <div class="diff">
-      <div class="art" id="diffA"><span class="diff-label">あ</span></div>
-      <div class="art" id="diffB"><span class="diff-label">い</span></div>
-    </div>
-    <div class="found">みつけたら ぬってね →<i></i><i></i><i></i><i></i><i></i></div>
-    <span class="pageno">8</span>
-  </section>
-
   <!-- ===== 9. おえかき ===== -->
   <section class="sheet">
     <div class="head" style="--c:var(--sun-l)">
-      <div><h2>🎨 おえかき</h2><div class="lead">たびで いちばん たのしかった ことを かこう！</div></div>
+      <div><h2>🎨 おえかき</h2><div class="lead">なんでも すきな ものを かいてね！</div></div>
     </div>
     <div class="art draw-art"></div>
-    <span class="pageno">9</span>
+    <span class="pageno">8</span>
   </section>
 
   <!-- ===== 10. おもいで にっき 1にちめ ===== -->
@@ -648,7 +630,7 @@
       <div class="lines"><span></span><span></span><span></span></div>
       <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
     </div>
-    <span class="pageno">10</span>
+    <span class="pageno">9</span>
   </section>
 
   <!-- ===== 11. おもいで にっき 2にちめ ===== -->
@@ -661,7 +643,7 @@
       <div class="lines"><span></span><span></span><span></span></div>
       <div class="faces">きょうは どうだった？ <span>😆</span><span>😊</span><span>🙂</span>← ○を つけてね</div>
     </div>
-    <span class="pageno">11</span>
+    <span class="pageno">10</span>
   </section>
 
 </div>
@@ -731,26 +713,6 @@
       </svg>`;
   })();
 
-  /* ===== まちがいさがし ===== */
-  function diffScene(b) {
-    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
-      <rect width="400" height="220" fill="#fff6e6"/>
-      ${b ? '' : '<g fill="#fff" stroke="#e6d6b8" stroke-width="2"><ellipse cx="70" cy="40" rx="30" ry="12"/><ellipse cx="90" cy="32" rx="18" ry="11"/></g>'}
-      <circle cx="340" cy="44" r="20" fill="#ffd34e" stroke="#e0a21c" stroke-width="2.5"/>
-      ${b ? '' : '<g stroke="#ffd34e" stroke-width="4" stroke-linecap="round"><path d="M340 12v-6M340 82v-6M308 44h-6M378 44h-6M317 21l-4-4M367 71l-4-4M317 67l-4 4M367 17l-4 4"/></g>'}
-      <path d="M0 160Q100 132 200 148T400 140V220H0z" fill="#b5d97a"/>
-      <use href="#castle" x="130" y="40" width="130" height="120"/>
-      ${b ? '' : '<g><path d="M276 150V96" stroke="#8a5a3a" stroke-width="3"/><rect x="278" y="98" width="16" height="36" fill="#e0544a"/><circle cx="286" cy="110" r="4" fill="#ffd34e"/></g>'}
-      <use href="#masamune" x="300" y="100" width="64" height="90"/>
-      <use href="#kokeshi" x="24" y="120" width="26" height="52"/><use href="#kokeshi" x="56" y="132" width="20" height="40"/>
-      ${b ? '' : '<use href="#kokeshi" x="82" y="140" width="16" height="32"/>'}
-      <use href="#gyutan" x="120" y="166" width="80" height="48"/>
-      <use href="#sasakama" x="210" y="176" width="60" height="30"/>
-      ${b ? '' : '<use href="#sasakama" x="236" y="190" width="54" height="27"/>'}
-    </svg>`;
-  }
-  document.getElementById('diffA').insertAdjacentHTML('beforeend', diffScene(false));
-  document.getElementById('diffB').insertAdjacentHTML('beforeend', diffScene(true));
 
 
   /* ===== がめんの はばに あわせる ===== */
