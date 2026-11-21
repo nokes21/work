@@ -627,6 +627,12 @@
       background: repeating-linear-gradient(45deg, var(--paper) 0 10px, #f3ecdc 10px 20px);
     }
     .spot-body { padding: 12px; }
+    .gyutan-card { border-color: var(--stamp); }
+    .gyutan-map { position: relative; aspect-ratio: 4 / 3; background: var(--paper); }
+    .gyutan-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .gyutan-tip { margin-top: 8px; background: rgba(200,85,61,.07); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--ink); }
+    .gyutan-tip b { display: block; margin-bottom: 2px; }
+    .gyutan-tip ol { margin: 0; padding-left: 18px; line-height: 1.6; }
     .spot-tel { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--sea); text-decoration: none; }
     .spot-when { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .spot-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -1026,7 +1032,7 @@
                 <span id="badge-sched-3" class="now-stamp hidden">いまココ！</span>
                 <div class="stop-time">17:00</div>
                 <h3>早めの夜ごはんに牛タン 🥩</h3>
-                <p>混む前に、少し早めの時間に牛タンを食べに行きます。</p>
+                <p>仙台駅のまわりで、空いていそうなお店を選んで食べに行きます。</p>
                 <button class="spot-link" onclick="goSpot('gyutan')"><i class="fa-solid fa-map-pin"></i>行き先を見る</button>
               </div>
               <div id="sched-4" class="stop">
@@ -1340,8 +1346,10 @@
       { id: 'murakami', name: '村上屋餅店', area: '〒980-0023 宮城県仙台市青葉区北目町2-38', tag: 'お昼',
         desc: 'ずんだ餅を食べます。',
         map: '宮城県仙台市青葉区北目町2-38 村上屋餅店', sched: ['sched-2'], photo: '', url: 'https://x.com/murakami_mochi' },
-      { id: 'gyutan', name: '牛タン（お店は未定）', area: '決まったら入れます', tag: '夜ごはん',
-        desc: '混む前に、早めの時間に行く予定です。', map: '', sched: ['sched-3'], photo: '', url: '' },
+      { id: 'gyutan', special: 'gyutanMap', name: '牛タン お店マップ', area: '仙台駅のまわり', tag: '夜ごはん',
+        desc: '駅のまわりにたくさんお店があるので、当日に空いていそうなお店を選びます。混む前の早めの時間に行く予定です。',
+        mapQuery: '仙台駅 牛タン', sched: ['sched-3'],
+        url: 'https://www.google.com/search?q=%E4%BB%99%E5%8F%B0%E9%A7%85+%E7%89%9B%E3%82%BF%E3%83%B3&udm=local' },
       { id: 'planetarium', name: '仙台市天文台（ナイトプラネタリウム）', area: '〒989-3123 宮城県仙台市青葉区錦ケ丘9丁目29-32', tel: '022-391-1300', tag: 'おでかけ',
         desc: '投映 19:40〜20:05（約25分）。10分前の19:30から入場できます。途中から入れないことがあるので早めに。料金：大人 500円／小・中・高校生 200円／未就学児 無料。',
         map: '仙台市天文台', sched: ['sched-4'], photo: '', url: 'https://www.sendai-astro.jp/' },
@@ -1381,9 +1389,40 @@
       const day = el.closest('.day').querySelector('.day-date').textContent;
       return `${day} ${el.querySelector('.stop-time').textContent}`;
     }
+    // 牛タン お店マップ（とくべつな カード）
+    function gyutanCard(sp) {
+      const q = encodeURIComponent(sp.mapQuery);
+      return `
+        <div class="spot-card gyutan-card" id="spot-${sp.id}">
+          <div class="gyutan-map">
+            <iframe src="https://www.google.com/maps?q=${q}&z=15&output=embed" title="仙台駅のまわりの牛タンのお店" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <div class="spot-body">
+            <div class="spot-top">
+              <div><h3>🥩 ${esc(sp.name)}</h3><div class="sub">${esc(sp.area)}</div></div>
+              <span class="label-stamp ls-red">${esc(sp.tag)}</span>
+            </div>
+            <p>${esc(sp.desc)}</p>
+            <div class="gyutan-tip">
+              <b>空いているお店の探し方</b>
+              <ol>
+                <li>「Googleマップで開く」を押す</li>
+                <li>気になるお店をタップ</li>
+                <li>「混雑する時間帯」や「現在の混雑状況」を見て、空いていそうなお店へ</li>
+              </ol>
+            </div>
+            <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
+            <div class="spot-btns">
+              <a href="https://www.google.com/maps/search/${q}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-location-dot"></i>Googleマップで開く</a>
+              <a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-magnifying-glass"></i>お店の一覧</a>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderSpots() {
       const list = document.getElementById('spotList');
-      list.innerHTML = SPOTS.map(sp => `
+      list.innerHTML = SPOTS.map(sp => sp.special === 'gyutanMap' ? gyutanCard(sp) : `
         <div class="spot-card" id="spot-${sp.id}">
           ${sp.photo ? `<img class="spot-photo" src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : `<div class="spot-photo spot-photo-empty">写真は準備中です</div>`}
           <div class="spot-body">
