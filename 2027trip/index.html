@@ -1030,6 +1030,26 @@
       .tab-btn i { font-size: 15px; }
     }
 
+    /* ===== フッターメニュー（スマホ・タブレット） ===== */
+    @media (max-width: 1079px) {
+      .tabs-wrap {
+        position: fixed; top: auto; bottom: 0; left: 0; right: 0; z-index: 45;
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+        background: var(--paper);
+        border-top: 1.5px solid var(--paper-line);
+        box-shadow: 0 -6px 16px -10px rgba(60,40,10,.45);
+      }
+      .tabs { max-width: 760px; margin: 0 auto; gap: 2px; }
+      .tab-btn {
+        background: transparent; border-radius: 10px; padding: 6px 0 5px;
+        font-size: 10.5px; color: var(--ink-soft);
+      }
+      .tab-btn i { font-size: 18px; margin-bottom: 3px; }
+      .tab-btn.active { background: rgba(200,85,61,.1); color: var(--stamp); box-shadow: none; transform: none; }
+      body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+      main > section > :first-child { border-top-left-radius: 6px; border-top-right-radius: 14px; margin-top: 14px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .is-now-card, .flash { animation: none; }
     }
@@ -1293,10 +1313,10 @@
         <div class="page">
           <div class="notice">
             <i class="fa-solid fa-lock" style="margin-top:3px"></i>
-            <span>とりあえず何か作ってみてください～</span>
+            <span>写真とメッセージはこのスマホにだけ保存されます。できた動画は保存して、LINEなどで共有してください。</span>
           </div>
           <div class="page-head"><h2>思い出スライドショー</h2><span class="en">PICTURE DIARY</span></div>
-          <p class="memo">① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます。</p>
+          <p class="memo">とりあえず何か作ってみてください～<br>① 写真を選ぶ → ② ひとことメッセージを書く → ③ 動画を作る。絵日記みたいな動画ができます。</p>
 
           <label class="field-label" for="mvTitle">タイトル</label>
           <input id="mvTitle" class="field mv-text" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
@@ -1685,6 +1705,7 @@
 
     // タブ切り替え
     function switchTab(tab) {
+      if (window.matchMedia('(max-width: 1079px)').matches) window.scrollTo(0, 0);
       const tabs = ['schedule', 'members', 'spots', 'memo', 'memories', 'other'];
       tabs.forEach(t => {
         const content = document.getElementById(`content-${t}`);
@@ -2754,12 +2775,17 @@
       const wrap = document.querySelector('.wrap'), art = window.KID_ART;
       if (!wrap || !art) return;
       const S = 2;
+      // のぞいて いい たての はんい（うえの おび・タブ／したの フッターを よける）
+      function viewArea() {
+        const t = document.querySelector('.tabs-wrap').getBoundingClientRect();
+        return t.top > innerHeight / 2 ? { top: 46, bottom: t.top } : { top: t.bottom, bottom: innerHeight };
+      }
       function visibleFrames() {
-        const tabs = document.querySelector('.tabs-wrap').getBoundingClientRect().bottom;
+        const { top: tabs, bottom: lim } = viewArea();
         return [...wrap.querySelectorAll('main .page, .ticket, main .coupon, .side-links .coupon, main .stop, main .spot-card, main .weather, main .day-flow, main .fam-tile, main .kid-card')].filter(el => {
           if (!el.offsetParent) return false;
           const r = el.getBoundingClientRect();
-          return r.height > 50 && r.bottom > tabs + 60 && r.top < innerHeight - 60;
+          return r.height > 50 && r.bottom > tabs + 60 && r.top < lim - 60;
         });
       }
       function peek() {
@@ -2773,7 +2799,7 @@
         const sideBox = side && getComputedStyle(side).display !== 'contents' ? side : null;
         const box = inner ? el.closest('.page') || wrap : sideBox || wrap;
         const r = el.getBoundingClientRect(), w0 = box.getBoundingClientRect();
-        const tabs = document.querySelector('.tabs-wrap').getBoundingClientRect().bottom;
+        const { top: tabs, bottom: lim } = viewArea();
         const ki = Math.floor(Math.random() * art.SPR.length), img = art.SPR[ki][0];
         const cw = art.W * S, ch = img.height * S;
         // どこから のぞく？ みぎ・ひだり・うえ（うえは まえに なにかが ある わくだけ）
@@ -2786,7 +2812,7 @@
         const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
         if (where === 'left') { g.translate(cw, 0); g.scale(-1, 1); }   // そとを むく
         g.drawImage(img, 0, 0, cw, ch);
-        const top = Math.max(r.top, tabs + 8), bottom = Math.min(r.bottom, innerHeight - 8);
+        const top = Math.max(r.top, tabs + 8), bottom = Math.min(r.bottom, lim - 8);
         let x, y, out;
         if (where === 'top') {
           x = r.left + 20 + Math.random() * Math.max(0, r.width - 40 - cw);
