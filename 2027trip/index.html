@@ -601,10 +601,9 @@
     .tab-btn.active { transform: none; box-shadow: 0 3px 0 var(--stamp) inset; }
 
     /* 行き先 */
-    .stop-photos { display: grid; gap: 6px; margin: 6px 0 6px; }
-    .stop-photos.two { grid-template-columns: 1fr 1fr; }
-    .stop-photo { display: block; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; overflow: hidden; }
-    .stop-photo img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+    .stop-photos { display: flex; gap: 6px; margin: 6px 0 4px; }
+    .stop-photo { display: block; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .stop-photo img { display: block; width: 96px; height: 64px; object-fit: cover; }
     .spot-link {
       display: inline-flex; align-items: center; gap: 6px;
       margin-top: 8px;
