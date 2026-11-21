@@ -875,9 +875,16 @@
       .fam-grid { grid-template-columns: repeat(4, 1fr); }
       #spotList { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
       #spotList .spot-card { margin-bottom: 0; }
-      #content-memo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      /* メモ：ひだり＝お土産＋なんでもメモ、みぎ＝持ち物（たかさを そろえる） */
+      #content-memo {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas: "souv pack" "note pack";
+      }
       #content-memo .page + .page { margin-top: 0; }
-      #content-memo .page:first-child { grid-column: 1 / -1; }
+      #content-memo .page:nth-child(1) { grid-area: souv; }
+      #content-memo .page:nth-child(2) { grid-area: pack; }
+      #content-memo .page:nth-child(3) { grid-area: note; }
       #content-other { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
       #content-other > .page { grid-column: 1 / -1; }
       #content-other > .coupon { margin: 0 !important; }
@@ -897,7 +904,6 @@
       .wrap > main { grid-column: 2; grid-row: 2; min-width: 0; }
       .tab-btn { font-size: 13px; padding: 11px 0 10px; }
       .tab-btn i { font-size: 15px; }
-      #content-memo .page:first-child { grid-column: auto; }
     }
 
     @media (prefers-reduced-motion: reduce) {
