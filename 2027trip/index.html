@@ -190,6 +190,14 @@
       60% { transform: translateY(-.5px) rotate(1deg); }
     }
     @keyframes road-flow { from { background-position: 0 0; } to { background-position: -5px 0; } }
+    /* 2日目の ごごは かえりみち：くるまを ぎゃくむきに */
+    .route.homeward .line i { animation-name: car-bump-back; }
+    .route.homeward .line::before, .route.homeward .line::after { animation-direction: reverse; }
+    @keyframes car-bump-back {
+      0%, 100% { transform: scaleX(-1) translateY(0) rotate(0); }
+      30% { transform: scaleX(-1) translateY(-2px) rotate(-2deg); }
+      60% { transform: scaleX(-1) translateY(-.5px) rotate(1deg); }
+    }
     .perf {
       position: relative;
       height: 0;
@@ -2962,6 +2970,8 @@
     function checkCurrentStatus() {
       const now = simTime ? new Date(simTime) : new Date();
       renderCountdown(now);
+      const route = document.querySelector('.route');
+      if (route) route.classList.toggle('homeward', now >= new Date('2027-03-21T12:00:00'));
 
       scheduleTimes.forEach(item => {
         const el = document.getElementById(item.id);
