@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
-    @page { size: A4; margin: 0; }
+    @page { size: A4 landscape; margin: 0; }
     :root {
       --sea: #7fb43a;
       --sea-d: #4f7a1c;
@@ -53,7 +53,7 @@
     /* ===== ページ ===== */
     .book { padding: 8px 0 40px; }
     .sheet {
-      width: 210mm; height: 297mm;
+      width: 297mm; height: 210mm;
       margin: 0 auto 14px;
       padding: 13mm 14mm 16mm;
       background: #fff;
@@ -241,6 +241,58 @@
     .faces { display: flex; gap: 6mm; align-items: center; font-size: 19px; margin-top: 3mm; }
     .faces span { font-size: 34px; }
 
+
+    /* ===== よこむき（A4 横）の レイアウト ===== */
+    .sheet { padding: 10mm 14mm 13mm; }
+    .head { margin-bottom: 4mm; }
+    /* ひょうし：ひだり＝え、みぎ＝だいめい など */
+    .cover {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      grid-template-rows: 1fr auto auto auto auto auto 1fr;
+      column-gap: 8mm;
+      padding-top: 10mm;
+    }
+    .cover > * { grid-column: 2; }
+    .cover > div:first-child { grid-row: 2; }
+    .cover h1 { grid-row: 3; font-size: 60px; margin: 3mm 0 1mm; }
+    .cover .sub { grid-row: 4; }
+    .cover .date { grid-row: 5; margin: 5mm 0 3mm; font-size: 19px; white-space: nowrap; }
+    .cover .cover-kids { grid-row: 6; width: 100%; height: auto; margin: 0 0 0; }
+    .cover .name-box { grid-row: 7; align-self: start; width: 100%; }
+    .cover .cover-art { grid-column: 1; grid-row: 1 / -1; height: 160mm; margin: 0; align-self: center; }
+    /* わたしの こと */
+    .me-grid { grid-template-columns: 1fr 1.2fr; grid-template-areas: "name tano" "age tano" "poke tano" "fr fr"; gap: 4mm 6mm; }
+    .me-grid > :nth-child(1) { grid-area: name; }
+    .me-grid > :nth-child(2) { grid-area: age; }
+    .me-grid > :nth-child(3) { grid-area: poke; }
+    .me-grid > :nth-child(4) { grid-area: tano; }
+    .me-grid > :nth-child(5) { grid-area: fr; }
+    .me-grid .box { padding: 3mm 6mm 4mm; }
+    .me-grid .lines span { height: 11mm; }
+    .friends { grid-template-columns: repeat(8, 1fr); gap: 3mm; }
+    .friend { height: 22mm; }
+    /* まめちしき：2れつ */
+    .facts { grid-template-columns: 1fr 1fr; gap: 5mm 6mm; align-content: stretch; flex: 1; margin-bottom: 4mm; }
+    .fact { grid-template-columns: 34mm 1fr; padding: 3mm 5mm 3mm 3mm; }
+    .fact:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - 3mm); justify-self: center; }
+    .fact svg { width: 34mm !important; height: 34mm !important; }
+    .fact h3 { font-size: 22px; }
+    .fact p { font-size: 16px; }
+    /* びんご：まんなかに */
+    .bingo { width: 190mm; margin: 0 auto 4mm; }
+    .cell .e { font-size: 34px; }
+    /* もちもの：3れつ */
+    .mochi { grid-template-columns: repeat(3, 1fr); gap: 2mm 8mm; }
+    .mochi li { padding: 2mm 0 3mm; font-size: 22px; }
+    /* まちがいさがし：ひだりと みぎ */
+    .diff { grid-template-columns: 1fr 1fr; }
+    .diff .art { height: auto; aspect-ratio: 400 / 220; background: #fff6e6; }
+    .diff { flex: none; align-content: start; margin-top: 4mm; }
+    .diff + .found { margin-top: auto; margin-bottom: 6mm; }
+    /* にっき：ひだりと みぎ */
+    .diary { grid-template-columns: 1fr 1fr; }
+
     @media screen {
       .sheet { border-radius: 4px; }
     }
@@ -416,7 +468,7 @@
 
 <div class="toolbar">
   <button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
-  <p>A4・縦向きで、「フチなし」または余白「なし」に設定して印刷してください</p>
+  <p>A4・横向きで、「フチなし」または余白「なし」に設定して印刷してください</p>
 </div>
 
 <div class="book">
@@ -549,7 +601,7 @@
   <!-- ===== 8. まちがいさがし ===== -->
   <section class="sheet">
     <div class="head" style="--c:var(--mint-l)">
-      <div><h2>🔍 まちがい さがし</h2><div class="lead">うえと したの え、ちがう ところが <b style="color:#b8422f">5つ</b> あるよ！</div></div>
+      <div><h2>🔍 まちがい さがし</h2><div class="lead">ひだりと みぎの え、ちがう ところが <b style="color:#b8422f">5つ</b> あるよ！</div></div>
     </div>
     <div class="diff">
       <div class="art" id="diffA"><span class="diff-label">あ</span></div>
@@ -623,7 +675,7 @@
 
   /* ===== めいろ ===== */
   (function () {
-    const C = 11, R = 14, S = 40, P = 30;
+    const C = 17, R = 10, S = 40, P = 30;
     let seed = 20270320;
     const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
     const wall = [];
@@ -666,7 +718,7 @@
 
   /* ===== まちがいさがし ===== */
   function diffScene(b) {
-    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
       <rect width="400" height="220" fill="#fff6e6"/>
       ${b ? '' : '<g fill="#fff" stroke="#e6d6b8" stroke-width="2"><ellipse cx="70" cy="40" rx="30" ry="12"/><ellipse cx="90" cy="32" rx="18" ry="11"/></g>'}
       <circle cx="340" cy="44" r="20" fill="#ffd34e" stroke="#e0a21c" stroke-width="2.5"/>
@@ -725,7 +777,7 @@
   /* ===== がめんの はばに あわせる ===== */
   function fit() {
     const w = Math.min(window.innerWidth, document.documentElement.clientWidth) - 16;
-    const page = 210 * 96 / 25.4;
+    const page = 297 * 96 / 25.4;
     document.documentElement.style.setProperty('--z', Math.min(1, w / page).toFixed(3));
   }
   fit();
