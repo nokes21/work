@@ -273,6 +273,7 @@
     .facts { grid-template-columns: 1fr 1fr; gap: 5mm 6mm; align-content: stretch; flex: 1; margin-bottom: 4mm; }
     .fact { grid-template-columns: 34mm 1fr; padding: 3mm 5mm 3mm 3mm; }
     .fact svg { width: 34mm !important; height: 34mm !important; }
+    .fact .fact-photo { width: 34mm; height: 34mm; object-fit: contain; }
     .fact h3 { font-size: 22px; }
     .fact p { font-size: 16px; }
     /* びんご：まんなかに */
@@ -512,7 +513,7 @@
     </div>
     <div class="facts">
       <div class="fact" style="--bg:var(--sea-l)">
-        <svg viewBox="0 0 100 100"><use href="#f-manhole"/></svg>
+        <img class="fact-photo" src="spot-img/lapras-cut.png" alt="ラプラスの ゆうぐ">
         <div><h3>ラプラス</h3><p>みやぎを おうえんしている ポケモン！ みやぎの あちこちに <b>ラプラスの こうえん</b>や マンホールが あるよ。</p></div>
       </div>
       <div class="fact" style="--bg:var(--mint-l)">
