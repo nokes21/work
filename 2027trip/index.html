@@ -2749,12 +2749,17 @@
         if (side === 'top') {
           x = r.left + 20 + Math.random() * Math.max(0, r.width - 40 - cw);
           y = r.top + 4;
-          out = `translateY(-${Math.round(ch * 0.48)}px)`;
+          // うえから：くびを かしげて かおを のぞかせる
+          const tilt = Math.random() < .5 ? -14 : 14;
+          out = `translateY(-${Math.round(ch * 0.48)}px) rotate(${tilt}deg)`;
           c.style.transformOrigin = 'bottom center';
         } else {
           y = top + 10 + Math.random() * Math.max(0, bottom - top - ch - 20);
           x = side === 'right' ? r.right - cw - 2 : r.left + 2;
-          out = `translateX(${side === 'right' ? '' : '-'}${Math.round(cw * 0.62)}px)`;
+          // よこから：からだを ななめに して かおだけ だす
+          const lean = side === 'right' ? 22 : -22;
+          out = `translateX(${side === 'right' ? '' : '-'}${Math.round(cw * 0.5)}px) rotate(${lean}deg)`;
+          c.style.transformOrigin = side === 'right' ? 'bottom left' : 'bottom right';
         }
         c.style.left = (x - w0.left) + 'px';
         c.style.top = (y - w0.top) + 'px';
