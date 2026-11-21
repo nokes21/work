@@ -643,7 +643,37 @@
       background: repeating-linear-gradient(45deg, var(--paper) 0 10px, #f3ecdc 10px 20px);
     }
     .spot-body { padding: 12px; }
-    .gyutan-card { border-color: var(--stamp); }
+    /* 牛タン お店マップ：すみびやきの メニュー板ふう */
+    .gyutan-card {
+      --g-bg: #2b211c; --g-bg2: #3a2d26; --g-ink: #f6ead8; --g-soft: #cdb89c;
+      background: var(--g-bg); color: var(--g-ink);
+      border: 0;
+      box-shadow: 0 10px 22px -12px rgba(30,15,5,.7);
+      grid-column: 1 / -1;
+    }
+    .gyutan-hero { position: relative; }
+    .gyutan-hero img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+    .gyutan-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(43,33,28,0) 35%, rgba(43,33,28,.92) 100%); }
+    .gyutan-hero-text { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1; }
+    .gyutan-ribbon { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .2em; color: #fff; background: var(--stamp); padding: 2px 8px; border-radius: 3px; }
+    .gyutan-hero-text h3 { margin: 6px 0 2px; font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+    .gyutan-hero-sub { font-size: 12px; font-weight: 700; color: var(--g-soft); }
+    .gyutan-card .gyutan-map { margin: 12px 12px 0; border: 4px solid var(--g-ink); border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
+    .gyutan-card .spot-body { color: var(--g-ink); }
+    .gyutan-card .picks { border-top-color: rgba(246,234,216,.25); margin-top: 0; }
+    .gyutan-card .picks-head { color: #fff; }
+    .gyutan-card .picks-sub, .gyutan-card .pick-note, .gyutan-card .pick-by { color: var(--g-soft); }
+    .gyutan-card .pick { background: var(--g-bg2); }
+    .gyutan-card .pick-name { color: #fff; }
+    .gyutan-card .pick-like { background: transparent; color: var(--g-ink); border-color: rgba(246,234,216,.35); }
+    .gyutan-card .pick-like.on { background: var(--stamp); color: #fff; border-color: var(--stamp); }
+    .gyutan-card .icon-btn { color: var(--g-soft); }
+    .gyutan-card .empty { color: var(--g-soft); }
+    .gyutan-card .field { background: var(--g-bg2); border-color: rgba(246,234,216,.25); color: var(--g-ink); }
+    .gyutan-card .field::placeholder { color: rgba(205,184,156,.75); }
+    .gyutan-card .btn { background: var(--stamp); color: #fff; }
+    .gyutan-card .when-chip { background: var(--g-ink); color: var(--g-bg); }
+    .gyutan-card .spot-btn { background: var(--stamp); color: #fff; }
     .gyutan-map { position: relative; aspect-ratio: 4 / 3; background: var(--paper); }
     .gyutan-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .gyutan-tip { margin-top: 8px; background: rgba(200,85,61,.07); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--ink); }
@@ -1384,9 +1414,9 @@
       { id: 'hotel', name: '秋保温泉 旅館 蘭亭', area: '〒982-0241 仙台市太白区秋保町湯元字木戸保7-1', tel: '0570-040-707', telNote: '受付 9:00〜18:00', tag: '宿泊',
         desc: 'チェックイン・チェックアウトの時間や駐車場などは、決まったらここにまとめます。',
         map: '仙台市太白区秋保町湯元字木戸保7-1', sched: ['sched-5', 'sched-6'], photo: 'spot-img/hotel.jpg', url: 'https://www.akiu-rantei.com/' },
-      { id: 'strawberry', name: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', area: '住所は確認中です', tag: 'いちご狩り',
+      { id: 'strawberry', name: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', area: '〒984-0838 宮城県仙台市若林区上飯田字天神75-1（ハーベストビレッジ仙台）', tag: 'いちご狩り',
         desc: 'みんなでいちご狩りを楽しみます。',
-        map: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', sched: ['sched-7'], photo: 'spot-img/strawberry.jpg', url: 'https://www.beripla.jp/' },
+        map: '宮城県仙台市若林区上飯田字天神75-1', sched: ['sched-7'], photo: 'spot-img/strawberry.jpg', url: 'https://www.beripla.jp/' },
       { id: 'gyutan', special: 'gyutanMap', name: '牛タン お店マップ', area: '仙台駅のまわり', tag: '夜ごはん',
         desc: '',
         mapQuery: '仙台駅 牛タン', sched: ['sched-3'], photo: 'spot-img/gyutan.jpg',
@@ -1428,15 +1458,18 @@
       const q = encodeURIComponent(sp.mapQuery);
       return `
         <div class="spot-card gyutan-card" id="spot-${sp.id}">
-          ${sp.photo ? `<img class="spot-photo" src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : ''}
+          <div class="gyutan-hero">
+            ${sp.photo ? `<img src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : ''}
+            <div class="gyutan-hero-text">
+              <span class="gyutan-ribbon">SPECIAL MAP</span>
+              <h3>🥩 ${esc(sp.name)}</h3>
+              <div class="gyutan-hero-sub">${esc(sp.area)}・${esc(sp.tag)}</div>
+            </div>
+          </div>
           <div class="gyutan-map">
             <iframe src="https://www.google.com/maps?q=${q}&z=15&output=embed" title="仙台駅のまわりの牛タンのお店" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
           <div class="spot-body">
-            <div class="spot-top">
-              <div><h3>🥩 ${esc(sp.name)}</h3><div class="sub">${esc(sp.area)}</div></div>
-              <span class="label-stamp ls-red">${esc(sp.tag)}</span>
-            </div>
             ${sp.desc ? `<p>${esc(sp.desc)}</p>` : ''}
             <div class="picks">
               <div class="picks-head">👍 みんなの候補 <span class="picks-sub">（全員に共有されます）</span></div>
