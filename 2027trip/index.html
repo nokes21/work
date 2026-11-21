@@ -1360,10 +1360,6 @@
       { id: 'murakami', name: '村上屋餅店', area: '〒980-0023 宮城県仙台市青葉区北目町2-38', tag: 'お昼',
         desc: 'ずんだ餅を食べます。',
         map: '宮城県仙台市青葉区北目町2-38 村上屋餅店', sched: ['sched-2'], photo: 'spot-img/murakami.jpg', url: 'https://x.com/murakami_mochi' },
-      { id: 'gyutan', special: 'gyutanMap', name: '牛タン お店マップ', area: '仙台駅のまわり', tag: '夜ごはん',
-        desc: '駅のまわりにたくさんお店があるので、当日に空いていそうなお店を選びます。混む前の早めの時間に行く予定です。',
-        mapQuery: '仙台駅 牛タン', sched: ['sched-3'], photo: 'spot-img/gyutan.jpg',
-        url: 'https://www.google.com/search?q=%E4%BB%99%E5%8F%B0%E9%A7%85+%E7%89%9B%E3%82%BF%E3%83%B3&udm=local' },
       { id: 'planetarium', name: '仙台市天文台（ナイトプラネタリウム）', area: '〒989-3123 宮城県仙台市青葉区錦ケ丘9丁目29-32', tel: '022-391-1300', tag: 'おでかけ',
         desc: '投映 19:40〜20:05（約25分）。10分前の19:30から入場できます。途中から入れないことがあるので早めに。料金：大人 500円／小・中・高校生 200円／未就学児 無料。',
         map: '仙台市天文台', sched: ['sched-4'], photo: 'spot-img/planetarium.jpg', url: 'https://www.sendai-astro.jp/' },
@@ -1373,6 +1369,10 @@
       { id: 'strawberry', name: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', area: '住所は確認中です', tag: 'いちご狩り',
         desc: 'みんなでいちご狩りを楽しみます。',
         map: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', sched: ['sched-7'], photo: '', url: 'https://www.beripla.jp/' },
+      { id: 'gyutan', special: 'gyutanMap', name: '牛タン お店マップ', area: '仙台駅のまわり', tag: '夜ごはん',
+        desc: '',
+        mapQuery: '仙台駅 牛タン', sched: ['sched-3'], photo: 'spot-img/gyutan.jpg',
+        url: 'https://www.google.com/search?q=%E4%BB%99%E5%8F%B0%E9%A7%85+%E7%89%9B%E3%82%BF%E3%83%B3&udm=local' },
     ];
 
     // 初期化
@@ -1418,15 +1418,7 @@
               <div><h3>🥩 ${esc(sp.name)}</h3><div class="sub">${esc(sp.area)}</div></div>
               <span class="label-stamp ls-red">${esc(sp.tag)}</span>
             </div>
-            <p>${esc(sp.desc)}</p>
-            <div class="gyutan-tip">
-              <b>空いているお店の探し方</b>
-              <ol>
-                <li>「Googleマップで開く」を押す</li>
-                <li>気になるお店をタップ</li>
-                <li>「混雑する時間帯」や「現在の混雑状況」を見て、空いていそうなお店へ</li>
-              </ol>
-            </div>
+            ${sp.desc ? `<p>${esc(sp.desc)}</p>` : ''}
             <div class="picks">
               <div class="picks-head">👍 みんなの候補 <span class="picks-sub">（全員に共有されます）</span></div>
               <div id="gyutanPicks"></div>
