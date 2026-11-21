@@ -182,6 +182,8 @@
     }
 
     /* ===== タブ（インデックスシール） ===== */
+    .side-col { display: contents; }
+    .side-links { display: none; }
     .tabs-wrap { position: sticky; top: 40px; z-index: 30; padding: 10px 0 0; background: var(--kraft); }
     .tabs { display: flex; gap: 4px; }
     .tab-btn {
@@ -966,7 +968,11 @@
         column-gap: 28px;
         align-items: start;
       }
-      .wrap > .ticket { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 58px; margin-top: 12px; }
+      .wrap > .side-col { display: block; grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 58px; }
+      .side-col > .ticket { margin-top: 12px; }
+      .side-links { display: grid; gap: 12px; margin-top: 16px; }
+      .side-links .coupon { margin: 0; }
+      #content-other > .other-coupon { display: none; }
       .wrap > .tabs-wrap { grid-column: 2; grid-row: 1; }
       .wrap > main { grid-column: 2; grid-row: 2; min-width: 0; }
       .tab-btn { font-size: 13px; padding: 11px 0 10px; }
@@ -1007,6 +1013,7 @@
       </button>
     </div>
 
+    <div class="side-col">
     <header class="ticket">
       <div class="ticket-band">
         <span>FAMILY TRIP TICKET</span>
@@ -1045,6 +1052,25 @@
       </div>
       <div class="barcode" aria-hidden="true"></div>
     </header>
+      <div class="side-links">
+        <div class="coupon">
+          <div class="coupon-main">
+            <div class="k">PRINT · A4</div>
+            <h3>🖨️ こども用しおり</h3>
+            <p>11ページの本。ビンゴ・めいろ・ぬりえ付き！</p>
+          </div>
+          <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="coupon" style="background:#8fd3f5">
+          <div class="coupon-main">
+            <div class="k">GAME · SMARTPHONE</div>
+            <h3>🎮 みやぎ チャレンジ</h3>
+            <p>移動中のひまつぶしに。子どもたちの名前で遊べます</p>
+          </div>
+          <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
 
     <!-- ===== タブ ===== -->
     <div class="tabs-wrap">
@@ -1295,7 +1321,7 @@
           </div>
         </div>
 
-        <div class="coupon" style="margin-top:16px">
+        <div class="coupon other-coupon" style="margin-top:16px">
           <div class="coupon-main">
             <div class="k">PRINT · A4</div>
             <h3>🖨️ こども用しおり</h3>
@@ -1304,7 +1330,7 @@
           <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
         </div>
 
-        <div class="coupon" style="background:#8fd3f5">
+        <div class="coupon other-coupon" style="background:#8fd3f5">
           <div class="coupon-main">
             <div class="k">GAME · SMARTPHONE</div>
             <h3>🎮 みやぎ チャレンジ</h3>
