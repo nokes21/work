@@ -2818,7 +2818,11 @@
           box.appendChild(bang);
           setTimeout(() => bang.remove(), 900);
           c.onclick = null;
-          setTimeout(() => { c.style.transform = out + ' translateY(-8px)'; setTimeout(hide, 180); }, 350);
+          // タップした しゅんかんに ジャンプ → すこし して ひっこむ
+          c.style.transition = 'transform .12s ease-out';
+          c.style.transform = out + ' translateY(-10px)';
+          setTimeout(() => { c.style.transition = ''; c.style.transform = out; }, 140);
+          setTimeout(hide, 650);
         };
         requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = out; }));
         setTimeout(hide, 1600 + Math.random() * 1400);
