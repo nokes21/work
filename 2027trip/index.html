@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -103,6 +103,19 @@
       letter-spacing: .14em;
     }
     .ticket-main { padding: 18px 18px 16px; position: relative; }
+    .ticket-pk {
+      position: absolute; right: 12px; top: 6px;
+      width: 78px; height: auto;
+      transform: rotate(4deg);
+      filter: drop-shadow(0 3px 4px rgba(60,40,10,.25));
+      pointer-events: none;
+    }
+    .sp-pk {
+      width: min(120px, 34vw); height: auto;
+      margin-bottom: -30px; position: relative; z-index: 1;
+      filter: drop-shadow(0 6px 8px rgba(60,40,10,.25));
+      animation: sp-pop .6s .1s cubic-bezier(.2,1.4,.4,1) both;
+    }
     .ticket-title {
       font-size: 24px;
       font-weight: 900;
@@ -938,6 +951,7 @@
 <body>
   <!-- ===== スプラッシュ（開いたときに 1回だけ） ===== -->
   <div id="splash" class="splash" onclick="hideSplash()" aria-hidden="true">
+    <img class="sp-pk" src="spot-img/lapras-cut.png" alt="" aria-hidden="true">
     <div class="sp-card">
       <div class="sp-band">FAMILY TRIP TICKET</div>
       <div class="sp-body">
@@ -968,6 +982,7 @@
         <span>FAMILY TRIP TICKET</span>
       </div>
       <div class="ticket-main">
+        <img class="ticket-pk" src="spot-img/lapras-cut.png" alt="" aria-hidden="true">
         <h1 class="ticket-title">宮城旅行のしおり</h1>
         <div class="ticket-sub">ラプラスに会いに行く旅</div>
         <div class="route">
