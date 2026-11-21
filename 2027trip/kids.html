@@ -599,7 +599,6 @@
     </div>
     <ul class="mochi" id="mochi"></ul>
     <div class="box" style="margin-top:7mm;--bc:var(--mint);--bg:var(--mint-l)">
-      <h3>✨ じぶんで きめる もちもの</h3>
       <ul class="mochi" id="mochiBlank"></ul>
     </div>
     <span class="pageno">6</span>
@@ -684,7 +683,7 @@
   const MOCHI = [
     ['👕','きがえ'], ['🩳','パジャマ'], ['🧦','くつした'], ['🧢','ぼうし'],
     ['🧻','ハンカチ'], ['🤧','ティッシュ'], ['🥤','すいとう'], ['🍬','おやつ'],
-    ['🧸','おもちゃ'], ['📖','この しおり'], ['🖍️','いろえんぴつ'], ['⭐','シール']
+    ['🧸','おもちゃ'], ['📖','この しおり']
   ];
   document.getElementById('mochi').innerHTML = MOCHI.map(m => `<li><span class="cb"></span><span class="e">${m[0]}</span>${m[1]}</li>`).join('');
   document.getElementById('mochiBlank').innerHTML = Array.from({length: 6}, () => `<li class="blank"><span class="cb"></span><span class="write"></span></li>`).join('');
