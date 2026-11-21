@@ -178,8 +178,18 @@
       display: flex; align-items: center; gap: 6px;
     }
     .route .line::before, .route .line::after {
-      content: ""; width: 22px; border-top: 2px dotted var(--sea);
+      content: ""; width: 22px; height: 2px;
+      background: repeating-linear-gradient(90deg, var(--sea) 0 2px, transparent 2px 5px);
+      animation: road-flow .5s linear infinite;
     }
+    /* くるまが ガタゴト はしってる */
+    .route .line i { display: inline-block; animation: car-bump .36s ease-in-out infinite; transform-origin: 50% 100%; }
+    @keyframes car-bump {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      30% { transform: translateY(-2px) rotate(-2deg); }
+      60% { transform: translateY(-.5px) rotate(1deg); }
+    }
+    @keyframes road-flow { from { background-position: 0 0; } to { background-position: -5px 0; } }
     .perf {
       position: relative;
       height: 0;
