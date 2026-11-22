@@ -806,6 +806,26 @@
     #splashKids { width: min(320px, 90vw); height: 44px; image-rendering: pixelated; }
     @keyframes sp-pop { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
 
+    /* ホーム画面に追加の あんない */
+    .a2hs {
+      position: fixed; left: 12px; right: 12px; z-index: 46;
+      bottom: calc(var(--a2hs-bottom, 12px) + env(safe-area-inset-bottom));
+      max-width: 440px; margin: 0 auto;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--ink); color: var(--paper);
+      border-radius: 12px; padding: 10px 10px 10px 12px;
+      box-shadow: 0 10px 24px -10px rgba(31,53,80,.7);
+      animation: a2hs-in .45s cubic-bezier(.2,1.3,.4,1);
+    }
+    .a2hs::after { content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
+    .a2hs.no-arrow::after { display: none; }
+    .a2hs-icon { width: 40px; height: 40px; border-radius: 9px; flex-shrink: 0; }
+    .a2hs-text { flex: 1; font-size: 12.5px; font-weight: 700; line-height: 1.5; }
+    .a2hs-text b { color: #ffd98a; }
+    .a2hs-share { display: inline-block; width: 15px; height: 15px; vertical-align: -3px; margin: 0 1px; }
+    .a2hs-close { flex-shrink: 0; border: 0; background: rgba(255,255,255,.12); color: var(--paper); width: 28px; height: 28px; border-radius: 50%; font-size: 13px; cursor: pointer; }
+    @keyframes a2hs-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
@@ -1422,6 +1442,13 @@
   </div>
 
   <!-- ===== おつかれさま ===== -->
+  <!-- ===== ホーム画面に追加の あんない（iPhone・iPad の ブラウザだけ） ===== -->
+  <div id="a2hs" class="a2hs hidden" role="dialog" aria-label="ホーム画面に追加">
+    <img src="apple-touch-icon.png" alt="" class="a2hs-icon">
+    <div class="a2hs-text" id="a2hsText"></div>
+    <button class="a2hs-close" onclick="closeA2hs()" aria-label="閉じる">✕</button>
+  </div>
+
   <div id="newsModal" class="modal hidden" onclick="if (event.target === this) closeNews()">
     <div class="modal-card news-card">
       <div class="news-k">NOTICE</div>
@@ -2881,6 +2908,35 @@
         });
       };
       addEventListener('scroll', mark, { passive: true });
+    })();
+
+    /* ===== ホーム画面に追加の あんない ===== */
+    function closeA2hs() {
+      document.getElementById('a2hs').classList.add('hidden');
+      try { localStorage.setItem('miyagi_trip_a2hs_closed', '1'); } catch (e) {}
+    }
+    (function () {
+      const ua = navigator.userAgent;
+      const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+      const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+      let closed = false;
+      try { closed = localStorage.getItem('miyagi_trip_a2hs_closed') === '1'; } catch (e) {}
+      if (!ios || standalone || closed) return;
+      const share = '<svg class="a2hs-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M8 11H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-2"/></svg>';
+      const inApp = /Line\/|FBAN|FBAV|Instagram/i.test(ua);
+      const box = document.getElementById('a2hs');
+      document.getElementById('a2hsText').innerHTML = inApp
+        ? 'このしおりは <b>Safari で開く</b>と、ホーム画面に追加してアプリのように使えます'
+        : `ホーム画面に追加すると、アプリのように使えます<br>${share}<b>共有</b> →「<b>ホーム画面に追加</b>」`;
+      if (inApp) box.classList.add('no-arrow');
+      // フッターメニューの うえに だす
+      const place = () => {
+        const tabs = document.querySelector('.tabs-wrap');
+        const footer = getComputedStyle(tabs).position === 'fixed';
+        document.documentElement.style.setProperty('--a2hs-bottom', (footer ? tabs.offsetHeight + 10 : 12) + 'px');
+      };
+      place(); addEventListener('resize', place);
+      setTimeout(() => box.classList.remove('hidden'), 3200);
     })();
 
     /* ===== スプラッシュ ===== */
