@@ -3019,17 +3019,17 @@
           const lt = t - r.delay; if (lt < 0) { alive = true; return; }
           const img = art.SPR[r.k][Math.floor(lt * 12 + r.ph) % 2];
           const w = art.W * r.S, h = img.height * r.S;
-          const x = W + 20 - lt * r.speed;
-          if (x < -w - 20) return;
+          const x = -w - 20 + lt * r.speed;            // ひだり から みぎへ
+          if (x > W + 20) return;
           alive = true;
           const bob = Math.floor(lt * 12 + r.ph) % 2 ? -r.S : 0;
           // すなぼこり
           g.fillStyle = 'rgba(160,130,90,.45)';
           const pf = Math.floor(lt * 20) % 3;
-          g.fillRect(x + w + 2 + pf * 4, r.y + h - 4, r.S + 1, r.S + 1);
-          g.fillRect(x + w + 10 + pf * 3, r.y + h - 2, r.S, r.S);
-          // ひだりむき・まえかがみ
-          g.save(); g.translate(x + w, r.y + h + bob); g.rotate(-.1); g.scale(-1, 1);
+          g.fillRect(x - 6 - pf * 4, r.y + h - 4, r.S + 1, r.S + 1);
+          g.fillRect(x - 14 - pf * 3, r.y + h - 2, r.S, r.S);
+          // みぎむき・まえかがみ
+          g.save(); g.translate(x, r.y + h + bob); g.rotate(.1);
           g.drawImage(img, 0, -h, w, h); g.restore();
         });
         if (alive && t < 4) requestAnimationFrame(frame); else cv.remove();
