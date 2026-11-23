@@ -703,6 +703,22 @@
       background: repeating-linear-gradient(45deg, var(--paper) 0 10px, #f3ecdc 10px 20px);
     }
     .spot-body { padding: 12px; }
+    /* 旅のルート */
+    .route-card { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 12px; margin-bottom: 16px; position: relative; z-index: 2; }
+    .route-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .route-k { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .18em; color: #fff; background: var(--ink); padding: 2px 7px; border-radius: 3px; }
+    .route-head h3 { margin: 0; font-size: 16px; font-weight: 900; }
+    .route-sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .route-map { position: relative; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: var(--paper); }
+    .route-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .route-list { list-style: none; margin: 12px 0 10px; padding: 0 0 0 4px; display: grid; gap: 4px; position: relative; }
+    .route-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; position: relative; }
+    .route-list li:not(.route-day) + li:not(.route-day)::before { content: ""; position: absolute; left: 10px; top: -6px; height: 8px; border-left: 2px dotted var(--sea); }
+    .route-day { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; color: var(--stamp); margin-top: 4px; }
+    .route-pin { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--sea); color: #fff; display: grid; place-items: center; font-family: var(--mono); font-size: 11px; font-weight: 600; }
+    .route-name { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+    button.route-name { text-decoration: underline dotted var(--paper-line); text-underline-offset: 3px; }
+    .route-open { width: 100%; }
     /* 牛タン お店マップ：すみびやきの メニュー板ふう */
     .gyutan-card {
       --g-bg: #2b211c; --g-bg2: #3a2d26; --g-ink: #f6ead8; --g-soft: #cdb89c;
@@ -1346,6 +1362,7 @@
         <div class="page">
           <div class="page-head"><h2>行き先リスト</h2><span class="en">DESTINATIONS</span></div>
           <p class="memo">※ いまはサンプルです。日程が決まったら差し替えます。</p>
+          <div class="route-card" id="routeCard"></div>
           <div id="spotList"></div>
         </div>
       </section>
@@ -1609,6 +1626,7 @@
       renderTodoList();
       renderSouvenirList();
       renderSpots();
+      renderRoute();
       renderStopPhotos();
       initPicks();
       renderDayFlow();
@@ -1756,6 +1774,36 @@
         box.innerHTML = spots.map(sp => `<button class="stop-photo" onclick="goSpot('${sp.id}')" aria-label="${esc(sp.name)}を見る"><img src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy"></button>`).join('');
         stop.querySelector('.stop-time').after(box);
       });
+    }
+
+    /* ===== たびの ルート（稲城駅 → 行き先 → 稲城駅） ===== */
+    const ROUTE = [
+      { label: '稲城駅（出発）', q: '稲城駅 東京都稲城市', day: 1 },
+      { label: 'ラプラス公園', q: '仙台市海岸公園冒険広場', day: 1, spot: 'lapras' },
+      { label: '阿部蒲鉾店 本店', q: '仙台市青葉区中央2丁目3-18 阿部蒲鉾店', day: 1, spot: 'abe' },
+      { label: '村上屋餅店', q: '宮城県仙台市青葉区北目町2-38 村上屋餅店', day: 1, spot: 'murakami' },
+      { label: '仙台駅（牛タン）', q: '仙台駅', day: 1, spot: 'gyutan' },
+      { label: '仙台市天文台', q: '仙台市天文台', day: 1, spot: 'planetarium' },
+      { label: '秋保温泉 蘭亭（泊）', q: '仙台市太白区秋保町湯元字木戸保7-1', day: 1, spot: 'hotel' },
+      { label: 'ハーベストビレッジ仙台（いちご狩り）', q: '宮城県仙台市若林区上飯田字天神75-1', day: 2, spot: 'strawberry' },
+      { label: '稲城駅（到着）', q: '稲城駅 東京都稲城市', day: 2 },
+    ];
+    function renderRoute() {
+      const box = document.getElementById('routeCard'); if (!box) return;
+      const enc = encodeURIComponent;
+      const embed = 'https://maps.google.com/maps?f=d&hl=ja&saddr=' + enc(ROUTE[0].q) +
+        '&daddr=' + ROUTE.slice(1).map(r => enc(r.q)).join('+to:') + '&output=embed';
+      const open = 'https://www.google.com/maps/dir/' + ROUTE.map(r => enc(r.q)).join('/');
+      box.innerHTML = `
+        <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">稲城駅 → 宮城 → 稲城駅</span></div>
+        <div class="route-map"><iframe src="${embed}" title="旅のルートの地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+        <ol class="route-list">${ROUTE.map((r, i) => {
+          const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day">DAY 1</li>' : '');
+          const pin = i === 0 || i === ROUTE.length - 1 ? '🏠' : i;
+          const name = r.spot ? `<button class="route-name" onclick="flashEl(document.getElementById('spot-${r.spot}'))">${esc(r.label)}</button>` : `<span class="route-name">${esc(r.label)}</span>`;
+          return `${day}<li><span class="route-pin">${pin}</span>${name}</li>`;
+        }).join('')}</ol>
+        <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップでルートを開く</a>`;
     }
 
     function renderSpots() {
