@@ -3049,14 +3049,14 @@
       ticket.addEventListener('pointerdown', e => {
         if (busy) return;
         const pr = perf.getBoundingClientRect();
-        if (Math.abs(e.clientY - pr.top) > 34) return;           // きりとりせんの ちかくだけ
+        if (e.clientY < pr.top - 90 || e.clientY > pr.top + 110) return;   // きりとりせんの まわり（ひろめ）
         st = { x: e.clientX, id: e.pointerId, min: e.clientX, max: e.clientX, cut: false };
       });
       ticket.addEventListener('pointermove', e => {
         if (!st || e.pointerId !== st.id || busy) return;
         const pr = perf.getBoundingClientRect();
         if (!ticket.classList.contains('cutting')) {
-          if (Math.abs(e.clientX - st.x) < 8) return;
+          if (Math.abs(e.clientX - st.x) < 5) return;
           ticket.classList.add('cutting');
           try { ticket.setPointerCapture(e.pointerId); } catch (err) {}
         }
@@ -3065,7 +3065,7 @@
         sc.style.left = x + 'px';
         line.style.left = (Math.max(st.min, pr.left) - pr.left) + 'px';
         line.style.width = (Math.min(st.max, pr.right) - Math.max(st.min, pr.left)) + 'px';
-        if (st.max - st.min > pr.width * 0.55) tear();
+        if (st.max - st.min > pr.width * 0.33) tear();
       });
       const end = () => { if (!st) return; st = null; if (!busy) reset(); };
       ticket.addEventListener('pointerup', end);
