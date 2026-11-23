@@ -839,6 +839,7 @@
     .ticket.cutting .perf .scissors, .ticket.cutting .perf .cut-line { opacity: 1; }
     .ticket.cutting .perf .scissors { animation: snip .18s steps(2) infinite; }
     @keyframes snip { 50% { transform: translateX(-50%) rotate(-90deg) scaleX(.7); } }
+    .tear-part { overflow: hidden; transition: height .35s ease; }
     .tear-part.gone { visibility: hidden; }
     .tear-part.back { animation: tear-back .5s cubic-bezier(.2,1.4,.4,1); }
     @keyframes tear-back { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
@@ -849,7 +850,7 @@
       transition: transform 1.1s cubic-bezier(.5,0,.8,.4), opacity 1.1s ease-in;
     }
     .snip-text {
-      position: absolute; z-index: 4; font-weight: 900; font-size: 16px; color: var(--stamp);
+      position: absolute; z-index: 4; font-family: var(--mono); font-weight: 600; font-size: 16px; letter-spacing: .12em; color: var(--stamp);
       transform: translate(-50%, -100%); pointer-events: none; animation: snip-pop .7s ease-out forwards;
     }
     @keyframes snip-pop { 0% { opacity: 0; transform: translate(-50%, -60%) scale(.5); } 25% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -160%); } }
@@ -3004,8 +3005,8 @@
       function tear() {
         busy = true; st = null;
         const r = part.getBoundingClientRect(), pr = perf.getBoundingClientRect();
-        // 「チョキッ」
-        const t = document.createElement('span'); t.className = 'snip-text'; t.textContent = 'チョキッ！';
+        // 「SNIP!」
+        const t = document.createElement('span'); t.className = 'snip-text'; t.textContent = 'SNIP!';
         t.style.left = (pr.width / 2) + 'px'; t.style.top = (pr.top - ticket.getBoundingClientRect().top) + 'px';
         ticket.appendChild(t); setTimeout(() => t.remove(), 700);
         // はんけんを コピーして おとす
@@ -3013,7 +3014,10 @@
         fall.style.left = r.left + 'px'; fall.style.top = r.top + 'px'; fall.style.width = r.width + 'px'; fall.style.height = r.height + 'px';
         fall.appendChild(part.cloneNode(true)); fall.firstChild.removeAttribute('id');
         document.body.appendChild(fall);
-        part.classList.add('gone'); reset();
+        // きれた ぶんだけ チケットを みじかく（しろい すきまを のこさない）
+        const h = part.offsetHeight;
+        part.style.height = h + 'px'; part.offsetHeight;
+        part.classList.add('gone'); part.style.height = '0px'; reset();
         const dir = Math.random() < .5 ? -1 : 1;
         requestAnimationFrame(() => requestAnimationFrame(() => {
           fall.style.transform = `translate(${dir * 60}px, ${innerHeight - r.top + 40}px) rotate(${dir * 28}deg)`;
@@ -3021,8 +3025,9 @@
         }));
         setTimeout(() => fall.remove(), 1200);
         setTimeout(() => {
+          part.style.height = h + 'px';
           part.classList.remove('gone'); part.classList.add('back');
-          setTimeout(() => { part.classList.remove('back'); busy = false; }, 520);
+          setTimeout(() => { part.classList.remove('back'); part.style.height = ''; busy = false; }, 520);
         }, 2200);
       }
     })();
