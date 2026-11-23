@@ -3000,12 +3000,13 @@
       cv.width = W * dpr; cv.height = H * dpr;
       const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false;
       const runners = [];
-      for (let i = 0; i < 24; i++) {
-        const S = 2 + Math.floor(Math.random() * 2);            // 2〜3ばい
+      // こども 7にんが ひとりずつ、ちがう たかさを はしる
+      const n = art.SPR.length, band = (H - 200) / n;
+      for (let i = 0; i < n; i++) {
         runners.push({
-          k: Math.floor(Math.random() * art.SPR.length),
-          S, y: 60 + Math.random() * (H - 160),
-          delay: Math.random() * .9, speed: 380 + Math.random() * 260, ph: Math.random() * 2,
+          k: i, S: 3,
+          y: 70 + band * i + Math.random() * band * .5,
+          delay: Math.random() * .6, speed: 360 + Math.random() * 200, ph: Math.random() * 2,
         });
       }
       runners.sort((a, b) => a.y - b.y);                          // おくから てまえへ
