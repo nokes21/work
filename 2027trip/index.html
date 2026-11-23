@@ -121,7 +121,6 @@
       margin-top: 12px;
       background: #ffffff;   /* まっしろ（ページと メリハリ） */
       border-radius: 14px;
-      box-shadow: 0 2px 0 rgba(0,0,0,.05), 0 10px 24px -12px rgba(60,40,10,.45);
       overflow: hidden;
     }
     .ticket-band {
@@ -204,16 +203,18 @@
       border-top: 2px dashed var(--paper-line);
       margin: 0 14px;
     }
-    .perf::before, .perf::after {
-      content: "";
-      position: absolute;
-      top: -13px;
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--kraft);
+    /* きりかき：チケットを まるく くりぬく（うしろの はいけいが そのまま みえる） */
+    .ticket {
+      --py: 50%;
+      -webkit-mask:
+        radial-gradient(circle 12px at 0 var(--py), #0000 97%, #000) left / 51% 100% no-repeat,
+        radial-gradient(circle 12px at 100% var(--py), #0000 97%, #000) right / 51% 100% no-repeat;
+      mask:
+        radial-gradient(circle 12px at 0 var(--py), #0000 97%, #000) left / 51% 100% no-repeat,
+        radial-gradient(circle 12px at 100% var(--py), #0000 97%, #000) right / 51% 100% no-repeat;
     }
-    .perf::before { left: -27px; }
-    .perf::after { right: -27px; }
+    .ticket.torn { -webkit-mask: none; mask: none; }
+    .ticket-wrap { position: relative; z-index: 2; }
     .ticket-stub {
       padding: 12px 18px 14px;
       display: grid;
@@ -840,6 +841,22 @@
     .ticket.cutting .perf .scissors { animation: snip .18s steps(2) infinite; }
     @keyframes snip { 50% { transform: translateX(-50%) rotate(-90deg) scaleX(.7); } }
     .tear-part { overflow: hidden; transition: height .35s ease; }
+    /* さりげない ヒント：きりとりせんの はしの ちいさな はさみ */
+    .perf .hint-scissors {
+      position: absolute; top: -9px; left: 2px;
+      font-size: 13px; line-height: 1; color: var(--ink-soft); opacity: .45;
+      transform: rotate(-90deg); pointer-events: none;
+      animation: hint-snip 8s ease-in-out infinite 3s;
+    }
+    @keyframes hint-snip {
+      0%, 86%, 100% { transform: translateX(0) rotate(-90deg); }
+      89% { transform: translateX(3px) rotate(-90deg) scaleX(.6); }
+      92% { transform: translateX(6px) rotate(-90deg); }
+      95% { transform: translateX(9px) rotate(-90deg) scaleX(.6); }
+      98% { transform: translateX(4px) rotate(-90deg); }
+    }
+    .ticket.cutting .perf .hint-scissors, .ticket.torn .perf .hint-scissors { opacity: 0; }
+    .ticket.torn .perf { border-top-color: transparent; }
     .tear-part.gone { visibility: hidden; }
     .tear-part.back { animation: tear-back .5s cubic-bezier(.2,1.4,.4,1); }
     @keyframes tear-back { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
@@ -1075,7 +1092,7 @@
         align-items: start;
       }
       .wrap > .side-col { display: block; grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 58px; }
-      .side-col > .ticket { margin-top: 12px; }
+      .side-col > .ticket-wrap > .ticket { margin-top: 12px; }
       .side-links { display: grid; gap: 12px; margin-top: 16px; }
       .side-links .coupon { margin: 0; }
       #content-other > .other-coupon { display: none; }
@@ -1140,6 +1157,7 @@
     </div>
 
     <div class="side-col">
+    <div class="ticket-wrap">
     <header class="ticket">
       <div class="ticket-band">
         <span>FAMILY TRIP TICKET</span>
@@ -1161,7 +1179,7 @@
         </div>
       </div>
       <div class="countdown" id="countdown"></div>
-      <div class="perf" id="perf"><div class="cut-line" id="cutLine"></div><span class="scissors" id="scissors" aria-hidden="true">✂</span></div>
+      <div class="perf" id="perf"><div class="cut-line" id="cutLine"></div><span class="scissors" id="scissors" aria-hidden="true">✂</span><span class="hint-scissors" aria-hidden="true">✂</span></div>
       <div class="tear-part" id="tearPart">
       <div class="ticket-stub">
         <div>
@@ -1180,6 +1198,7 @@
       <div class="barcode" aria-hidden="true"></div>
       </div>
     </header>
+    </div>
       <div class="side-links">
         <div class="coupon">
           <div class="coupon-main">
@@ -2977,6 +2996,9 @@
       const line = document.getElementById('cutLine'), sc = document.getElementById('scissors'), part = document.getElementById('tearPart');
       if (!ticket || !perf || !part) return;
       let st = null, busy = false;
+      const setPy = () => { if (!ticket.classList.contains('torn')) ticket.style.setProperty('--py', perf.offsetTop + 'px'); };
+      setPy(); addEventListener('resize', setPy);
+      if (window.ResizeObserver) new ResizeObserver(setPy).observe(ticket);
       ticket.addEventListener('pointerdown', e => {
         if (busy) return;
         const pr = perf.getBoundingClientRect();
@@ -3018,6 +3040,7 @@
         const h = part.offsetHeight;
         part.style.height = h + 'px'; part.offsetHeight;
         part.classList.add('gone'); part.style.height = '0px'; reset();
+        ticket.classList.add('torn');
         const dir = Math.random() < .5 ? -1 : 1;
         requestAnimationFrame(() => requestAnimationFrame(() => {
           fall.style.transform = `translate(${dir * 60}px, ${innerHeight - r.top + 40}px) rotate(${dir * 28}deg)`;
@@ -3026,6 +3049,7 @@
         setTimeout(() => fall.remove(), 1200);
         setTimeout(() => {
           part.style.height = h + 'px';
+          ticket.classList.remove('torn');
           part.classList.remove('gone'); part.classList.add('back');
           setTimeout(() => { part.classList.remove('back'); part.style.height = ''; busy = false; }, 520);
         }, 2200);
