@@ -843,17 +843,17 @@
     .tear-part { overflow: hidden; transition: height .35s ease; }
     /* さりげない ヒント：きりとりせんの はしの ちいさな はさみ */
     .perf .hint-scissors {
-      position: absolute; top: -9px; left: 2px;
-      font-size: 13px; line-height: 1; color: var(--ink-soft); opacity: .45;
-      transform: rotate(-90deg); pointer-events: none;
-      animation: hint-snip 8s ease-in-out infinite 3s;
+      position: absolute; top: -8px; left: 2px;
+      font-size: 14px; line-height: 1; color: #e8892e; opacity: .8;
+      pointer-events: none;
+      animation: hint-snip 3s ease-in-out infinite 1.5s;
     }
     @keyframes hint-snip {
-      0%, 86%, 100% { transform: translateX(0) rotate(-90deg); }
-      89% { transform: translateX(3px) rotate(-90deg) scaleX(.6); }
-      92% { transform: translateX(6px) rotate(-90deg); }
-      95% { transform: translateX(9px) rotate(-90deg) scaleX(.6); }
-      98% { transform: translateX(4px) rotate(-90deg); }
+      0%, 60%, 100% { transform: translateX(0); }
+      68% { transform: translateX(3px) scaleY(.6); }
+      76% { transform: translateX(6px); }
+      84% { transform: translateX(9px) scaleY(.6); }
+      92% { transform: translateX(4px); }
     }
     .ticket.cutting .perf .hint-scissors, .ticket.torn .perf .hint-scissors { opacity: 0; }
     .ticket.torn .perf { border-top-color: transparent; }
@@ -1179,7 +1179,7 @@
         </div>
       </div>
       <div class="countdown" id="countdown"></div>
-      <div class="perf" id="perf"><div class="cut-line" id="cutLine"></div><span class="scissors" id="scissors" aria-hidden="true">✂</span><span class="hint-scissors" aria-hidden="true">✂</span></div>
+      <div class="perf" id="perf"><div class="cut-line" id="cutLine"></div><span class="scissors" id="scissors" aria-hidden="true">✂</span><span class="hint-scissors" aria-hidden="true">✂&#xFE0E;</span></div>
       <div class="tear-part" id="tearPart">
       <div class="ticket-stub">
         <div>
