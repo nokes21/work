@@ -1778,7 +1778,7 @@
 
     /* ===== たびの ルート（稲城駅 → 行き先 → 稲城駅） ===== */
     const ROUTE = [
-      { label: '稲城駅（出発）', q: '稲城駅 東京都稲城市', day: 1 },
+      { label: '稲城（出発）', q: '稲城駅 東京都稲城市', day: 1 },
       { label: 'ラプラス公園', q: '仙台市海岸公園冒険広場', day: 1, spot: 'lapras' },
       { label: '阿部蒲鉾店 本店', q: '仙台市青葉区中央2丁目3-18 阿部蒲鉾店', day: 1, spot: 'abe' },
       { label: '村上屋餅店', q: '宮城県仙台市青葉区北目町2-38 村上屋餅店', day: 1, spot: 'murakami' },
@@ -1786,16 +1786,19 @@
       { label: '仙台市天文台', q: '仙台市天文台', day: 1, spot: 'planetarium' },
       { label: '秋保温泉 蘭亭（泊）', q: '仙台市太白区秋保町湯元字木戸保7-1', day: 1, spot: 'hotel' },
       { label: 'ハーベストビレッジ仙台（いちご狩り）', q: '宮城県仙台市若林区上飯田字天神75-1', day: 2, spot: 'strawberry' },
-      { label: '稲城駅（到着）', q: '稲城駅 東京都稲城市', day: 2 },
+      { label: '稲城（到着）', q: '稲城駅 東京都稲城市', day: 2 },
     ];
     function renderRoute() {
       const box = document.getElementById('routeCard'); if (!box) return;
       const enc = encodeURIComponent;
-      const embed = 'https://maps.google.com/maps?f=d&hl=ja&saddr=' + enc(ROUTE[0].q) +
+      // くるまの ルート（こうそくどうろも つかう ふつうの ルート）
+      const embed = 'https://maps.google.com/maps?f=d&hl=ja&dirflg=d&saddr=' + enc(ROUTE[0].q) +
         '&daddr=' + ROUTE.slice(1).map(r => enc(r.q)).join('+to:') + '&output=embed';
-      const open = 'https://www.google.com/maps/dir/' + ROUTE.map(r => enc(r.q)).join('/');
+      const mid = ROUTE.slice(1, -1).map(r => r.q).join('|');
+      const open = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + enc(ROUTE[0].q) +
+        '&destination=' + enc(ROUTE[ROUTE.length - 1].q) + '&waypoints=' + enc(mid);
       box.innerHTML = `
-        <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">稲城駅 → 宮城 → 稲城駅</span></div>
+        <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">稲城 → 宮城 → 稲城（車）</span></div>
         <div class="route-map"><iframe src="${embed}" title="旅のルートの地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
         <ol class="route-list">${ROUTE.map((r, i) => {
           const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day">DAY 1</li>' : '');
