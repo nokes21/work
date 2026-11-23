@@ -2990,6 +2990,52 @@
     })();
 
 
+    /* ===== こどもたちが いっせいに はしりぬける ===== */
+    function kidsRush() {
+      const art = window.KID_ART; if (!art) return;
+      const cv = document.createElement('canvas');
+      cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-events:none;image-rendering:pixelated';
+      document.body.appendChild(cv);
+      const dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.imageSmoothingEnabled = false;
+      const runners = [];
+      for (let i = 0; i < 24; i++) {
+        const S = 2 + Math.floor(Math.random() * 2);            // 2〜3ばい
+        runners.push({
+          k: Math.floor(Math.random() * art.SPR.length),
+          S, y: 60 + Math.random() * (H - 160),
+          delay: Math.random() * .9, speed: 380 + Math.random() * 260, ph: Math.random() * 2,
+        });
+      }
+      runners.sort((a, b) => a.y - b.y);                          // おくから てまえへ
+      const t0 = performance.now();
+      function frame(now) {
+        const t = (now - t0) / 1000;
+        g.clearRect(0, 0, W, H);
+        let alive = false;
+        runners.forEach(r => {
+          const lt = t - r.delay; if (lt < 0) { alive = true; return; }
+          const img = art.SPR[r.k][Math.floor(lt * 12 + r.ph) % 2];
+          const w = art.W * r.S, h = img.height * r.S;
+          const x = W + 20 - lt * r.speed;
+          if (x < -w - 20) return;
+          alive = true;
+          const bob = Math.floor(lt * 12 + r.ph) % 2 ? -r.S : 0;
+          // すなぼこり
+          g.fillStyle = 'rgba(160,130,90,.45)';
+          const pf = Math.floor(lt * 20) % 3;
+          g.fillRect(x + w + 2 + pf * 4, r.y + h - 4, r.S + 1, r.S + 1);
+          g.fillRect(x + w + 10 + pf * 3, r.y + h - 2, r.S, r.S);
+          // ひだりむき・まえかがみ
+          g.save(); g.translate(x + w, r.y + h + bob); g.rotate(-.1); g.scale(-1, 1);
+          g.drawImage(img, 0, -h, w, h); g.restore();
+        });
+        if (alive && t < 4) requestAnimationFrame(frame); else cv.remove();
+      }
+      requestAnimationFrame(frame);
+    }
+
     /* ===== チケットを ゆびで きる ===== */
     (function () {
       const ticket = document.querySelector('.ticket'), perf = document.getElementById('perf');
@@ -3041,6 +3087,7 @@
         part.style.height = h + 'px'; part.offsetHeight;
         part.classList.add('gone'); part.style.height = '0px'; reset();
         ticket.classList.add('torn');
+        kidsRush();
         const dir = Math.random() < .5 ? -1 : 1;
         requestAnimationFrame(() => requestAnimationFrame(() => {
           fall.style.transform = `translate(${dir * 60}px, ${innerHeight - r.top + 40}px) rotate(${dir * 28}deg)`;
