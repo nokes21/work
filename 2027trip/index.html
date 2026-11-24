@@ -1658,7 +1658,7 @@
     <div class="modal-card gacha-card">
       <div class="news-k">GACHA</div>
       <h3>しおりガチャ</h3>
-      <p class="gacha-hint">1時間に1回まわせます。子どもたちのレアなポーズが出るよ！集めたポーズは、画面上部を歩く子どもたちがときどき見せてくれます。</p>
+      <p class="gacha-hint">1時間に1回まわせます。子どもたちのレアなポーズが出るよ！集めたポーズはタップすると大きく見られます。</p>
       <div class="gacha">
         <div class="gacha-machine" id="gachaMachine"><span class="gacha-ball"></span></div>
         <div class="gacha-result" id="gachaResult"></div>
@@ -3043,8 +3043,6 @@
           phase[i] += dt * (small ? 7 : 5.5) * Math.pow(factor, 0.75);
           const x = Math.round(lead + i * gap + (small ? 2 : 0));
           if (x < -30 || x > cw + 10) return;
-          const pz = window.PARADE_POSE;
-          if (pz && pz.k === i && performance.now() < pz.until) { ctx.drawImage(pz.cv, x - 6, ch - 4 - 36, 36, 36); return; }
           const step = Math.floor(phase[i]) % 2;
           const img = SPR[i][step];
           const sh = img.height * PX;
@@ -3528,13 +3526,6 @@
       }, 900);
     }
 
-    // あつめた ポーズを うえの おびの こどもが ときどき みせる
-    setInterval(() => {
-      const got = gachaLoad().got; if (!got.length || !window.KID_ART) return;
-      const [k, pid] = got[Math.floor(Math.random() * got.length)].split('-');
-      const cv = document.createElement('canvas'); drawPose(cv, +k, pid, 36);
-      window.PARADE_POSE = { k: +k, cv, until: performance.now() + 2600 };
-    }, 14000);
 
     /* ===== スクロールで ふわっと ===== */
     (function () {
