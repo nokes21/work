@@ -191,7 +191,8 @@
     @keyframes road-flow { from { background-position: 0 0; } to { background-position: -5px 0; } }
     /* 2日目の ごごは かえりみち：くるまを ぎゃくむきに */
     .route.homeward .line i { animation-name: car-bump-back; }
-    .route .line i.veh-emoji { font-style: normal; font-size: 18px; line-height: 1; }
+    .route .line i.veh-emoji { font-style: normal; font-size: 18px; line-height: 1; animation-name: car-bump-back; }   /* 新幹線は ひだりむきの えなので はんてん */
+    .route.homeward .line i.veh-emoji { animation-name: car-bump; }
     .route.homeward .line::before, .route.homeward .line::after { animation-direction: reverse; }
     @keyframes car-bump-back {
       0%, 100% { transform: scaleX(-1) translateY(0) rotate(0); }
@@ -1359,7 +1360,7 @@
         </div>
         <div>
           <div class="stub-label">PASSENGERS</div>
-          <div class="stub-value">4家族 15名</div>
+          <div class="stub-value" id="stubPassengers">4家族 15名</div>
         </div>
       </div>
       <div class="barcode" aria-hidden="true"></div>
@@ -3490,6 +3491,7 @@
     function renderTicketFamily() {
       const f = myFamily(), fam = typeof FAMILIES !== 'undefined' && FAMILIES.find(x => x.id === f);
       const place = document.getElementById('homePlace'); if (place) place.textContent = fam ? fam.name : 'おうち';
+      const pax = document.getElementById('stubPassengers'); if (pax) pax.textContent = fam ? `${fam.name} ${fam.members.length}名` : '4家族 15名';
       const v = document.getElementById('tripVehicle');
       if (v) {
         const emo = FAMILY_VEHICLE[f];
