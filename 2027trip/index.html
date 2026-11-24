@@ -1080,6 +1080,7 @@
     /* ===== 管理者メニュー ===== */
     .admin-menu { margin-top: 26px; font-size: 12px; color: var(--ink-soft); }
     .admin-card { text-align: left; }
+    .admin-memo { margin: 6px 0 0 !important; font-size: 11px !important; font-family: inherit !important; }
     .admin-card h3, .admin-card .news-k { text-align: center; }
     .admin-card .admin-body { font-size: 12px; color: var(--ink-soft); }
     .admin-menu summary { cursor: pointer; font-weight: 700; }
@@ -1831,6 +1832,11 @@
             <button onclick="closeAdmin(); setSimTime('2027-03-21T19:00:00'); switchTab('schedule')">旅行終了後</button>
             <button onclick="closeAdmin(); resetSimTime()">解除</button>
           </div>
+          <div class="admin-k">しおりガチャ</div>
+          <div class="row">
+            <button onclick="closeAdmin(); gachaTestComplete()">全ポーズを確認する</button>
+          </div>
+          <p class="admin-memo">※ 見るだけです。自分のコレクションは変わりません。</p>
         </div>
       <button class="btn btn-wide" style="margin-top:14px" onclick="closeAdmin()">閉じる</button>
     </div>
@@ -4025,14 +4031,14 @@
     }
 
     /* ===== しおりガチャ ===== */
-    const POSES = [['nete', '寝ている'], ['saka', 'さかだちする'], ['jump', 'ジャンプする'], ['guru', 'ぐるぐるまわる']];
+    const POSES = [['nete', '寝ている'], ['peace', 'きらきらピース'], ['bunshin', 'ぶんしんする'], ['gyutan', 'ぎゅうたんを食べる']];
     const poseLabel = (kn, pname) => `「${pname}」${kn}`;
     // ポーズごとの レアど（でやすさ）
     const RARITY = {
-      jump: { k: 'N',  name: 'ノーマル',     w: 50 },
-      guru: { k: 'R',  name: 'レア',         w: 30 },
-      nete: { k: 'SR', name: 'スーパーレア', w: 15 },
-      saka: { k: 'UR', name: 'ウルトラレア', w: 5 },
+      nete:    { k: 'N',  name: 'ノーマル',     w: 50 },
+      peace:   { k: 'R',  name: 'レア',         w: 30 },
+      bunshin: { k: 'SR', name: 'スーパーレア', w: 15 },
+      gyutan:  { k: 'UR', name: 'ウルトラレア', w: 5 },
     };
     const rarityTag = pid => `<span class="rar rar-${RARITY[pid].k}">${RARITY[pid].k}<small>${RARITY[pid].name}</small></span>`;
     const KID_LABEL = ['みのり', 'あかり', 'かすみ', 'みはる', 'なつき', 'みおり', 'ふじ'];
@@ -4044,7 +4050,13 @@
       openGacha();
     }
     function gachaLoad() {
-      if (window.__gachaTest) return window.__gachaTest; try { return JSON.parse(localStorage.getItem('miyagi_trip_gacha') || '{"last":"","got":[]}'); } catch (e) { return { last: '', got: [] }; } }
+      if (window.__gachaTest) return window.__gachaTest;
+      let v; try { v = JSON.parse(localStorage.getItem('miyagi_trip_gacha') || '{"last":"","got":[]}'); } catch (e) { v = { last: '', got: [] }; }
+      if (v.ver !== 2) {   // ポーズを いれかえた ので まえの コレクションは リセット
+        v = { last: '', got: [], ver: 2 }; try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {}
+      }
+      return v;
+    }
     function gachaSave(v) {
       if (window.__gachaTest) { window.__gachaTest = v; return; } try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {} }
     // レアな ポーズを えがく（オリジナルの ドット絵を うごかすだけ）
@@ -4052,12 +4064,16 @@
     function drawPose(canvas, k, pose, size, t = 0) {
       const art = window.KID_ART; if (!art) return;
       const S = size >= 90 ? 4 : 2, C = size;
-      const img = art.SPR[k][pose === 'jump' ? (Math.floor(t * 4) % 2) : 0], w = art.W * S, h = img.height * S;
+      const img = art.SPR[k][0], w = art.W * S, h = img.height * S;
       if (canvas.width !== C) { canvas.width = C; canvas.height = C; }
       const g = canvas.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, C, C);
       const px = v => Math.round(v / S) * S;                                   // ドットに そろえる
-      g.save(); g.translate(C / 2, C / 2);
+      const dots = (x0, y0, rows, col, out) => rows.forEach((r, y) => [...r].forEach((ch, x) => {
+        if (ch === '.') return; g.fillStyle = ch === 'o' ? out : col; g.fillRect(x0 + x * S, y0 + y * S, S, S);
+      }));
+      const star = (x, y, col) => { g.fillStyle = col; g.fillRect(px(x), px(y) - S, S, S * 3); g.fillRect(px(x) - S, px(y), S * 3, S); };
       if (pose === 'nete') {
+        g.save(); g.translate(C / 2, C / 2);
         const br = Math.sin(t * 2.4) > 0 ? 0 : S;                              // すーすー
         g.rotate(-Math.PI / 2); g.drawImage(img, -w / 2, -h / 2 + S * 2 + br, w, h); g.restore();
         g.fillStyle = '#5a6b80';
@@ -4068,25 +4084,66 @@
         });
         g.globalAlpha = 1; return;
       }
-      if (pose === 'saka') {                                                   // ゆらゆら バランス
-        g.rotate(Math.round(Math.sin(t * 3) * 3) * .03); g.scale(1, -1);
-        g.drawImage(img, -w / 2, -h / 2 + S, w, h); g.restore(); return;
-      }
-      if (pose === 'jump') {                                                   // ぴょんぴょん
-        const jy = px(Math.abs(Math.sin(t * 4.5)) * S * 5);
-        g.drawImage(img, -w / 2, -h / 2 - jy + S, w, h); g.restore();
-        g.fillStyle = '#b8b0a0';
-        const sp = Math.max(0, S * 4 - jy / 2);
-        for (let i = 0; i < 3; i++) g.fillRect(px(C / 2 - sp + i * sp), C - S * 3, S * 2, S);
+      if (pose === 'peace') {                                                   // ピース ＆ ほしが まわる
+        const bob = Math.sin(t * 4) > 0 ? 0 : S;
+        const x0 = px(C / 2 - w / 2 - S), y0 = px(C / 2 - h / 2) + bob;
+        g.drawImage(img, x0, y0, w, h);
+        const hx = x0 + w - S, hy = y0 + S;                                     // みぎての ピース（V）
+        dots(hx, hy, ['x...x', 'x...x', '.x.x.', '.x.x.', '.xxx.', '.xxx.', '..x..', '..x..'], '#eaa57e');
+        g.fillStyle = '#eaa57e'; g.fillRect(x0 + S * 10, hy + S * 8, S * 3, S);   // うで
+        [['#ffd34e', 0], ['#ff8db8', 1.6], ['#8fd3f5', 3.2], ['#ffd34e', 4.7]].forEach(([col, o]) => {
+          if ((Math.floor(t * 5) + Math.round(o)) % 3 === 0) return;           // きらきら
+          const a2 = t * 1.6 + o;
+          star(C / 2 + Math.cos(a2) * C * .38, C / 2 + Math.sin(a2) * C * .36, col);
+        });
         return;
       }
-      g.rotate(Math.round(t * 8) * (Math.PI / 8));                             // くるくる
-      g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
-      g.fillStyle = '#ffd34e';
-      [[.18, .22, 0], [.8, .3, 1], [.25, .8, 2], [.78, .78, 3]].forEach(([x, y, i]) => {
-        if ((Math.floor(t * 4) + i) % 2) return;                               // ほしが きらきら
-        g.fillRect(px(C * x), px(C * y) - S, S, S * 3); g.fillRect(px(C * x) - S, px(C * y), S * 3, S);
-      });
+      if (pose === 'bunshin') {                                                 // 3にんに ぶんしん
+        const d = px(Math.abs(Math.sin(t * 2.2)) * S * 7);
+        const x0 = px(C / 2 - w / 2), y0 = px(C / 2 - h / 2);
+        g.globalAlpha = .35; g.drawImage(img, x0 - d, y0, w, h); g.drawImage(img, x0 + d, y0, w, h);
+        g.globalAlpha = 1; g.drawImage(img, x0, y0, w, h);
+        if (d > S * 3) {                                                        // シュッ
+          g.fillStyle = 'rgba(90,107,128,.5)';
+          [.25, .55, .8].forEach((y, i) => { g.fillRect(px(x0 - d - S * (3 + i)), px(y0 + h * y), S * 2, S); g.fillRect(px(x0 + w + d + S * (1 + i)), px(y0 + h * y), S * 2, S); });
+        }
+        return;
+      }
+      if (pose === 'gyutan') {                                                  // ぎゅうたんを もぐもぐ
+        // ほっぺ（くち）の いち を さがす
+        if (!art._mouth) art._mouth = {};
+        let m = art._mouth[k];
+        if (!m) {
+          const id = img.getContext('2d').getImageData(0, 0, img.width, img.height).data; m = { x: 9, y: 5 };
+          for (let i = 0; i < id.length; i += 4) if (id[i] === 255 && id[i + 1] === 154 && id[i + 2] === 168) { m = { x: (i / 4) % img.width, y: Math.floor(i / 4 / img.width) }; break; }
+          art._mouth[k] = m;
+        }
+        const ph = (t * .7) % 1;                                                // 0〜.45 はこぶ ／ .45〜1 もぐもぐ
+        const chew = ph > .45 && Math.floor(t * 8) % 2 ? S : 0;
+        const x0 = px(C * .08), y0 = px(C * .58 - h / 2) + chew;
+        g.drawImage(img, x0, y0, w, h);
+        // おさら（てで もつ）
+        const plx = x0 + w - S * 3, ply = px(y0 + h * .5 - chew);
+        dots(plx, ply + S, ['oooooooooo', 'oxxxxxxxxo', '.oooooooo.'], '#e9e3d6', '#8a8378');
+        const tan = (x, y) => { g.fillStyle = '#5a2a1a'; g.fillRect(x, y, S * 3, S * 2); g.fillStyle = '#b5583a'; g.fillRect(x, y, S * 3, S); g.fillStyle = '#e08a62'; g.fillRect(x + S, y, S, S); };
+        tan(plx + S * 2, ply - S); tan(plx + S * 5, ply - S);
+        // ゆげ
+        g.fillStyle = 'rgba(160,150,140,.55)';
+        for (let i = 0; i < 2; i++) { const sy = ((t * 1.2 + i * .5) % 1); g.fillRect(px(plx + S * (3 + i * 4) + (Math.floor(t * 3 + i) % 2) * S), px(ply - S * 3 - sy * S * 5), S, S * 2); }
+        // おはしで くちへ はこぶ
+        const mx = x0 + (m.x + 1) * S, my = y0 + m.y * S;
+        if (ph < .45) {
+          const q = ph / .45, sx = plx + S * 6, sy = ply - S * 2;
+          const tx = px(sx + (mx - sx) * q), ty = px(sy + (my - sy) * q - Math.sin(q * Math.PI) * S * 4);
+          g.fillStyle = '#8a5a2a'; g.fillRect(tx + S * 2, ty - S * 4, S, S * 5); g.fillRect(tx + S * 3, ty - S * 4, S, S * 5);
+          tan(tx, ty);
+        } else {
+          g.fillStyle = '#c8553d'; g.font = `900 ${S * 4}px "Zen Kaku Gothic New", sans-serif`;
+          g.globalAlpha = .9; g.fillText('もぐ', px(x0 + w - S * 2), px(y0 - S)); g.globalAlpha = 1;
+          if (ph > .8) dots(px(plx + S * 8), px(ply - S * 6), ['.x.x.', 'xxxxx', '.xxx.', '..x..'], '#ff6fa3');   // おいしい！
+        }
+        return;
+      }
     }
     // ひらいている あいだ、コレクションの ドット絵を うごかす
     (function () {
@@ -4138,7 +4195,7 @@
       document.getElementById('gachaResult').className = 'gacha-result';
       document.getElementById('gachaModal').classList.remove('hidden');
     }
-    function closeGacha() { document.getElementById('gachaModal').classList.add('hidden'); }
+    function closeGacha() { document.getElementById('gachaModal').classList.add('hidden'); if (window.__gachaTest) { window.__gachaTest = null; renderGacha(); } }
     setInterval(() => { if (document.getElementById('gachaModal').classList.contains('hidden')) renderGacha(); }, 60000);
     function spinGacha() {
       const v = gachaLoad(); if (v.last === gachaToday()) return;
