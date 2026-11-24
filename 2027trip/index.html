@@ -1513,7 +1513,7 @@
       <section id="content-memo" class="hidden">
         <div class="page">
           <div class="notice">
-            <i class="fa-solid fa-lock" style="margin-top:3px"></i>
+            <i class="fa-solid fa-house" style="margin-top:3px"></i>
             <span>このページの内容（お土産・持ち物・メモ）は、同じ家族のスマホで共有されます。ほかの家族には表示されません。</span>
           </div>
           <div class="page-head"><h2>お土産リスト</h2><span class="en">SOUVENIRS</span></div>
@@ -1529,7 +1529,6 @@
           <div class="ready-board" id="readyBoard">
             <div class="ready-top">
               <b>持ち物そろったかな？</b>
-              <span class="ready-me" id="readyMe"></span>
             </div>
             <div class="ready-houses" id="readyHouses"></div>
             <p class="ready-note" id="readyNote"></p>
@@ -3519,8 +3518,6 @@
     function renderReady() {
       const box = document.getElementById('readyHouses'); if (!box || typeof FAMILIES === 'undefined') return;
       const me = myFamily();
-      const meEl = document.getElementById('readyMe');
-      if (meEl) meEl.textContent = me ? `うちは ${FAMILIES.find(x => x.id === me).name}` : '';
       const ad = document.getElementById('adminFamily'); if (ad) ad.textContent = me ? FAMILIES.find(x => x.id === me).name : '未設定';
       if (!box.children.length) {
         box.innerHTML = READY_FAMS.map(id => `<div class="ready-house" data-f="${id}"><span class="flag">${FLAG_SVG}</span><canvas></canvas><div class="name">${esc(FAMILIES.find(x => x.id === id).name)}</div><span class="ok-label">準備OK！</span></div>`).join('');
