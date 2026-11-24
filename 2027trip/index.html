@@ -1004,6 +1004,25 @@
     .kid-sprite.spin { animation: kid-spin .5s ease-in-out; }
     @keyframes kid-spin { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }
 
+
+    /* ===== 家族を えらぶ（はじめて ひらいたとき） ===== */
+    .fam-pick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 4px; }
+    .fam-pick { border: 2px solid var(--paper-line); background: #fff; border-radius: 12px; padding: 12px 6px 10px; cursor: pointer; font: inherit; color: var(--ink); display: grid; justify-items: center; gap: 4px; }
+    .fam-pick canvas { width: 48px; height: 51px; image-rendering: pixelated; }
+    .fam-pick b { font-size: 15px; }
+    .fam-pick:active { transform: scale(.97); }
+    .fam-pick-card p { margin: 4px 0 0; font-size: 13px; color: var(--ink-soft); }
+    /* ===== 管理者メニュー ===== */
+    .admin-menu { margin-top: 26px; font-size: 12px; color: var(--ink-soft); }
+    .admin-menu summary { cursor: pointer; font-weight: 700; }
+    .admin-body { background: var(--paper); border: 1.5px dashed var(--paper-line); border-radius: 10px; padding: 10px 12px 12px; margin-top: 8px; }
+    .admin-k { font-weight: 900; color: var(--ink); margin: 6px 0 6px; }
+    .admin-body .row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .admin-body button, .admin-body select {
+      border: 1.5px solid var(--ink-soft); background: #fff; border-radius: 999px;
+      padding: 4px 12px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer;
+    }
+
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
@@ -1451,23 +1470,13 @@
             </div>
           </div>
         </div>
-        <!-- ===== 現在地テスト ===== -->
-        <details class="test-panel">
-          <summary><i class="fa-solid fa-clock-rotate-left"></i> 現在地テスト</summary>
-          <div class="row">
-            <button onclick="setSimTime('2027-03-20T13:30:00')">1日目昼</button>
-            <button onclick="setSimTime('2027-03-21T10:30:00')">2日目いちご狩り</button>
-            <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
-            <button onclick="resetSimTime()">解除</button>
-          </div>
-        </details>
       </section>
 
       <!-- ===== 2. メンバー ===== -->
       <section id="content-members" class="hidden">
         <div class="page">
           <div class="page-head"><h2>旅のメンバー</h2><span class="en">MEMBERS</span></div>
-          <p class="memo">自己紹介を設定できます（全員に共有されます）。<br><b>※ 自分（と自分の子ども）以外のプロフィールは変更しないでください。</b></p>
+          <p class="memo">自己紹介を設定できます（全員に共有されます）。<br>編集できるのは自分の家族のプロフィールだけです。</p>
 
           <div class="fam-grid" id="famGrid"></div>
 
@@ -1493,7 +1502,7 @@
         <div class="page">
           <div class="notice">
             <i class="fa-solid fa-lock" style="margin-top:3px"></i>
-            <span>このページの内容（持ち物・メモ・お土産）は、このスマホにだけ保存されます。他の家族には表示されません。</span>
+            <span>このページの内容（お土産・持ち物・メモ）は、同じ家族のスマホで共有されます。ほかの家族には表示されません。</span>
           </div>
           <div class="page-head"><h2>お土産リスト</h2><span class="en">SOUVENIRS</span></div>
           <form onsubmit="addSouvenirItem(event)" class="add-form">
@@ -1508,13 +1517,7 @@
           <div class="ready-board" id="readyBoard">
             <div class="ready-top">
               <b>持ち物そろったかな？</b>
-              <label class="ready-me">うちは
-                <select id="readyFamily" onchange="setMyFamily(this.value)">
-                  <option value="">えらぶ</option>
-                  <option value="akari">原口家</option><option value="kasumi">小澤家</option>
-                  <option value="miharu">竹内家</option><option value="natsuki">坪田家</option>
-                </select>
-              </label>
+              <span class="ready-me" id="readyMe"></span>
             </div>
             <div class="ready-houses" id="readyHouses"></div>
             <p class="ready-note" id="readyNote"></p>
@@ -1637,6 +1640,25 @@
           </div>
           <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
         </div>
+        <details class="admin-menu">
+          <summary><i class="fa-solid fa-gear"></i> 管理者メニュー</summary>
+          <div class="admin-body">
+            <div class="admin-k">家族の切り替え</div>
+            <div class="row">
+              <select id="adminFamily" onchange="setMyFamily(this.value)">
+                <option value="akari">原口家</option><option value="kasumi">小澤家</option>
+                <option value="miharu">竹内家</option><option value="natsuki">坪田家</option>
+              </select>
+            </div>
+            <div class="admin-k">現在地テスト</div>
+            <div class="row">
+              <button onclick="setSimTime('2027-03-20T13:30:00'); switchTab('schedule')">1日目昼</button>
+              <button onclick="setSimTime('2027-03-21T10:30:00'); switchTab('schedule')">2日目いちご狩り</button>
+              <button onclick="setSimTime('2027-03-21T19:00:00'); switchTab('schedule')">旅行終了後</button>
+              <button onclick="resetSimTime()">解除</button>
+            </div>
+          </div>
+        </details>
       </section>
 
     </main>
@@ -1669,6 +1691,16 @@
   </div>
   <div class="pose-view hidden" id="poseView" onclick="this.classList.add('hidden')">
     <div class="pose-card"><canvas id="poseBig"></canvas><div id="poseName"></div><small>タップで閉じる</small></div>
+  </div>
+
+  <!-- ===== 家族を えらぶ（未設定のときだけ） ===== -->
+  <div id="famPickModal" class="modal hidden">
+    <div class="modal-card fam-pick-card">
+      <div class="news-k">WELCOME</div>
+      <h3>どの家族ですか？</h3>
+      <p>選んだ家族のプロフィールとメモを編集できるようになります。</p>
+      <div class="fam-pick-grid" id="famPickGrid"></div>
+    </div>
   </div>
 
   <div id="newsModal" class="modal hidden" onclick="if (event.target === this) closeNews()">
@@ -2306,6 +2338,7 @@
         localStorage.setItem('miyagi_trip_souvenirs_v2', JSON.stringify(souvenirs));
         if (!paymentsRef) localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
       } catch (e) {}
+      if (window.pushFamilyMemo) pushFamilyMemo();
     }
 
     function loadLocalStorage() {
@@ -2405,7 +2438,7 @@
               </form></div>`;
           }
           return `<div class="kid-card" id="kid-${id}">
-            <div class="kid-head"><canvas class="kid-sprite" data-id="${id}"></canvas><span class="kid-nm">${esc(kidName(id))}</span><button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button></div>
+            <div class="kid-head"><canvas class="kid-sprite" data-id="${id}"></canvas><span class="kid-nm">${esc(kidName(id))}</span>${canEdit(id) ? `<button class="kid-edit" onclick="editKid('${id}')">✎ 書く</button>` : ''}</div>
             <dl class="kid-prof">${PROFILE_FIELDS.map(([k, label]) => `<dt>${label}</dt><dd class="${pr[k] ? '' : 'empty-v'}">${pr[k] ? esc(pr[k]) : '—'}</dd>`).join('')}
               <dt>すきな色</dt><dd class="${COLOR_NAME[pr.color] ? '' : 'empty-v'}">${COLOR_NAME[pr.color] ? `<i class="sw-dot" style="background:${pr.color}"></i>${COLOR_NAME[pr.color]}` : '—'}</dd></dl>
           </div>`;
@@ -2580,7 +2613,7 @@
     /* ===== なんでもメモ ===== */
     let notes = [], editingNote = null;
     function loadNotes() { try { notes = JSON.parse(localStorage.getItem('miyagi_trip_notes') || '[]'); } catch (e) { notes = []; } }
-    function storeNotes() { try { localStorage.setItem('miyagi_trip_notes', JSON.stringify(notes)); } catch (e) {} }
+    function storeNotes() { try { localStorage.setItem('miyagi_trip_notes', JSON.stringify(notes)); } catch (e) {} if (window.pushFamilyMemo) pushFamilyMemo(); }
     function fmtTime(t) { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
     function renderNotes() {
       const list = document.getElementById('noteList');
@@ -3324,13 +3357,79 @@
     })();
 
 
+
+    /* ===== じぶんの 家族 ===== */
+    function famOf(memberId) { const f = FAMILIES.find(x => x.members.includes(memberId)); return f ? f.id : ''; }
+    function canEdit(memberId) { const me = myFamily(); return !!me && famOf(memberId) === me; }
+    function openFamPick() {
+      const grid = document.getElementById('famPickGrid');
+      grid.innerHTML = READY_FAMS.map(id => `<button class="fam-pick" onclick="chooseFamily('${id}')"><canvas></canvas><b>${esc(FAMILIES.find(x => x.id === id).name)}</b></button>`).join('');
+      grid.querySelectorAll('.fam-pick').forEach((b, i) => drawHome(b.querySelector('canvas'), FAMILIES.find(x => x.id === READY_FAMS[i])));
+      document.getElementById('famPickModal').classList.remove('hidden');
+    }
+    function chooseFamily(id) {
+      document.getElementById('famPickModal').classList.add('hidden');
+      setMyFamily(id);
+    }
+
+    /* ===== メモを 家族で 共有 ===== */
+    let famMemoRef = null, famMemoApplying = false, famMemoFam = '';
+    function pushFamilyMemo() {
+      if (!famMemoRef || famMemoApplying) return;
+      famMemoRef.set({
+        belongings: JSON.stringify(belongings), souvenirs: JSON.stringify(souvenirs), notes: JSON.stringify(notes),
+        at: firebase.database.ServerValue.TIMESTAMP,
+      }).catch(() => {});
+    }
+    async function initFamilyMemo() {
+      const f = myFamily();
+      if (famMemoRef && famMemoFam === f) return;
+      if (famMemoRef) { famMemoRef.off(); famMemoRef = null; }
+      famMemoFam = f;
+      if (!f) return;
+      const db = await getDb(); if (!db || myFamily() !== f) return;
+      const ref = db.ref(`trips/${TRIP_ID}/familyMemo/${f}`);
+      famMemoRef = ref;
+      ref.on('value', snap => {
+        const v = snap.val();
+        let owner = ''; try { owner = localStorage.getItem('miyagi_trip_memo_fam') || ''; } catch (e) {}
+        if (!v) {
+          // まだ だれも かいていない 家族：この スマホの メモが その家族の ものなら のせる。べつの 家族の ものなら さいしょから
+          if (owner && owner !== f) {
+            belongings = initialBelongings.map(t => ({ text: t, checked: false }));
+            souvenirs = initialSouvenirs.map(t => ({ text: t, checked: false }));
+            notes = [];
+            renderTodoList(); renderSouvenirList(); renderNotes();
+          }
+          try { localStorage.setItem('miyagi_trip_memo_fam', f); } catch (e) {}
+          famMemoApplying = false; pushFamilyMemo(); if (window.updateMyReady) updateMyReady(); return;
+        }
+        famMemoApplying = true;
+        try {
+          if (v.belongings) belongings = JSON.parse(v.belongings);
+          if (v.souvenirs) souvenirs = JSON.parse(v.souvenirs);
+          if (v.notes) notes = JSON.parse(v.notes);
+          try {
+            localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
+            localStorage.setItem('miyagi_trip_souvenirs_v2', JSON.stringify(souvenirs));
+            localStorage.setItem('miyagi_trip_notes', JSON.stringify(notes));
+            localStorage.setItem('miyagi_trip_memo_fam', f);
+          } catch (e) {}
+          renderTodoList(); renderSouvenirList(); renderNotes();
+          if (window.updateMyReady) updateMyReady();
+        } catch (e) {}
+        famMemoApplying = false;
+      }, () => {});
+    }
+
     /* ===== 持ち物そろったかな？ボード（共有） ===== */
     const READY_FAMS = ['akari', 'kasumi', 'miharu', 'natsuki'];
     let readyState = {}, readyRef = null, readyAllPrev = null;
     function myFamily() { try { return localStorage.getItem('miyagi_trip_my_family') || ''; } catch (e) { return ''; } }
     function setMyFamily(f) {
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
-      renderReady(); updateMyReady();
+      editingKid = null; renderKidCards();
+      renderReady(); updateMyReady(); initFamilyMemo();
     }
     function myAllPacked() { return belongings.length > 0 && belongings.every(b => b.checked); }
     function updateMyReady() {
@@ -3346,7 +3445,9 @@
     function renderReady() {
       const box = document.getElementById('readyHouses'); if (!box || typeof FAMILIES === 'undefined') return;
       const me = myFamily();
-      document.getElementById('readyFamily').value = me;
+      const meEl = document.getElementById('readyMe');
+      if (meEl) meEl.textContent = me ? `うちは ${FAMILIES.find(x => x.id === me).name}` : '';
+      const ad = document.getElementById('adminFamily'); if (ad && me) ad.value = me;
       if (!box.children.length) {
         box.innerHTML = READY_FAMS.map(id => `<div class="ready-house" data-f="${id}"><span class="flag">${FLAG_SVG}</span><canvas></canvas><div class="name">${esc(FAMILIES.find(x => x.id === id).name)}</div><span class="ok-label">準備OK！</span></div>`).join('');
         box.querySelectorAll('.ready-house').forEach(h => drawHome(h.querySelector('canvas'), FAMILIES.find(x => x.id === h.dataset.f)));
@@ -3360,7 +3461,7 @@
       const all = n === READY_FAMS.length;
       document.getElementById('readyBoard').classList.toggle('all', all);
       document.getElementById('readyNote').textContent = all ? '🎉 全家族、準備OK！' :
-        (me ? `持ち物を全部チェックすると「準備OK！」になります（${n}/4家族）` : '「うちは」で家族を選ぶと、準備状況がみんなに共有されます');
+        `持ち物を全部チェックすると「準備OK！」になります（${n}/4家族）`;
       if (all && readyAllPrev === false) { if (window.paradeJump) paradeJump(); kidsCheer('準備OK！'); }
       readyAllPrev = all;
     }
@@ -3563,6 +3664,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       initReady();
       renderGacha();
+      initFamilyMemo();
+      if (!document.getElementById('splash') && !myFamily()) setTimeout(openFamPick, 300);
       setTimeout(revealScan, 50);
       if (window.ResizeObserver) { const mo = new MutationObserver(() => revealScan()); mo.observe(document.querySelector('main'), { childList: true, subtree: true }); }
     });
@@ -3573,7 +3676,7 @@
       if (!sp || sp.classList.contains('hide')) return;
       sp.classList.add('hide');
       try { sessionStorage.setItem('miyagi_trip_splash', '1'); } catch (e) {}
-      setTimeout(() => sp.remove(), 600);
+      setTimeout(() => { sp.remove(); if (!myFamily()) openFamPick(); }, 600);
     }
     (function () {
       const sp = document.getElementById('splash');
