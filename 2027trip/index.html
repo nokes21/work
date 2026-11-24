@@ -964,6 +964,22 @@
     .gacha-col-head { font-size: 13px; font-weight: 900; margin: 4px 0 6px; }
     .gacha-col-head span { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
     .gacha-col { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    /* レアど */
+    .gacha-row-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin: 6px 0 0; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+    .rar { display: inline-flex; align-items: baseline; gap: 4px; font-family: var(--mono); font-weight: 600; font-size: 11px; letter-spacing: .08em; color: #fff; padding: 1px 8px; border-radius: 4px; }
+    .rar small { font-family: "Zen Kaku Gothic New", sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 0; }
+    .rar-N { background: #8a96a8; }
+    .rar-R { background: #3a86c8; }
+    .rar-SR { background: linear-gradient(135deg, #b27cf0, #7b4bd1); }
+    .rar-UR { background: linear-gradient(90deg, #ff5f6d, #ffc371, #6ee7a8, #5ab0ff, #c47cff); background-size: 200% 100%; animation: ur-shine 2.4s linear infinite; text-shadow: 0 1px 1px rgba(0,0,0,.3); }
+    @keyframes ur-shine { to { background-position: 200% 0; } }
+    .gacha-cell.got.cell-R { border-color: #3a86c8; }
+    .gacha-cell.got.cell-SR { border-color: #9b63e0; background: #f8f2ff; }
+    .gacha-cell.got.cell-UR { border: 2px solid #ffb347; background: linear-gradient(135deg, #fff7e0, #ffeef6, #eaf6ff); }
+    .gacha-result .rar { font-size: 12px; padding: 2px 10px; }
+    .gacha-result.res-SR { border-color: #9b63e0; }
+    .gacha-result.res-UR { border-color: #ffb347; background: linear-gradient(135deg, #fff7e0, #ffeef6, #eaf6ff); }
+    #poseName .rar { margin-bottom: 4px; }
     .gacha-cell { aspect-ratio: 1; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; color: #cfc6b4; }
     .gacha-cell canvas { width: 100%; height: 100%; image-rendering: pixelated; }
     .gacha-hint { margin: 0 0 10px; font-size: 12px; color: var(--ink-soft); text-align: left; line-height: 1.6; }
@@ -1884,7 +1900,7 @@
     <div class="modal-card gacha-card">
       <div class="news-k">GACHA</div>
       <h3>しおりガチャ</h3>
-      <p class="gacha-hint">1時間に1回まわせます。子どもたちのレアなポーズが出るよ！集めたポーズはタップすると大きく見られます。</p>
+      <p class="gacha-hint">1時間に1回まわせます。ポーズには ノーマル・レア・スーパーレア・ウルトラレア があるよ！集めたポーズはタップすると大きく見られます。</p>
       <div class="gacha">
         <div class="gacha-machine" id="gachaMachine"><span class="gacha-ball"></span></div>
         <div class="gacha-result" id="gachaResult"></div>
@@ -3982,6 +3998,14 @@
     /* ===== しおりガチャ ===== */
     const POSES = [['nete', '寝ている'], ['saka', 'さかだちする'], ['jump', 'ジャンプする'], ['guru', 'ぐるぐるまわる']];
     const poseLabel = (kn, pname) => `「${pname}」${kn}`;
+    // ポーズごとの レアど（でやすさ）
+    const RARITY = {
+      jump: { k: 'N',  name: 'ノーマル',     w: 50 },
+      guru: { k: 'R',  name: 'レア',         w: 30 },
+      nete: { k: 'SR', name: 'スーパーレア', w: 15 },
+      saka: { k: 'UR', name: 'ウルトラレア', w: 5 },
+    };
+    const rarityTag = pid => `<span class="rar rar-${RARITY[pid].k}">${RARITY[pid].k}<small>${RARITY[pid].name}</small></span>`;
     const KID_LABEL = ['みのり', 'あかり', 'かすみ', 'みはる', 'なつき', 'みおり', 'ふじ'];
     function gachaToday() { const d = simTime ? new Date(simTime) : new Date(); return ymd(d) + '-' + d.getHours(); }   // 1じかんに 1かい
     // テスト：コンプリートした じょうたいを かりに みる（ほんものの コレクションは かえない）
@@ -4059,17 +4083,21 @@
       btn.style.display = complete ? 'none' : '';
       document.getElementById('gachaCount').textContent = `${v.got.length} / ${total}`;
       col.innerHTML = '';
-      POSES.forEach(([pid, pname]) => KID_LABEL.forEach((kn, k) => {
+      [...POSES].sort((a, b) => RARITY[a[0]].w < RARITY[b[0]].w ? 1 : -1).forEach(([pid, pname]) => {
+        const head = document.createElement('div'); head.className = 'gacha-row-head';
+        head.innerHTML = `${rarityTag(pid)}<span>「${pname}」</span>`;
+        col.appendChild(head);
+        KID_LABEL.forEach((kn, k) => {
         const key = `${k}-${pid}`, cell = document.createElement('div');
         const got = v.got.includes(key);
-        cell.className = 'gacha-cell' + (got ? ' got' : '') + (key === newKey ? ' new' : '');
+        cell.className = 'gacha-cell cell-' + RARITY[pid].k + (got ? ' got' : '') + (key === newKey ? ' new' : '');
         cell.title = got ? poseLabel(kn, pname) : '？';
         if (got) {
           const c = poseCanvas(document.createElement('canvas'), k, pid, 48); cell.appendChild(c);
-          cell.onclick = () => { poseCanvas(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = poseLabel(kn, pname); document.getElementById('poseView').classList.remove('hidden'); };
+          cell.onclick = () => { poseCanvas(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').innerHTML = rarityTag(pid) + '<br>' + esc(poseLabel(kn, pname)); document.getElementById('poseView').classList.remove('hidden'); };
         } else cell.textContent = '？';
         col.appendChild(cell);
-      }));
+      }); });
       document.getElementById('gachaDot').classList.toggle('hidden', done || complete);
     }
     const COMPLETE_HTML = `<span class="rare">COMPLETE</span><h4>全部そろいました！</h4><p>28ポーズ コンプリート 🎉</p>`;
@@ -4077,6 +4105,7 @@
       renderGacha();
       const total = KID_LABEL.length * POSES.length;
       document.getElementById('gachaResult').innerHTML = gachaLoad().got.length >= total ? COMPLETE_HTML : '';
+      document.getElementById('gachaResult').className = 'gacha-result';
       document.getElementById('gachaModal').classList.remove('hidden');
     }
     function closeGacha() { document.getElementById('gachaModal').classList.add('hidden'); }
@@ -4084,7 +4113,7 @@
     function spinGacha() {
       const v = gachaLoad(); if (v.last === gachaToday()) return;
       const m = document.getElementById('gachaMachine'), res = document.getElementById('gachaResult');
-      document.getElementById('gachaBtn').disabled = true; res.innerHTML = '';
+      document.getElementById('gachaBtn').disabled = true; res.innerHTML = ''; res.className = 'gacha-result';
       m.classList.remove('spin'); void m.offsetWidth; m.classList.add('spin');
       setTimeout(() => {
         m.classList.remove('spin');
@@ -4093,10 +4122,14 @@
         POSES.forEach(([pid]) => KID_LABEL.forEach((_, k) => { const key = `${k}-${pid}`; if (!v.got.includes(key)) missing.push(key); }));
         let newKey = null;
         if (missing.length) {
-          newKey = missing[Math.floor(Math.random() * missing.length)];
+          // レアど で でやすさを かえる
+          let r = Math.random() * missing.reduce((t, key) => t + RARITY[key.split('-')[1]].w, 0);
+          newKey = missing.find(key => (r -= RARITY[key.split('-')[1]].w) < 0) || missing[missing.length - 1];
           v.got.push(newKey);
           const [k, pid] = newKey.split('-'), pname = POSES.find(p => p[0] === pid)[1];
-          res.innerHTML = `<span class="rare">RARE POSE</span><h4>${poseLabel(KID_LABEL[k], pname)}</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
+          res.innerHTML = `${rarityTag(pid)}<h4>${poseLabel(KID_LABEL[k], pname)}</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
+          res.className = 'gacha-result res-' + RARITY[pid].k;
+          if (RARITY[pid].k === 'UR' && window.kidsCheer) kidsCheer('ウルトラレア！');
           poseCanvas(res.querySelector('canvas'), +k, pid, 96);
         } else {
           res.innerHTML = COMPLETE_HTML;
