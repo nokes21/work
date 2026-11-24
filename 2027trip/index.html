@@ -4031,12 +4031,12 @@
     }
 
     /* ===== しおりガチャ ===== */
-    const POSES = [['nete', '寝ている'], ['sora', 'そらをとぶ'], ['bunshin', 'ぶんしんする'], ['gyutan', 'ぎゅうたんを食べる']];
+    const POSES = [['nete', '寝ている'], ['ichigo', 'いちごがり'], ['bunshin', 'ぶんしんする'], ['gyutan', 'ぎゅうたんを食べる']];
     const poseLabel = (kn, pname) => `「${pname}」${kn}`;
     // ポーズごとの レアど（でやすさ）
     const RARITY = {
       nete:    { k: 'N',  name: 'ノーマル',     w: 50 },
-      sora:    { k: 'R',  name: 'レア',         w: 30 },
+      ichigo:  { k: 'R',  name: 'レア',         w: 30 },
       bunshin: { k: 'SR', name: 'スーパーレア', w: 15 },
       gyutan:  { k: 'UR', name: 'ウルトラレア', w: 5 },
     };
@@ -4084,39 +4084,26 @@
         });
         g.globalAlpha = 1; return;
       }
-      if (pose === 'sora') {                                                    // マントで そらを とぶ
-        const cloud = ['..oooo....', '.oxxxxoo..', 'oxxxxxxxoo', 'oooooooooo'];
-        [[.8, .2, .9], [.75, .5, 1.3], [.85, .0, .6]].forEach(([y, o, v]) => {   // くもが ながれる
-          const span = C + S * 12, x = C - ((t * C * .45 * v + o * span) % span);
-          dots(px(x), px(C * y), cloud, '#e6eef6', '#b9c9d8');
+      if (pose === 'ichigo') {                                                  // いちごが ポン！ よろこんで ジャンプ
+        const ph = (t * .5) % 1, ground = px(C * .86);
+        const berry = ['...gg...', '..gGGg..', '.rrrrrr.', 'rrwrrrrr', 'rrrrrwrr', '.rwrrrr.', '.rrrrwr.', '..rrrr..', '...rr...'];
+        const BC = { g: '#2f7a3a', G: '#5cb85c', r: '#e0414a', w: '#ffe9a8' };
+        const bx = px(C * .62), rise = ph < .22 ? Math.round((1 - ph / .22) * 10) * S : 0;
+        const by = ground - berry.length * S + rise + (ph > .3 && Math.floor(t * 6) % 2 ? S : 0);
+        g.save(); g.beginPath(); g.rect(0, 0, C, ground); g.clip();
+        berry.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === '.') return; g.fillStyle = BC[ch]; g.fillRect(bx + x * S, by + y * S, S, S); }));
+        g.restore();
+        g.fillStyle = '#6cbf5a';                                                // くさ
+        for (let i = 0; i < 6; i++) g.fillRect(px(C * .5) + i * S * 3, ground, S * 2, S);
+        // こども：いちごが でたら ぴょんぴょん
+        const jy = ph > .25 ? Math.min(px(Math.abs(Math.sin((ph - .25) * Math.PI * 4)) * S * 5), Math.max(0, ground - h - S)) : 0;
+        const kx = px(C * .1), ky = ground - h - jy;
+        g.drawImage(art.SPR[k][ph > .25 && jy > S ? 1 : 0], kx, ky, w, h);
+        if (ph > .2 && ph < .45) { g.fillStyle = '#c8553d'; g.font = `900 ${S * 6}px sans-serif`; g.fillText('!', kx + w, ky + S * 6); }
+        if (ph > .3) [[.55, .25], [.92, .4], [.6, .55]].forEach(([x, y], i) => {   // きらきら
+          if ((Math.floor(t * 5) + i) % 2) return;
+          star(C * x, C * y, i === 1 ? '#ff8db8' : '#ffd34e');
         });
-        const bob = px(Math.sin(t * 3) * S * 1.5);
-        const crawl = art.KIDS[k] && art.KIDS[k].size === art.CRAWL;
-        let top, neck, len;
-        if (crawl) {                                                            // ハイハイの子は そのまま よこむき
-          const x0 = px(C / 2 - w / 2), y0 = px(C / 2 - h / 2) + bob;
-          g.drawImage(img, x0, y0, w, h);
-          top = y0 + S * 5; neck = x0 + S * 7; len = 6;
-        } else {
-          if (!art._back) art._back = {};
-          if (art._back[k] == null) {                                           // せなか（いちばん ひだりの いろ）
-            const id = img.getContext('2d').getImageData(0, 0, img.width, img.height).data; let mx = img.width;
-            for (let i = 3; i < id.length; i += 4) if (id[i]) mx = Math.min(mx, ((i - 3) / 4) % img.width);
-            art._back[k] = mx;
-          }
-          g.save(); g.translate(px(C / 2), px(C / 2) + bob); g.rotate(Math.PI / 2);   // あたまを みぎへ
-          g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
-          top = px(C / 2 - w / 2) + bob + (art._back[k] + 2) * S; neck = px(C / 2 + h / 2 - S * 7);
-          len = Math.round(h / S * .5);
-        }
-        for (let i = 0; i < len; i++) {                                         // マントが なびく
-          const wv = Math.round(Math.sin(t * 9 - i * .9) * (i / len) * 1.6) * S;
-          const cx = neck - i * S, cy = top - S + wv;
-          g.fillStyle = '#c8302f'; g.fillRect(cx, cy, S, S * 2);
-          g.fillStyle = '#7a1c1c'; g.fillRect(cx, cy - S, S, S);
-        }
-        g.fillStyle = 'rgba(90,107,128,.45)';                                    // スピードせん
-        [.3, .5, .7].forEach((y, i) => { if ((Math.floor(t * 6) + i) % 2) g.fillRect(px(C * .04 + i * S), px(C * y) + bob, S * 4, S); });
         return;
       }
       if (pose === 'bunshin') {                                                 // 3にんに ぶんしん
