@@ -81,6 +81,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     .hidden { display: none !important; }
+    /* はみだした ものが あっても 画面が よこに ずれないように */
+    html, body { overflow-x: clip; }
 
     /* ===== チケット（ヘッダー） ===== */
     .parade {
@@ -3444,7 +3446,8 @@
       }
       function peek() {
         const frames = visibleFrames();
-        if (!frames.length || document.hidden || document.getElementById('splash')) return later();
+        const popup = document.querySelector('.modal:not(.hidden), .pose-view:not(.hidden)');   // ポップアップの あいだは おやすみ
+        if (!frames.length || document.hidden || popup || document.getElementById('splash')) return later();
         const el = frames[Math.floor(Math.random() * frames.length)];
         // ページの なかの わくなら ページの なかに、そうでなければ ぜんたいに おく
         const inner = !el.matches('.page, .ticket, .coupon');
