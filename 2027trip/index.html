@@ -1013,6 +1013,15 @@
     .fam-pick b { font-size: 15px; }
     .fam-pick:active { transform: scale(.97); }
     .fam-pick-card p { margin: 4px 0 0; font-size: 13px; color: var(--ink-soft); }
+    .fam-pick-card .hidden { display: none; }
+    .fam-confirm { display: grid; justify-items: center; gap: 6px; margin-top: 12px; animation: pop-in .3s cubic-bezier(.2,1.5,.4,1); }
+    .fc-house { width: 72px; height: 76px; image-rendering: pixelated; }
+    .fc-name { font-size: 18px; font-weight: 900; }
+    .fc-members { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .fc-m { display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 700; }
+    .fc-m canvas { width: 36px; height: 51px; image-rendering: pixelated; }
+    .fc-q { margin: 8px 0 2px !important; color: var(--ink) !important; font-weight: 700; }
+    .fc-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
     /* ===== 管理者メニュー ===== */
     .admin-menu { margin-top: 26px; font-size: 12px; color: var(--ink-soft); }
     .admin-menu summary { cursor: pointer; font-weight: 700; }
@@ -1698,6 +1707,7 @@
       <h3>どの家族ですか？</h3>
       <p>選んだ家族のプロフィールとメモを編集できるようになります。</p>
       <div class="fam-pick-grid" id="famPickGrid"></div>
+      <div class="fam-confirm hidden" id="famConfirm"></div>
     </div>
   </div>
 
@@ -3384,8 +3394,39 @@
       grid.querySelectorAll('.fam-pick').forEach((b, i) => drawHome(b.querySelector('canvas'), FAMILIES.find(x => x.id === READY_FAMS[i])));
       document.getElementById('famPickModal').classList.remove('hidden');
     }
+    // えらんだら かくにん（いえと 家族ぜんいんを みせる）
     function chooseFamily(id) {
+      const fam = FAMILIES.find(x => x.id === id), art = window.KID_ART;
+      const box = document.getElementById('famConfirm');
+      box.innerHTML = `
+        <canvas class="fc-house"></canvas>
+        <div class="fc-name">${esc(fam.name)}</div>
+        <div class="fc-members">${fam.members.map(m => `<div class="fc-m"><canvas data-m="${m}"></canvas><span>${esc(kidName(m))}</span></div>`).join('')}</div>
+        <p class="fc-q">この家族でよろしいですか？</p>
+        <div class="fc-btns">
+          <button class="btn ghost" onclick="backFamPick()">選び直す</button>
+          <button class="btn" onclick="confirmFamily('${id}')">はい</button>
+        </div>`;
+      drawHome(box.querySelector('.fc-house'), fam);
+      box.querySelectorAll('canvas[data-m]').forEach(c => {
+        const m = c.dataset.m, ki = KID_IDS.indexOf(m);
+        const fr = art && (ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[m]); if (!fr) return;
+        const img = fr[0], S = 3; c.width = art.W * S; c.height = 17 * S;
+        const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+        g.drawImage(img, 0, c.height - img.height * S, art.W * S, img.height * S);
+      });
+      document.getElementById('famPickGrid').classList.add('hidden');
+      document.querySelector('.fam-pick-card > p').classList.add('hidden');
+      box.classList.remove('hidden');
+    }
+    function backFamPick() {
+      document.getElementById('famConfirm').classList.add('hidden');
+      document.getElementById('famPickGrid').classList.remove('hidden');
+      document.querySelector('.fam-pick-card > p').classList.remove('hidden');
+    }
+    function confirmFamily(id) {
       document.getElementById('famPickModal').classList.add('hidden');
+      backFamPick();
       setMyFamily(id);
     }
 
