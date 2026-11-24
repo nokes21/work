@@ -718,6 +718,7 @@
     .route-name { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
     button.route-name { text-decoration: underline dotted var(--paper-line); text-underline-offset: 3px; }
     .route-open { width: 100%; }
+    .route-train { margin-bottom: 8px; background: var(--sea); }
     /* 牛タン お店マップ：すみびやきの メニュー板ふう */
     .gyutan-card {
       --g-bg: #2b211c; --g-bg2: #3a2d26; --g-ink: #f6ead8; --g-soft: #cdb89c;
@@ -1965,8 +1966,8 @@
     }
 
     /* ===== たびの ルート（稲城駅 → 行き先 → 稲城駅） ===== */
-    const ROUTE = [
-      { label: '稲城（出発）', q: '稲城駅 東京都稲城市', day: 1 },
+    // 宮城での たちよりさき（ぜんかぞく きょうつう）
+    const ROUTE_SPOTS = [
       { label: 'ラプラス公園', q: '仙台市海岸公園冒険広場', day: 1, spot: 'lapras' },
       { label: '阿部蒲鉾店 本店', q: '仙台市青葉区中央2丁目3-18 阿部蒲鉾店', day: 1, spot: 'abe' },
       { label: '村上屋餅店', q: '宮城県仙台市青葉区北目町2-38 村上屋餅店', day: 1, spot: 'murakami' },
@@ -1974,27 +1975,46 @@
       { label: '仙台市天文台', q: '仙台市天文台', day: 1, spot: 'planetarium' },
       { label: '秋保温泉 蘭亭（泊）', q: '仙台市太白区秋保町湯元字木戸保7-1', day: 1, spot: 'hotel' },
       { label: 'ハーベストビレッジ仙台（いちご狩り）', q: '宮城県仙台市若林区上飯田字天神75-1', day: 2, spot: 'strawberry' },
-      { label: '稲城（到着）', q: '稲城駅 東京都稲城市', day: 2 },
     ];
+    // 家族ごとの しゅっぱつ・とうちゃく
+    const FAMILY_ROUTE = {
+      default: { name: '稲城', q: '稲城駅 東京都稲城市', mode: 'car' },
+      natsuki: { name: '相原', q: '相原駅 東京都町田市', mode: 'car' },
+      miharu:  { name: '東京駅', q: '東京駅', mode: 'shinkansen' },   // 竹内家（最寄り駅が わかったら かえる）
+    };
+    function routeFor(f) {
+      const h = FAMILY_ROUTE[f] || FAMILY_ROUTE.default;
+      const home = (t, d) => ({ label: `${h.name}（${t}）`, q: h.q, day: d, home: true });
+      if (h.mode === 'shinkansen') {
+        return { h, list: [home('出発', 1), { label: '仙台駅（新幹線で到着）', q: '仙台駅', day: 1, train: true },
+          ...ROUTE_SPOTS, { label: '仙台駅（新幹線で出発）', q: '仙台駅', day: 2, train: true }, home('到着', 2)] };
+      }
+      return { h, list: [home('出発', 1), ...ROUTE_SPOTS, home('到着', 2)] };
+    }
     function renderRoute() {
       const box = document.getElementById('routeCard'); if (!box) return;
       const enc = encodeURIComponent;
-      // くるまの ルート（こうそくどうろも つかう ふつうの ルート）
-      const embed = 'https://maps.google.com/maps?f=d&hl=ja&dirflg=d&saddr=' + enc(ROUTE[0].q) +
-        '&daddr=' + ROUTE.slice(1).map(r => enc(r.q)).join('+to:') + '&output=embed';
-      const mid = ROUTE.slice(1, -1).map(r => r.q).join('|');
-      const open = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + enc(ROUTE[0].q) +
-        '&destination=' + enc(ROUTE[ROUTE.length - 1].q) + '&waypoints=' + enc(mid);
+      const { h, list: ROUTE } = routeFor(typeof myFamily === 'function' ? myFamily() : '');
+      // 地図と ナビは くるまの くかん（新幹線の 家族は 仙台駅から 仙台駅まで）
+      const drive = h.mode === 'shinkansen' ? ROUTE.slice(1, -1) : ROUTE;
+      const embed = 'https://maps.google.com/maps?f=d&hl=ja&dirflg=d&saddr=' + enc(drive[0].q) +
+        '&daddr=' + drive.slice(1).map(r => enc(r.q)).join('+to:') + '&output=embed';
+      const mid = drive.slice(1, -1).map(r => r.q).join('|');
+      const open = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + enc(drive[0].q) +
+        '&destination=' + enc(drive[drive.length - 1].q) + '&waypoints=' + enc(mid);
+      const train = 'https://www.google.com/maps/dir/?api=1&travelmode=transit&origin=' + enc(h.q) + '&destination=' + enc('仙台駅');
+      const sub = h.mode === 'shinkansen' ? `${h.name} →（新幹線）→ 仙台 → 宮城 → 仙台 →（新幹線）→ ${h.name}` : `${h.name} → 宮城 → ${h.name}（車）`;
       box.innerHTML = `
-        <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">稲城 → 宮城 → 稲城（車）</span></div>
+        <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">${esc(sub)}</span></div>
         <div class="route-map"><iframe src="${embed}" title="旅のルートの地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
         <ol class="route-list">${ROUTE.map((r, i) => {
           const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day" style="--i:${i}">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day" style="--i:0">DAY 1</li>' : '');
-          const pin = i === 0 || i === ROUTE.length - 1 ? '🏠' : i;
+          const pin = r.home ? '🏠' : r.train ? '🚄' : ROUTE_SPOTS.indexOf(r) + 1;
           const name = r.spot ? `<button class="route-name" onclick="flashEl(document.getElementById('spot-${r.spot}'))">${esc(r.label)}</button>` : `<span class="route-name">${esc(r.label)}</span>`;
           return `${day}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
         }).join('')}</ol>
-        <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップでルートを開く</a>`;
+        ${h.mode === 'shinkansen' ? `<a class="spot-btn route-open route-train" href="${train}" target="_blank" rel="noopener"><i class="fa-solid fa-train"></i>新幹線の乗換案内を開く</a>` : ''}
+        <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップで${h.mode === 'shinkansen' ? '宮城でのルート' : 'ルート'}を開く</a>`;
     }
 
     function renderSpots() {
@@ -3436,7 +3456,7 @@
     }
     function setMyFamily(f) {
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
-      renderTicketFamily();
+      renderTicketFamily(); renderRoute(); if (window.revealScan) revealScan();
       editingKid = null; renderKidCards();
       renderReady(); updateMyReady(); initFamilyMemo();
     }
