@@ -823,6 +823,14 @@
     .sp-sub { font-size: 12px; font-weight: 700; color: var(--stamp); letter-spacing: .12em; margin-top: 2px; }
     .sp-date { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 14px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
     #splashKids { width: min(320px, 90vw); height: 44px; image-rendering: pixelated; }
+    .sp-skip {
+      position: absolute; left: 50%; bottom: calc(28px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+      border: 1.5px solid rgba(31,53,80,.35); background: rgba(255,255,255,.5); color: var(--ink-soft);
+      font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .16em;
+      padding: 5px 14px; border-radius: 999px; cursor: pointer;
+      animation: sp-skip-in .4s .5s both;
+    }
+    @keyframes sp-skip-in { from { opacity: 0; } to { opacity: 1; } }
     @keyframes sp-pop { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
 
     /* ホーム画面に追加の あんない */
@@ -1431,6 +1439,7 @@
       </div>
     </div>
     <canvas id="splashKids"></canvas>
+    <button class="sp-skip" onclick="event.stopPropagation(); hideSplash()">SKIP ›</button>
   </div>
   <script>
     try { if (sessionStorage.getItem('miyagi_trip_splash') === '1') document.getElementById('splash').remove(); } catch (e) {}
