@@ -262,7 +262,7 @@
     .page {
       background-color: var(--paper);
       border-radius: 6px 14px 14px 6px;
-      padding: 22px 18px 24px 28px;
+      padding: 26px 20px 28px 30px;
       position: relative;
       box-shadow: 0 6px 16px -12px rgba(60,40,10,.35);
     }
@@ -272,10 +272,10 @@
       left: 12px; top: 0; bottom: 0;
       border-left: 2px solid rgba(200,85,61,.18);
     }
-    .page + .page { margin-top: 22px; }
+    .page + .page { margin-top: 28px; }
     .page-head {
       display: flex; align-items: baseline; gap: 10px;
-      margin: 0 -10px 12px;
+      margin: 0 -10px 18px;
       padding: 8px 10px;
       /* スクロールしたら がめんの うえに くっつく */
       position: sticky; top: var(--head-top, 46px); z-index: 3;
@@ -292,7 +292,7 @@
       background: rgba(227,167,47,.16);
       border-radius: 4px;
       padding: 8px 10px;
-      margin: 0 0 14px;
+      margin: 0 0 22px;
       transform: rotate(-.4deg);
     }
 
@@ -312,7 +312,7 @@
 
     /* ===== 日程：路線図 ===== */
     .day { margin-top: 6px; }
-    .day + .day { margin-top: 22px; }
+    .day + .day { margin-top: 34px; }
     .day-label {
       display: inline-flex; align-items: center; gap: 8px;
       margin-bottom: 10px;
@@ -342,8 +342,8 @@
       background: #fff;
       border: 1.5px solid var(--paper-line);
       border-radius: 10px;
-      padding: 12px 14px 12px;
-      margin-bottom: 14px;
+      padding: 14px 16px 15px;
+      margin-bottom: 18px;
       transition: border-color .3s, box-shadow .3s;
     }
     .stop::before {
@@ -692,7 +692,7 @@
       border: 1.5px solid var(--paper-line);
       border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 14px;
+      margin-bottom: 22px;
       transition: border-color .3s, box-shadow .3s;
     }
     .spot-photo { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--paper); }
@@ -701,7 +701,7 @@
       font-size: 12px; font-weight: 700; color: var(--ink-soft);
       background: repeating-linear-gradient(45deg, var(--paper) 0 10px, #f3ecdc 10px 20px);
     }
-    .spot-body { padding: 12px; }
+    .spot-body { padding: 16px 16px 18px; }
     /* 旅のルート */
     .route-card { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 12px; margin-bottom: 16px; position: relative; z-index: 2; }
     .route-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -1004,49 +1004,13 @@
     .kid-sprite.spin { animation: kid-spin .5s ease-in-out; }
     @keyframes kid-spin { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }
 
-
-    /* ===== 開閉式（日程の予定・行き先のカード） ===== */
-    .stop { cursor: pointer; }
-    .stop .stop-chev, .spot-card .spot-chev {
-      position: absolute; right: 12px; top: 12px; z-index: 2;
-      width: 22px; height: 22px; border-radius: 50%;
-      display: grid; place-items: center;
-      font-size: 11px; color: var(--ink-soft); background: var(--paper);
-      transition: transform .25s;
-    }
-    .stop.open .stop-chev, .spot-card.open .spot-chev { transform: rotate(180deg); }
-    .stop:not(.open) > p, .stop:not(.open) > .spot-link { display: none; }
-    .stop h3 { padding-right: 26px; }
-    .stop .now-stamp { right: 40px; }
-    .stop.open > p { animation: open-in .25s ease; }
-    @keyframes open-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-
-    .spot-card { cursor: pointer; position: relative; }
-    .spot-card:not(.open):not(.gyutan-card) { display: grid; grid-template-columns: 96px 1fr; align-items: center; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-photo { width: 96px; height: 72px; aspect-ratio: auto; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-body { padding: 10px 40px 10px 12px; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-body > :not(.spot-top) { display: none; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-top .sub,
-    .spot-card:not(.open):not(.gyutan-card) .spot-top .spot-tel { display: none; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-top { align-items: center; }
-    .spot-card:not(.open):not(.gyutan-card) .spot-top h3 { font-size: 14px; }
-    .spot-card:not(.open):not(.gyutan-card) .label-stamp { display: none; }
-    .spot-card.open .spot-body { animation: open-in .25s ease; }
-    .gyutan-card:not(.open) .gyutan-map, .gyutan-card:not(.open) .spot-body { display: none; }
-    .gyutan-card:not(.open) .gyutan-hero img { aspect-ratio: 16 / 7; }
-    .gyutan-card .spot-chev { background: rgba(255,255,255,.85); }
-
-    /* 旅のルートの 地図は ひらいたときだけ */
-    .route-map-toggle { width: 100%; margin-bottom: 10px; background: var(--paper); color: var(--ink); border: 1.5px solid var(--paper-line); }
-    .route-card:not(.map-open) .route-map { display: none; }
-
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
       border: 2px solid var(--ink);
       border-radius: 10px;
-      padding: 10px 12px 12px;
-      margin: 0 0 14px;
+      padding: 14px 16px 16px;
+      margin: 0 0 22px;
     }
     .day-flow .flow-k { font-size: 12px; font-weight: 900; color: var(--stamp); letter-spacing: .08em; margin-bottom: 6px; }
     .day-flow ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
@@ -1168,7 +1132,7 @@
       border: 1.5px solid var(--paper-line);
       border-radius: 10px;
       padding: 10px 12px 12px;
-      margin: 0 0 16px;
+      margin: 0 0 26px;
     }
     .weather-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 900; font-size: 14px; }
     .weather-sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
@@ -1235,7 +1199,6 @@
       .fam-grid { grid-template-columns: repeat(4, 1fr); }
       #spotList { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
       #spotList .spot-card { margin-bottom: 0; }
-      #spotList .spot-card.open { grid-column: 1 / -1; }
       /* メモ：ひだり＝お土産＋なんでもメモ、みぎ＝持ち物（たかさを そろえる） */
       #content-memo {
         display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
@@ -1819,7 +1782,6 @@
       renderSouvenirList();
       renderSpots();
       renderRoute();
-      setTimeout(setupFolding, 0);
       renderStopPhotos();
       initPicks();
       renderDayFlow();
@@ -1993,8 +1955,7 @@
         '&destination=' + enc(ROUTE[ROUTE.length - 1].q) + '&waypoints=' + enc(mid);
       box.innerHTML = `
         <div class="route-head"><span class="route-k">ROUTE</span><h3>旅のルート</h3><span class="route-sub">稲城 → 宮城 → 稲城（車）</span></div>
-        <button class="btn route-map-toggle" onclick="toggleRouteMap(this)"><i class="fa-solid fa-map"></i> 地図を見る</button>
-        <div class="route-map" data-src="${embed}"></div>
+        <div class="route-map"><iframe src="${embed}" title="旅のルートの地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
         <ol class="route-list">${ROUTE.map((r, i) => {
           const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day" style="--i:${i}">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day" style="--i:0">DAY 1</li>' : '');
           const pin = i === 0 || i === ROUTE.length - 1 ? '🏠' : i;
@@ -2002,28 +1963,6 @@
           return `${day}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
         }).join('')}</ol>
         <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップでルートを開く</a>`;
-    }
-
-    function toggleRouteMap(btn) {
-      const card = btn.closest('.route-card'), map = card.querySelector('.route-map');
-      const open = card.classList.toggle('map-open');
-      if (open && !map.firstChild) map.innerHTML = `<iframe src="${map.dataset.src}" title="旅のルートの地図" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
-      btn.innerHTML = open ? '<i class="fa-solid fa-map"></i> 地図を閉じる' : '<i class="fa-solid fa-map"></i> 地図を見る';
-    }
-
-    /* ===== 開閉式：タップで ひらく・とじる ===== */
-    function setupFolding() {
-      document.querySelectorAll('.stop, .spot-card').forEach(el => {
-        if (el.dataset.fold) return; el.dataset.fold = 1;
-        const chev = document.createElement('span');
-        chev.className = el.classList.contains('stop') ? 'stop-chev' : 'spot-chev';
-        chev.textContent = '▼'; chev.setAttribute('aria-hidden', 'true');
-        el.appendChild(chev);
-        el.addEventListener('click', e => {
-          if (e.target.closest('a, button, input, select, textarea, form, .stop-photo, iframe, .picks')) return;
-          el.classList.toggle('open');
-        });
-      });
     }
 
     function renderSpots() {
@@ -2047,7 +1986,6 @@
     }
     function flashEl(el) {
       if (!el) return;
-      if (el.matches('.stop, .spot-card')) el.classList.add('open');
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
       setTimeout(() => el.classList.remove('flash'), 2100);
@@ -3819,7 +3757,7 @@
         if (now >= start && now <= end) {
           const el = document.getElementById(item.id);
           const badge = document.getElementById(`badge-${item.id}`);
-          if (el) el.classList.add('is-now-card', 'open');
+          if (el) el.classList.add('is-now-card');
           if (badge) badge.classList.remove('hidden');
 
           const schedContent = document.getElementById('content-schedule');
