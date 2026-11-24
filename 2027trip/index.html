@@ -1311,6 +1311,7 @@
     .drag-note { margin: 8px 0 0; font-size: 12px; color: var(--ink-soft); }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
+    .note-auto:has(.note-saved.hidden) { display: none; }
     .note-saved { display: inline-block; margin-right: 6px; color: #2f8f5b; font-weight: 900; }
     .note-form { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: end; margin-bottom: 10px; }
     .note-form textarea { resize: vertical; font-size: 16px; line-height: 1.5; }
@@ -1699,7 +1700,7 @@
             <textarea id="noteInput" class="field" rows="3" placeholder="例: 駐車場 B2の15番／宿の部屋 302／集合 11:30 レストハウス前" oninput="noteDraft()" onblur="noteAutoSave()"></textarea>
             <button type="submit" class="btn" id="noteBtn" onpointerdown="noteSaving = true; setTimeout(() => noteSaving = false, 600)">保存</button>
           </form>
-          <p class="note-auto"><span class="note-saved hidden" id="noteSaved">✓ 保存しました</span>書いた内容は、ほかの場所をタップすると自動で保存されます。</p>
+          <p class="note-auto"><span class="note-saved hidden" id="noteSaved">✓ 保存しました</span></p>
           <div id="noteList"></div>
         </div>
       </section>
