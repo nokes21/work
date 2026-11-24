@@ -956,12 +956,12 @@
     .gacha-col { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .gacha-cell { aspect-ratio: 1; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; color: #cfc6b4; }
     .gacha-cell canvas { width: 100%; height: 100%; image-rendering: pixelated; }
-    .gacha-hint { margin: -2px 0 8px; font-size: 11.5px; color: var(--ink-soft); }
+    .gacha-hint { margin: 0 0 10px; font-size: 12px; color: var(--ink-soft); text-align: left; line-height: 1.6; }
+    .news-btn.gacha-open { right: auto; left: 8px; }
+    .gacha-card { max-height: 88vh; overflow-y: auto; }
+    .gacha-card h3 { margin: 2px 0 8px; }
+    .gacha-close { margin-top: 14px; background: #fff; color: var(--ink); border: 1.5px solid var(--paper-line); }
     .gacha-cell.got { cursor: pointer; }
-    .fact-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-    .fact-list li { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: var(--ink-soft); }
-    .fact-list li b { display: block; font-size: 13.5px; color: var(--ink); }
-    .fact-list li.locked { color: #cfc6b4; font-family: var(--mono); }
     .pose-view { position: fixed; inset: 0; z-index: 80; background: rgba(31,53,80,.55); display: grid; place-items: center; }
     .pose-view.hidden { display: none; }
     .pose-card { background: var(--paper); border-radius: 14px; padding: 16px 22px; text-align: center; animation: pop-in .35s cubic-bezier(.2,1.5,.4,1); }
@@ -1283,6 +1283,10 @@
     <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
     <div class="parade" onclick="paradeJump()">
       <canvas id="parade" aria-label="こどもたちが歩いているドット絵"></canvas>
+      <button class="news-btn gacha-open" onclick="event.stopPropagation(); openGacha()" aria-label="しおりガチャ">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="9.5" cy="9" r="2" /><circle cx="14.5" cy="11.5" r="2"/><rect x="6" y="16" width="12" height="6" rx="1.5"/></svg>
+        <span class="news-dot" id="gachaDot"></span>
+      </button>
       <button class="news-btn" id="newsBtn" onclick="event.stopPropagation(); openNews()" aria-label="お知らせ">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a6 6 0 0 0-6 6v4.2L4.3 15.6a1 1 0 0 0 .9 1.5h13.6a1 1 0 0 0 .9-1.5L18 12.7V8.5a6 6 0 0 0-6-6zM9.5 18.5a2.5 2.5 0 0 0 5 0z"/></svg>
         <span class="news-dot" id="newsDot"></span>
@@ -1473,24 +1477,6 @@
             <span>大人 <span class="mono">8</span> ／ 子供 <span class="mono">7</span>（計 <span class="mono">15</span>名）</span>
           </div>
         </div>
-
-        <div class="page">
-          <div class="page-head"><h2>しおりガチャ</h2><span class="en">GACHA</span></div>
-          <p class="memo">1時間に1回まわせます。宮城の豆知識か、子どもたちのレアなポーズが出るかも！</p>
-          <div class="gacha">
-            <div class="gacha-machine" id="gachaMachine"><span class="gacha-ball"></span></div>
-            <div class="gacha-result" id="gachaResult"></div>
-            <button class="btn btn-wide" id="gachaBtn" onclick="spinGacha()">ガチャをまわす</button>
-          </div>
-          <div class="gacha-col-head">あつめたポーズ <span id="gachaCount"></span></div>
-          <p class="gacha-hint">集めたポーズは、画面上部を歩く子どもたちがときどき見せてくれます。タップすると大きく見られます。</p>
-          <div class="gacha-col" id="gachaCol"></div>
-          <div class="gacha-col-head" style="margin-top:14px">あつめたまめちしき <span id="factCount"></span></div>
-          <ol class="fact-list" id="factList"></ol>
-          <div class="pose-view hidden" id="poseView" onclick="this.classList.add('hidden')">
-            <div class="pose-card"><canvas id="poseBig"></canvas><div id="poseName"></div><small>タップで閉じる</small></div>
-          </div>
-        </div>
       </section>
 
       <!-- ===== 3. 行き先 ===== -->
@@ -1664,6 +1650,26 @@
     <img src="apple-touch-icon.png" alt="" class="a2hs-icon">
     <div class="a2hs-text" id="a2hsText"></div>
     <button class="a2hs-close" onclick="closeA2hs()" aria-label="閉じる">✕</button>
+  </div>
+
+  <!-- ===== しおりガチャ（ポップアップ） ===== -->
+  <div id="gachaModal" class="modal hidden" onclick="if (event.target === this) closeGacha()">
+    <div class="modal-card gacha-card">
+      <div class="news-k">GACHA</div>
+      <h3>しおりガチャ</h3>
+      <p class="gacha-hint">1時間に1回まわせます。子どもたちのレアなポーズが出るよ！集めたポーズは、画面上部を歩く子どもたちがときどき見せてくれます。</p>
+      <div class="gacha">
+        <div class="gacha-machine" id="gachaMachine"><span class="gacha-ball"></span></div>
+        <div class="gacha-result" id="gachaResult"></div>
+        <button class="btn btn-wide" id="gachaBtn" onclick="spinGacha()">ガチャをまわす</button>
+      </div>
+      <div class="gacha-col-head">あつめたポーズ <span id="gachaCount"></span></div>
+      <div class="gacha-col" id="gachaCol"></div>
+      <button onclick="closeGacha()" class="btn btn-wide gacha-close">閉じる</button>
+    </div>
+  </div>
+  <div class="pose-view hidden" id="poseView" onclick="this.classList.add('hidden')">
+    <div class="pose-card"><canvas id="poseBig"></canvas><div id="poseName"></div><small>タップで閉じる</small></div>
   </div>
 
   <div id="newsModal" class="modal hidden" onclick="if (event.target === this) closeNews()">
@@ -3397,18 +3403,6 @@
     }
 
     /* ===== しおりガチャ ===== */
-    const GACHA_FACTS = [
-      ['ずんだ', '枝豆をすりつぶした甘いあん。宮城ではおもちにのせて食べます。'],
-      ['笹かまぼこ', '笹の葉の形をしたかまぼこ。焼きたてはふわふわ！'],
-      ['青葉城', '伊達政宗が建てたお城の跡。仙台の街を見わたせます。'],
-      ['松島', '260以上の島が浮かぶ、日本三景のひとつ。'],
-      ['こけし', '木でできた人形。宮城にはいろいろな形のこけしがあります。'],
-      ['七夕まつり', '仙台の七夕は8月。大きな吹き流しで街が飾られます。'],
-      ['牛タン', '仙台名物。麦ごはんとテールスープがお決まり。'],
-      ['樹氷', '蔵王の冬、木に雪と氷がついて「おばけ」みたいな姿に。'],
-      ['秋保温泉', '仙台の奥座敷とよばれる温泉地。今回のお宿もここ！'],
-      ['ひょうたん揚げ', 'ひょうたん形のかまぼこを揚げた、仙台の食べ歩きおやつ。'],
-    ];
     const POSES = [['nete', 'ねてる'], ['saka', 'さかだち'], ['jump', 'ジャンプ'], ['guru', 'ぐるぐる']];
     const KID_LABEL = ['みのり', 'あかり', 'かすみ', 'みはる', 'なつき', 'みおり', 'ふじ'];
     function gachaToday() { const d = simTime ? new Date(simTime) : new Date(); return ymd(d) + '-' + d.getHours(); }   // 1じかんに 1かい
@@ -3448,11 +3442,11 @@
         } else cell.textContent = '？';
         col.appendChild(cell);
       }));
-      const facts = v.facts || [];
-      document.getElementById('factCount').textContent = `${facts.length} / ${GACHA_FACTS.length}`;
-      document.getElementById('factList').innerHTML = GACHA_FACTS.map((f, i) => facts.includes(i)
-        ? `<li><b>${esc(f[0])}</b>${esc(f[1])}</li>` : `<li class="locked">？？？</li>`).join('');
+      document.getElementById('gachaDot').classList.toggle('hidden', done);
     }
+    function openGacha() { renderGacha(); document.getElementById('gachaResult').innerHTML = ''; document.getElementById('gachaModal').classList.remove('hidden'); }
+    function closeGacha() { document.getElementById('gachaModal').classList.add('hidden'); }
+    setInterval(() => { if (document.getElementById('gachaModal').classList.contains('hidden')) renderGacha(); }, 60000);
     function spinGacha() {
       const v = gachaLoad(); if (v.last === gachaToday()) return;
       const m = document.getElementById('gachaMachine'), res = document.getElementById('gachaResult');
@@ -3464,16 +3458,14 @@
         const missing = [];
         POSES.forEach(([pid]) => KID_LABEL.forEach((_, k) => { const key = `${k}-${pid}`; if (!v.got.includes(key)) missing.push(key); }));
         let newKey = null;
-        if (missing.length && Math.random() < .55) {
+        if (missing.length) {
           newKey = missing[Math.floor(Math.random() * missing.length)];
           v.got.push(newKey);
           const [k, pid] = newKey.split('-'), pname = POSES.find(p => p[0] === pid)[1];
           res.innerHTML = `<span class="rare">RARE POSE</span><h4>${KID_LABEL[k]}の「${pname}」</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
           drawPose(res.querySelector('canvas'), +k, pid, 96);
         } else {
-          const fi = Math.floor(Math.random() * GACHA_FACTS.length), f = GACHA_FACTS[fi];
-          v.facts = v.facts || []; if (!v.facts.includes(fi)) v.facts.push(fi);
-          res.innerHTML = `<span class="rare" style="background:var(--sea)">まめちしき</span><h4>${f[0]}</h4><p>${f[1]}</p>`;
+          res.innerHTML = `<span class="rare">COMPLETE</span><h4>全部そろいました！</h4><p>28ポーズ コンプリート 🎉</p>`;
         }
         gachaSave(v); renderGacha(newKey);
       }, 900);
