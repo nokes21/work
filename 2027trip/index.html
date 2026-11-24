@@ -900,9 +900,7 @@
       background: rgba(255,255,255,.6);
     }
     body.archive .route .line i { visibility: hidden; }
-    body.archive #tab-btn-memo, body.archive #tab-btn-other,
-    body.archive #content-memo, body.archive #content-other,
-    body.archive .side-links, body.archive .weather, body.archive .plan-only,
+    body.archive .weather, body.archive .plan-only,
     body.archive .kid-edit, body.archive .pick-form, body.archive .pick-like, body.archive .picks .icon-btn,
     body.archive .now-stamp, body.archive .a2hs { display: none !important; }
     body.archive .picks-sub { display: none; }
@@ -3245,8 +3243,6 @@
       document.title = on ? '宮城旅行の記録' : '宮城旅行のしおり';
       if (on) {
         editingKid = null; renderKidCards();
-        const active = document.querySelector('.tab-btn.active');
-        if (active && (active.id === 'tab-btn-memo' || active.id === 'tab-btn-other')) switchTab('schedule');
       }
     }
 
