@@ -1914,7 +1914,7 @@
     <div class="modal-card news-card">
       <div class="news-k">NOTICE</div>
       <h3>お知らせ</h3>
-      <p class="news-body">今のスケジュールはまだ仮です。<br>色々決まったらしおりに反映します。<br>計画はお願いします🙇‍♂️<span class="by">by あかり父</span></p>
+      <p class="news-body">今のスケジュールはまだ仮です。<br>色々決まったらしおりに反映します。<br>決めるのはお願いします🙇‍♂️<span class="by">by あかり父</span></p>
       <button onclick="closeNews()" class="btn btn-wide">閉じる</button>
     </div>
   </div>
@@ -2613,7 +2613,7 @@
 
 
     /* ===== お知らせ ===== */
-    const NEWS_ID = '2026-11-24';   // お知らせを かえたら ここも かえると 赤い点が また つく
+    const NEWS_ID = '2026-11-24b';   // お知らせを かえたら ここも かえると 赤い点が また つく
     function newsRead() { try { return localStorage.getItem('miyagi_trip_news_read') === NEWS_ID; } catch (e) { return false; } }
     function openNews() {
       document.getElementById('newsModal').classList.remove('hidden');
