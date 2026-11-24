@@ -1646,10 +1646,7 @@
           <div class="admin-body">
             <div class="admin-k">家族の切り替え</div>
             <div class="row">
-              <select id="adminFamily" onchange="setMyFamily(this.value)">
-                <option value="akari">原口家</option><option value="kasumi">小澤家</option>
-                <option value="miharu">竹内家</option><option value="natsuki">坪田家</option>
-              </select>
+              <button onclick="openFamPick()">家族を選び直す（いま：<span id="adminFamily"></span>）</button>
             </div>
             <div class="admin-k">現在地テスト</div>
             <div class="row">
@@ -3476,7 +3473,7 @@
       const me = myFamily();
       const meEl = document.getElementById('readyMe');
       if (meEl) meEl.textContent = me ? `うちは ${FAMILIES.find(x => x.id === me).name}` : '';
-      const ad = document.getElementById('adminFamily'); if (ad && me) ad.value = me;
+      const ad = document.getElementById('adminFamily'); if (ad) ad.textContent = me ? FAMILIES.find(x => x.id === me).name : '未設定';
       if (!box.children.length) {
         box.innerHTML = READY_FAMS.map(id => `<div class="ready-house" data-f="${id}"><span class="flag">${FLAG_SVG}</span><canvas></canvas><div class="name">${esc(FAMILIES.find(x => x.id === id).name)}</div><span class="ok-label">準備OK！</span></div>`).join('');
         box.querySelectorAll('.ready-house').forEach(h => drawHome(h.querySelector('canvas'), FAMILIES.find(x => x.id === h.dataset.f)));
