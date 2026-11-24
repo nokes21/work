@@ -1459,7 +1459,8 @@
             <button onclick="setSimTime('2027-03-20T13:30:00')">1日目昼</button>
             <button onclick="setSimTime('2027-03-21T10:30:00')">2日目いちご狩り</button>
             <button onclick="setSimTime('2027-03-21T19:00:00')">旅行終了後</button>
-            <button onclick="resetSimTime()">解除</button>
+            <button onclick="gachaTestComplete()">ガチャ全部そろう</button>
+            <button onclick="resetSimTime(); window.__gachaTest = null; renderGacha();">解除</button>
           </div>
         </details>
       </section>
@@ -3406,8 +3407,16 @@
     const POSES = [['nete', 'ねてる'], ['saka', 'さかだち'], ['jump', 'ジャンプ'], ['guru', 'ぐるぐる']];
     const KID_LABEL = ['みのり', 'あかり', 'かすみ', 'みはる', 'なつき', 'みおり', 'ふじ'];
     function gachaToday() { const d = simTime ? new Date(simTime) : new Date(); return ymd(d) + '-' + d.getHours(); }   // 1じかんに 1かい
-    function gachaLoad() { try { return JSON.parse(localStorage.getItem('miyagi_trip_gacha') || '{"last":"","got":[]}'); } catch (e) { return { last: '', got: [] }; } }
-    function gachaSave(v) { try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {} }
+    // テスト：コンプリートした じょうたいを かりに みる（ほんものの コレクションは かえない）
+    function gachaTestComplete() {
+      const all = []; POSES.forEach(([pid]) => KID_LABEL.forEach((_, k) => all.push(`${k}-${pid}`)));
+      window.__gachaTest = { last: '', got: all };
+      openGacha(); spinGacha();
+    }
+    function gachaLoad() {
+      if (window.__gachaTest) return window.__gachaTest; try { return JSON.parse(localStorage.getItem('miyagi_trip_gacha') || '{"last":"","got":[]}'); } catch (e) { return { last: '', got: [] }; } }
+    function gachaSave(v) {
+      if (window.__gachaTest) { window.__gachaTest = v; return; } try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {} }
     // レアな ポーズを えがく（オリジナルの ドット絵を うごかすだけ）
     function drawPose(canvas, k, pose, size) {
       const art = window.KID_ART; if (!art) return;
