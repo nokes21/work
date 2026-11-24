@@ -1112,7 +1112,7 @@
       #content-where {
         position: fixed; z-index: 35; left: 0; right: 0; top: 40px;
         bottom: var(--foot-h, 64px);
-        background: var(--kraft); padding: 8px 8px 6px;
+        background: var(--kraft); padding: 8px 8px 28px;
       }
       #content-where .where { margin: 0 auto; max-width: 760px; height: 100%; min-height: 0; padding: 8px 10px 6px; }
       #content-where .where-list { margin-top: 6px; gap: 4px; }
@@ -1365,7 +1365,20 @@
       }
       .tab-btn i { font-size: 18px; margin-bottom: 3px; }
       .tab-btn.active { background: rgba(200,85,61,.1); color: var(--stamp); box-shadow: none; transform: none; }
-      body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+      /* まんなかの「いまどこ？」は まるく めだたせる */
+      #tab-btn-where {
+        flex: 0 0 66px; width: 66px; height: 66px; margin: -24px 4px 0; padding: 0;
+        border-radius: 50%; border: 3px solid var(--paper);
+        background: linear-gradient(160deg, #e0705a, var(--stamp));
+        color: #fff; font-size: 10px; font-weight: 900; letter-spacing: -.02em;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        box-shadow: 0 6px 14px -4px rgba(200,85,61,.6);
+        transition: transform .15s;
+      }
+      #tab-btn-where i { font-size: 22px; margin-bottom: 2px; }
+      #tab-btn-where:active { transform: scale(.94); }
+      #tab-btn-where.active { background: linear-gradient(160deg, #e0705a, var(--stamp)); color: #fff; box-shadow: 0 0 0 3px rgba(200,85,61,.25), 0 6px 14px -4px rgba(200,85,61,.6); }
+      body { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
       main > section > :first-child { border-top-left-radius: 6px; border-top-right-radius: 14px; margin-top: 14px; }
     }
 
