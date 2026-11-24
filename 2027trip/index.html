@@ -1052,14 +1052,25 @@
     .where-msg { margin: 6px 0 0; font-size: 12px; font-weight: 700; color: var(--ink-soft); min-height: 0; }
     .where-msg:empty { display: none; }
     .where-note { margin: 6px 0 0; font-size: 10px; line-height: 1.5; color: var(--ink-soft); opacity: .8; }
-    .where-pin { background: none; border: 0; }
-    .where-pin .pin-box { display: grid; justify-items: center; }
-    .where-pin img { image-rendering: pixelated; filter: drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff) drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff); position: relative; z-index: 1; }
-    .where-pin .pin-shadow { display: block; height: 6px; margin-top: -4px; border-radius: 50%; background: rgba(0,0,0,.25); }
+    .where-pin { background: none; border: 0; display: flex; align-items: flex-end; justify-content: center; }
+    .where-pin .pin-box {
+      position: relative; display: grid; justify-items: center; gap: 3px;
+      background: #fff; border: 2px solid var(--ink); border-radius: 12px;
+      padding: 4px 8px 6px; margin-bottom: 11px; box-shadow: 0 4px 10px -4px rgba(31,53,80,.5);
+    }
+    /* ふきだしの しっぽ */
+    .where-pin .pin-box::before, .where-pin .pin-box::after {
+      content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+      border-style: solid; border-color: transparent;
+    }
+    .where-pin .pin-box::before { bottom: -11px; border-width: 11px 9px 0; border-top-color: var(--ink); }
+    .where-pin .pin-box::after { bottom: -7px; border-width: 8px 6.5px 0; border-top-color: #fff; }
+    .where-pin img { image-rendering: pixelated; display: block; }
     .where-chip .chip-art { height: 22px; width: auto; image-rendering: pixelated; }
-    .where-pin b { font-size: 10px; line-height: 1.2; white-space: nowrap; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 0 4px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; }
+    .where-pin b { font-size: 10px; line-height: 1.2; white-space: nowrap; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; }
     .where-pin b small { font-weight: 500; color: var(--ink-soft); }
-    .where-pin.me b { background: #ffe9a8; }
+    .where-pin.me .pin-box { background: #fff6d6; }
+    .where-pin.me .pin-box::after { border-top-color: #fff6d6; }
 
 
     /* ===== サブメニュー（右上） ===== */
@@ -3717,16 +3728,16 @@
       Object.keys(whereMarkers).forEach(id => { if (!fresh[id]) { whereMarkers[id].remove(); delete whereMarkers[id]; } });
       Object.entries(fresh).forEach(([id, v]) => {
         const f = FAMILIES.find(x => x.id === id); if (!f) return;
-        const a = famMembersArt(f), W = Math.max(a.w, 84), H = a.h + 22;
+        const a = famMembersArt(f), W = Math.max(a.w, 76) + 20, H = a.h + 30 + 11;
         const icon = L.divIcon({ className: 'where-pin' + (id === me ? ' me' : ''), iconSize: [W, H], iconAnchor: [W / 2, H],
-          html: `<div class="pin-box"><b>${esc(f.name)} <small>${agoText(v.at)}</small></b><img src="${a.url}" alt="" style="width:${a.w}px;height:${a.h}px"><i class="pin-shadow" style="width:${a.w}px"></i></div>` });
+          html: `<div class="pin-box"><b>${esc(f.name)} <small>${agoText(v.at)}</small></b><img src="${a.url}" alt="" style="width:${a.w}px;height:${a.h}px"></div>` });
         if (whereMarkers[id]) whereMarkers[id].setLatLng([v.lat, v.lng]).setIcon(icon);
         else whereMarkers[id] = L.marker([v.lat, v.lng], { icon }).addTo(whereMap);
       });
       const pts = Object.values(fresh).map(v => [v.lat, v.lng]);
       if (pts.length && !whereFitted) {
         whereFitted = true;
-        if (pts.length === 1) whereMap.setView(pts[0], 13); else whereMap.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
+        if (pts.length === 1) whereMap.setView(pts[0], 13); else whereMap.fitBounds(pts, { paddingTopLeft: [70, 95], paddingBottomRight: [70, 20], maxZoom: 14 });
       }
     }
     function focusWhere(id) {
