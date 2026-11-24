@@ -1446,7 +1446,7 @@
               <button class="where-stop hidden" id="whereStop" onclick="stopWhere()">消す</button>
             </div>
             <p class="where-msg" id="whereMsg"></p>
-            <p class="where-note">※ 今の Firebase の設定だと、URLを知っている人なら読めてしまいます。なので、位置は数時間で自動的に消します。</p>
+            <p class="where-note">※ 公開されているURLなので、位置情報は10時間で自動的に削除します。</p>
           </div>
 
           <div class="day">
@@ -3582,8 +3582,8 @@
     }
 
 
-    /* ===== いまどこ？マップ（おしたときだけ いちを おくる・3じかんで きえる） ===== */
-    const WHERE_TTL = 3 * 60 * 60 * 1000;
+    /* ===== いまどこ？マップ（おしたときだけ いちを おくる・10じかんで きえる） ===== */
+    const WHERE_TTL = 10 * 60 * 60 * 1000;
     let whereData = {}, whereMap = null, whereMarkers = {}, whereLeaflet = null, whereFitted = false;
     function whereFresh() {
       const now = Date.now(), out = {};
@@ -3661,7 +3661,7 @@
         const db = await getDb();
         if (!db) { whereSay('送れませんでした（通信を確認してください）'); return; }
         db.ref(`trips/${TRIP_ID}/where/${me}`).set(v).then(() => {
-          whereSay('📍 送りました！（3時間で自動的に消えます）');
+          whereSay('📍 送りました！（10時間で自動的に消えます）');
           whereData[me] = v; whereFitted = false; renderWhere(); focusWhere(me);
         }).catch(() => whereSay('送れませんでした'));
       }, err => {
@@ -3686,7 +3686,7 @@
       const ref = db.ref(`trips/${TRIP_ID}/where`);
       ref.on('value', snap => {
         whereData = snap.val() || {};
-        // ふるい いちは けす（3じかん）
+        // ふるい いちは けす（10じかん）
         Object.entries(whereData).forEach(([f, v]) => { if (!v || Date.now() - (v.at || 0) >= WHERE_TTL) ref.child(f).remove().catch(() => {}); });
         renderWhere();
       }, () => {});
