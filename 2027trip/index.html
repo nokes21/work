@@ -1044,7 +1044,6 @@
     .where-map { height: 230px; border-radius: 8px; overflow: hidden; margin-top: 8px; background: var(--paper); position: relative; z-index: 0; }
     .where-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .where-chip { display: inline-flex; align-items: center; gap: 4px; border: 1.5px solid var(--paper-line); background: var(--paper); border-radius: 999px; padding: 2px 10px 2px 4px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; }
-    .where-chip canvas { width: 20px; height: 21px; image-rendering: pixelated; }
     .where-chip small { color: var(--ink-soft); font-weight: 500; }
     .where-chip.off { opacity: .45; cursor: default; }
     .where-btns { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
@@ -1055,7 +1054,9 @@
     .where-note { margin: 6px 0 0; font-size: 10px; line-height: 1.5; color: var(--ink-soft); opacity: .8; }
     .where-pin { background: none; border: 0; }
     .where-pin .pin-box { display: grid; justify-items: center; }
-    .where-pin img { width: 32px; height: 34px; image-rendering: pixelated; filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
+    .where-pin img { image-rendering: pixelated; filter: drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff) drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff); position: relative; z-index: 1; }
+    .where-pin .pin-shadow { display: block; height: 6px; margin-top: -4px; border-radius: 50%; background: rgba(0,0,0,.25); }
+    .where-chip .chip-art { height: 22px; width: auto; image-rendering: pixelated; }
     .where-pin b { font-size: 10px; line-height: 1.2; white-space: nowrap; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 0 4px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; }
     .where-pin b small { font-weight: 500; color: var(--ink-soft); }
     .where-pin.me b { background: #ffe9a8; }
@@ -1089,19 +1090,20 @@
       background: var(--ink); color: var(--paper); font-size: 14px; font-weight: 900; cursor: pointer;
     }
     /* ===== ポップアップの ページ（メンバー・割り勘） ===== */
-    .modal.sheet { align-items: flex-end; padding: 0; }
+    .modal.sheet { align-items: center; padding: 16px 10px; }
     .sheet-card {
-      position: relative; width: 100%; max-width: 760px; max-height: calc(100dvh - 30px); overflow: auto;
+      position: relative; width: 100%; max-width: 760px; max-height: calc(100dvh - 32px); overflow: auto;
       -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-      background: var(--kraft); border-radius: 18px 18px 0 0;
-      padding: 14px 12px calc(18px + env(safe-area-inset-bottom));
+      background: var(--kraft); border-radius: 18px;
+      padding: 12px 12px 14px;
       animation: sheet-up .28s cubic-bezier(.2,.9,.3,1);
     }
     @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
     .sheet-card > .sheet-x { position: sticky; top: 0; display: block; z-index: 5; margin: 0 2px 8px auto; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
     .sheet-card .page { box-shadow: none; }
+    .sheet-card .page-head { position: static; }
     body.sheet-open { overflow: hidden; }
-    @media (min-width: 768px) { .modal.sheet { align-items: center; padding: 20px; } .sheet-card { border-radius: 18px; } }
+    @media (min-width: 768px) { .modal.sheet { padding: 20px; } }
 
     /* ===== いまどこ？（ぜんがめん） ===== */
     #content-where .where { margin: 14px 0 0; display: flex; flex-direction: column; height: calc(100vh - 150px); min-height: 420px; }
@@ -3659,11 +3661,15 @@
       const m = Math.max(0, Math.floor((Date.now() - at) / 60000));
       return m < 1 ? 'たった今' : m < 60 ? `${m}分前` : `${Math.floor(m / 60)}時間${m % 60 ? (m % 60) + '分' : ''}前`;
     }
-    const homeIconCache = {};
-    function homeIconUrl(fam) {
-      if (homeIconCache[fam.id]) return homeIconCache[fam.id];
-      const c = document.createElement('canvas'); drawHome(c, fam);
-      return (homeIconCache[fam.id] = c.toDataURL());
+    // 家族の メンバーを ならべた ドット絵（画像）
+    function famMembersArt(fam) {
+      const art = window.KID_ART, S = 2, step = 15;
+      const frames = fam.members.map(id => { const ki = KID_IDS.indexOf(id); return ki >= 0 ? art.SPR[ki] : art.ADULT_SPR[id]; }).filter(Boolean);
+      const h = Math.max(...frames.map(f => f[0].height)) * S, w = (frames.length - 1) * step + art.W * S;
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+      frames.forEach((f, n) => { const img = f[0]; g.drawImage(img, n * step, h - img.height * S, art.W * S, img.height * S); });
+      return { url: c.toDataURL(), w, h };
     }
     function loadLeaflet() {
       if (!whereLeaflet) whereLeaflet = (async () => {
@@ -3691,15 +3697,16 @@
       document.getElementById('whereStop').classList.toggle('hidden', !(me && fresh[me]));
       document.getElementById('whereList').innerHTML = READY_FAMS.map(id => {
         const f = FAMILIES.find(x => x.id === id), v = fresh[id];
-        return `<button class="where-chip ${v ? '' : 'off'}" ${v ? `onclick="focusWhere('${id}')"` : 'disabled'}><img src="${homeIconUrl(f)}" alt="" style="width:20px;height:21px;image-rendering:pixelated"><span>${esc(f.name)}</span> <small>${v ? agoText(v.at) : '—'}</small></button>`;
+        return `<button class="where-chip ${v ? '' : 'off'}" ${v ? `onclick="focusWhere('${id}')"` : 'disabled'}><img src="${famMembersArt(f).url}" alt="" class="chip-art"><span>${esc(f.name)}</span> <small>${v ? agoText(v.at) : '—'}</small></button>`;
       }).join('');
       if (!whereMap) return;
       const L = window.L;
       Object.keys(whereMarkers).forEach(id => { if (!fresh[id]) { whereMarkers[id].remove(); delete whereMarkers[id]; } });
       Object.entries(fresh).forEach(([id, v]) => {
         const f = FAMILIES.find(x => x.id === id); if (!f) return;
-        const icon = L.divIcon({ className: 'where-pin' + (id === me ? ' me' : ''), iconSize: [80, 52], iconAnchor: [40, 50],
-          html: `<div class="pin-box"><b>${esc(f.name)} <small>${agoText(v.at)}</small></b><img src="${homeIconUrl(f)}" alt=""></div>` });
+        const a = famMembersArt(f), W = Math.max(a.w, 84), H = a.h + 22;
+        const icon = L.divIcon({ className: 'where-pin' + (id === me ? ' me' : ''), iconSize: [W, H], iconAnchor: [W / 2, H],
+          html: `<div class="pin-box"><b>${esc(f.name)} <small>${agoText(v.at)}</small></b><img src="${a.url}" alt="" style="width:${a.w}px;height:${a.h}px"><i class="pin-shadow" style="width:${a.w}px"></i></div>` });
         if (whereMarkers[id]) whereMarkers[id].setLatLng([v.lat, v.lng]).setIcon(icon);
         else whereMarkers[id] = L.marker([v.lat, v.lng], { icon }).addTo(whereMap);
       });
