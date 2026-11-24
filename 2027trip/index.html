@@ -895,7 +895,7 @@
       display: block; position: absolute; left: calc(50% - 29px); top: 76px; z-index: 2;
       color: var(--stamp); border: 3px double var(--stamp); border-radius: 50%;
       width: 58px; height: 58px; display: grid; place-items: center;
-      font-weight: 900; font-size: 16px; letter-spacing: .05em;
+      font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .04em;
       transform: rotate(-14deg); opacity: .85; pointer-events: none;
       background: rgba(255,255,255,.6);
     }
@@ -1199,7 +1199,7 @@
       </div>
       <div class="ticket-main">
         <img class="ticket-pk" src="spot-img/lapras-cut.png" alt="" aria-hidden="true">
-        <span class="archive-stamp" aria-hidden="true">旅了</span>
+        <span class="archive-stamp" aria-hidden="true">DONE!</span>
         <h1 class="ticket-title" id="ticketTitle">宮城旅行のしおり</h1>
         <div class="ticket-sub">ラプラスに会いに行く旅</div>
         <div class="route">
@@ -1549,7 +1549,7 @@
     <div class="modal-card">
       <div class="big-stamp">
         <span class="s1">COMPLETE</span>
-        <span class="s2">旅了</span>
+        <span class="s2">おかえり</span>
         <span class="s3">2027.03.21</span>
       </div>
       <h3>お疲れさまでした！</h3>
@@ -3235,7 +3235,7 @@
     }
 
     /* ===== りょこうが おわったら「旅の記録」モード（思い出だけ つかえる） ===== */
-    const ARCHIVE_FROM = new Date('2027-03-21T15:00:00');
+    const ARCHIVE_FROM = new Date('2027-03-21T19:00:00');
     function isArchive(now) { return now >= ARCHIVE_FROM; }
     function applyArchive(now) {
       const on = isArchive(now);
@@ -3361,7 +3361,7 @@
         }
       });
 
-      const finishTime = new Date('2027-03-21T15:00:00');
+      const finishTime = new Date('2027-03-21T19:00:00');
       const finishModal = document.getElementById('finishModal');
       if (finishModal) {
         if (now >= finishTime && !finishDismissed()) {
