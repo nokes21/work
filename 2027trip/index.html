@@ -1372,6 +1372,14 @@
     }
     .bgm-opts small { font-size: 10.5px; font-weight: 700; opacity: .8; }
     .bgm-opts input:checked + span { border-color: var(--stamp); background: rgba(200,85,61,.08); color: var(--stamp); }
+    .bgm-styles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+    .bgm-style { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 10px; padding: 7px 8px; font: inherit; text-align: left; cursor: pointer; color: var(--ink); }
+    .bgm-style b { display: block; font-size: 13px; }
+    .bgm-style small { font-size: 11px; color: var(--ink-soft); }
+    .bgm-style.on { border-color: var(--sea); background: rgba(43,122,140,.08); }
+    .bgm-style.on b { color: var(--sea); }
+    .mv-more summary .mv-more-now { color: var(--sea); font-weight: 900; }
+    .mv-more .mv-bgm { margin: 14px 0 2px; }
     .bgm-file { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
     .bgm-pick { padding: 8px 14px; font-size: 13px; flex: none; }
     .bgm-name { font-size: 12px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
@@ -1788,7 +1796,7 @@
           <label class="field-label" for="mvTitle">タイトル</label>
           <input id="mvTitle" class="field mv-text" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
           <details class="mv-more">
-            <summary><i class="fa-solid fa-pen-to-square"></i><span>動画の文字をくわしく設定する<br><small>サブタイトル・日付・最後のメッセージ</small></span><span class="mv-more-chev">▼</span></summary>
+            <summary><i class="fa-solid fa-pen-to-square"></i><span>動画の文字・BGMをくわしく設定する<br><small>サブタイトル・日付・メッセージ・BGM</small><br><small class="mv-more-now" id="mvMoreNow"></small></span><span class="mv-more-chev">▼</span></summary>
             <label class="field-label" for="mvSub">サブタイトル（タイトルの下）</label>
             <input id="mvSub" class="field mv-text" maxlength="24" placeholder="4家族 15人の たび" oninput="saveMvTexts()">
             <label class="field-label" for="mvDate">日付（タイトル画面のスタンプ）</label>
@@ -1797,29 +1805,29 @@
             <textarea id="mvEnd" class="field mv-text" rows="2" maxlength="40" placeholder="また みんなで&#10;いこうね！" oninput="saveMvTexts()"></textarea>
             <label class="field-label" for="mvEndSmall">最後の小さい文字</label>
             <input id="mvEndSmall" class="field mv-text" maxlength="20" placeholder="THE END" oninput="saveMvTexts()">
+            <div class="mv-bgm">
+              <div class="field-label"><i class="fa-solid fa-music"></i> BGM</div>
+              <div class="bgm-opts" role="radiogroup">
+                <label><input type="radio" name="bgm" value="auto" onchange="setBgmMode(this.value)"><span>AIにおまかせ<small>曲調を選べる</small></span></label>
+                <label><input type="radio" name="bgm" value="file" onchange="setBgmMode(this.value)"><span>自分で選ぶ<small>スマホの曲</small></span></label>
+                <label><input type="radio" name="bgm" value="none" onchange="setBgmMode(this.value)"><span>なし<small>音なし</small></span></label>
+              </div>
+              <div class="bgm-styles hidden" id="bgmStyles"></div>
+              <div class="bgm-file hidden" id="bgmFileRow">
+                <label class="btn bgm-pick"><i class="fa-solid fa-folder-open"></i>曲を選ぶ
+                  <input type="file" accept="audio/*" onchange="pickBgm(this)" hidden>
+                </label>
+                <span class="bgm-name" id="bgmName">まだ選んでいません</span>
+              </div>
+              <button class="bgm-try" id="bgmTry" onclick="tryBgm()"><i class="fa-solid fa-headphones"></i> 10秒だけ試聴する</button>
+              <p class="bgm-note" id="bgmNote"></p>
+            </div>
           </details>
 
           <label class="btn btn-wide pick-btn"><i class="fa-solid fa-images"></i>写真を追加
             <input type="file" accept="image/*" multiple onchange="addMemoryPhotos(this)" hidden>
           </label>
           <div id="memList"></div>
-
-          <div class="mv-bgm">
-            <div class="field-label"><i class="fa-solid fa-music"></i> BGM</div>
-            <div class="bgm-opts" role="radiogroup">
-              <label><input type="radio" name="bgm" value="auto" onchange="setBgmMode(this.value)"><span>おまかせ<small>オリジナル曲</small></span></label>
-              <label><input type="radio" name="bgm" value="file" onchange="setBgmMode(this.value)"><span>自分で選ぶ<small>スマホの曲</small></span></label>
-              <label><input type="radio" name="bgm" value="none" onchange="setBgmMode(this.value)"><span>なし<small>音なし</small></span></label>
-            </div>
-            <div class="bgm-file hidden" id="bgmFileRow">
-              <label class="btn bgm-pick"><i class="fa-solid fa-folder-open"></i>曲を選ぶ
-                <input type="file" accept="audio/*" onchange="pickBgm(this)" hidden>
-              </label>
-              <span class="bgm-name" id="bgmName">まだ選んでいません</span>
-            </div>
-            <button class="bgm-try" id="bgmTry" onclick="tryBgm()"><i class="fa-solid fa-headphones"></i> 10秒だけ試聴する</button>
-            <p class="bgm-note" id="bgmNote"></p>
-          </div>
 
           <div class="mv-actions">
             <button class="btn" onclick="previewMovie()"><i class="fa-solid fa-play"></i>プレビュー</button>
@@ -3242,9 +3250,14 @@
       const m = bgmMode();
       document.querySelectorAll('input[name=bgm]').forEach(r => r.checked = r.value === m);
       document.getElementById('bgmFileRow').classList.toggle('hidden', m !== 'file');
+      const sb = document.getElementById('bgmStyles'), cur = bgmStyle();
+      sb.classList.toggle('hidden', m !== 'auto');
+      sb.innerHTML = Object.entries(BGM_STYLES).map(([id, st]) => `<button class="bgm-style ${id === cur ? 'on' : ''}" onclick="setBgmStyle('${id}')"><b>${st.name}</b><small>${st.desc}</small></button>`).join('');
+      const now = document.getElementById('mvMoreNow');
+      if (now) now.textContent = 'BGM：' + (m === 'auto' ? `AIにおまかせ（${BGM_STYLES[cur].name}）` : m === 'file' ? (bgmBuf ? '自分で選んだ曲' : '自分で選ぶ（曲がまだです）') : 'なし');
       document.getElementById('bgmTry').classList.toggle('hidden', m === 'none' || (m === 'file' && !bgmBuf));
       document.getElementById('bgmNote').textContent =
-        m === 'auto' ? 'ピアノとストリングスのやさしい曲を、動画の長さに合わせて自動で作ります。最後はフェードアウトします。' :
+        m === 'auto' ? '選んだ曲調で、動画の長さに合わせて曲を自動で作ります。最後はフェードアウトします。' :
         m === 'file' ? 'スマホに保存した音楽ファイル（MP3など）を選んでください。Apple Music などの配信の曲は使えません。最後はフェードアウトします。' : '';
     }
     function audioCtx() {
@@ -3265,19 +3278,33 @@
       }
       input.value = ''; renderBgm();
     }
-    // おまかせの きょく（C の やさしい コード しんこう）
-    function scheduleAutoBgm(ac, out, t0, total) {
-      const BEAT = 60 / 68, BAR = BEAT * 4;
-      const hz = n => 440 * Math.pow(2, (n - 69) / 12);
-      // コード（MIDI）：C, G/B, Am, Em/G, F, C/E, Dm, G
-      const CH = [[48, 60, 64, 67], [47, 59, 62, 67], [45, 57, 60, 64], [43, 59, 64, 67], [41, 57, 60, 65], [40, 55, 60, 64], [38, 57, 62, 65], [43, 55, 62, 67]];
-      const MEL = [[[76, 2], [74, 1], [72, 1]], [[74, 3], [67, 1]], [[72, 2], [71, 1], [69, 1]], [[71, 3], [0, 1]],
-                   [[69, 1], [72, 1], [77, 2]], [[76, 2], [79, 1], [76, 1]], [[77, 1], [76, 1], [74, 1], [72, 1]], [[74, 4]]];
+    // AIにおまかせの きょくちょう（しおりの なかで くみたてる オリジナル曲）
+    const BGM_STYLES = {
+      piano: { name: 'やさしいピアノ', desc: 'しっとり・あたたかい', bpm: 68, tr: 0, voice: 'piano', pad: .07, arp: 8, mel: .14,
+        CH: [[48, 60, 64, 67], [47, 59, 62, 67], [45, 57, 60, 64], [43, 59, 64, 67], [41, 57, 60, 65], [40, 55, 60, 64], [38, 57, 62, 65], [43, 55, 62, 67]],
+        MEL: [[[76, 2], [74, 1], [72, 1]], [[74, 3], [67, 1]], [[72, 2], [71, 1], [69, 1]], [[71, 3], [0, 1]], [[69, 1], [72, 1], [77, 2]], [[76, 2], [79, 1], [76, 1]], [[77, 1], [76, 1], [74, 1], [72, 1]], [[74, 4]]] },
+      namida: { name: '涙のストリングス', desc: 'ゆっくり・せつない', bpm: 58, tr: 0, voice: 'piano', pad: .12, arp: 4, mel: .12,
+        CH: [[45, 57, 60, 64], [41, 57, 60, 65], [48, 55, 60, 64], [43, 55, 59, 62], [45, 57, 60, 64], [41, 57, 60, 65], [43, 55, 59, 62], [48, 55, 60, 64]],
+        MEL: [[[72, 2], [71, 1], [69, 1]], [[69, 3], [72, 1]], [[67, 2], [64, 2]], [[71, 4]], [[72, 2], [74, 1], [76, 1]], [[77, 2], [76, 1], [74, 1]], [[74, 2], [71, 2]], [[72, 4]]] },
+      tabidachi: { name: 'わくわく旅立ち', desc: 'あかるい・まえむき', bpm: 86, tr: 2, voice: 'piano', pad: .06, arp: 8, mel: .13, bell: true,
+        CH: [[48, 60, 64, 67], [43, 59, 62, 67], [45, 57, 60, 64], [41, 57, 60, 65], [48, 60, 64, 67], [43, 59, 62, 67], [41, 57, 60, 65], [43, 55, 62, 67]],
+        MEL: [[[76, 1], [79, 1], [81, 1], [79, 1]], [[79, 2], [74, 2]], [[76, 1], [74, 1], [72, 1], [74, 1]], [[72, 3], [0, 1]], [[76, 1], [79, 1], [84, 2]], [[83, 2], [79, 2]], [[81, 1], [79, 1], [77, 1], [76, 1]], [[74, 4]]] },
+      orgel: { name: 'ほっこりオルゴール', desc: 'かわいい・なつかしい', bpm: 72, tr: 5, voice: 'box', pad: .025, arp: 8, mel: .12, up: 12,
+        CH: [[48, 60, 64, 67], [43, 59, 62, 67], [45, 57, 60, 64], [40, 55, 59, 64], [41, 57, 60, 65], [48, 55, 60, 64], [41, 57, 60, 65], [43, 55, 62, 67]],
+        MEL: [[[72, 1], [76, 1], [79, 2]], [[79, 1], [77, 1], [74, 2]], [[72, 1], [76, 1], [81, 2]], [[79, 4]], [[77, 1], [76, 1], [74, 1], [72, 1]], [[76, 2], [72, 2]], [[74, 1], [77, 1], [76, 1], [74, 1]], [[72, 4]]] },
+    };
+    function bgmStyle() { try { const v = localStorage.getItem('miyagi_trip_bgm_style'); return BGM_STYLES[v] ? v : 'piano'; } catch (e) { return 'piano'; } }
+    function setBgmStyle(v) { try { localStorage.setItem('miyagi_trip_bgm_style', v); } catch (e) {} stopBgm(); renderBgm(); }
+    function scheduleAutoBgm(ac, out, t0, total, styleId) {
+      const ST = BGM_STYLES[styleId || bgmStyle()] || BGM_STYLES.piano;
+      const BEAT = 60 / ST.bpm, BAR = BEAT * 4, TR = ST.tr, UP = ST.up || 0;
+      const hz = n => 440 * Math.pow(2, (n + TR - 69) / 12);
+      const CH = ST.CH, MEL = ST.MEL;
       // ひびき（リバーブ）
       const rev = ac.createConvolver(), len = ac.sampleRate * 2.8, ir = ac.createBuffer(2, len, ac.sampleRate);
       for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
       rev.buffer = ir;
-      const wet = ac.createGain(); wet.gain.value = .45; rev.connect(wet); wet.connect(out);
+      const wet = ac.createGain(); wet.gain.value = ST.voice === 'box' ? .55 : .45; rev.connect(wet); wet.connect(out);
       const dry = ac.createGain(); dry.gain.value = .8; dry.connect(out);
       const send = node => { node.connect(dry); node.connect(rev); };
       const piano = (n, t, v, dur = 2.2) => {                                  // ピアノっぽい おと
@@ -3289,7 +3316,18 @@
           o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + .05);
         });
       };
+      const box = (n, t, v, dur = 1.6) => {                                    // オルゴールっぽい おと
+        const g = ac.createGain(); g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(v, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + Math.min(dur, 1.8));
+        send(g);
+        [[1, 'sine', 1], [4, 'sine', .22], [6.9, 'sine', .06]].forEach(([m, type, a]) => {
+          const o = ac.createOscillator(), og = ac.createGain(); o.type = type; o.frequency.value = hz(n + 12) * m; og.gain.value = a;
+          o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.9);
+        });
+      };
+      const note = ST.voice === 'box' ? box : piano;
       const pad = (notes, t, dur, v) => {                                       // ストリングス
+        if (v <= 0) return;
         const g = ac.createGain(); g.gain.setValueAtTime(0, t);
         g.gain.linearRampToValueAtTime(v, t + 1.2); g.gain.setValueAtTime(v, t + dur - .4); g.gain.linearRampToValueAtTime(0, t + dur + 1.2);
         const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100; lp.Q.value = .3; g.connect(lp); send(lp);
@@ -3298,21 +3336,32 @@
           const og = ac.createGain(); og.gain.value = .5 / notes.length; o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + 1.3);
         }));
       };
-      const bass = (n, t, dur) => {
-        const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.22, t + .05); g.gain.exponentialRampToValueAtTime(.05, t + dur);
+      const bass = (n, t, dur, v = .22) => {
+        const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .05); g.gain.exponentialRampToValueAtTime(v * .22, t + dur);
         g.gain.linearRampToValueAtTime(0, t + dur + .2);
         const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = hz(n); o.connect(g); g.connect(dry); o.start(t); o.stop(t + dur + .25);
       };
-      const bars = Math.ceil(total / BAR) + 1;
+      const bell = (n, t, v) => {                                               // すず
+        const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .003); g.gain.exponentialRampToValueAtTime(.0001, t + 1.2); send(g);
+        [[1, .8], [2.76, .3], [5.4, .12]].forEach(([m, a]) => { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = hz(n) * m; og.gain.value = a; o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.25); });
+      };
+      const bars = Math.ceil(total / BAR) + 1, root = CH[0];
       for (let b = 0; b < bars; b++) {
         const t = t0 + b * BAR, ch = CH[b % 8], last = t + BAR > t0 + total - BAR * .5;
-        if (last) { pad([48, 60, 64, 67, 72], t, BAR * 2, .07); bass(36, t, BAR * 2); piano(72, t, .16, 5); piano(76, t + .02, .12, 5); piano(79, t + .04, .1, 5); break; }
-        pad(ch.slice(1), t, BAR, b < 2 ? .05 : .07);
-        bass(ch[0], t, BAR);
-        const arp = [ch[1], ch[2] + 12, ch[3] + 12, ch[2] + 12, ch[1] + 12, ch[2] + 12, ch[3] + 12, ch[2] + 12];   // アルペジオ
-        arp.forEach((n, i) => piano(n, t + i * BEAT / 2, (i % 4 === 0 ? .085 : .055) * (b < 1 ? .7 : 1)));
+        if (last) {                                                              // さいごは しずかに おわる
+          pad(root.slice(1).concat(root[1] + 12), t, BAR * 2, ST.pad || .05); bass(root[0] - 12, t, BAR * 2, ST.voice === 'box' ? .12 : .22);
+          [root[1] + 12, root[2] + 12, root[3] + 12].forEach((n, i) => note(n + UP, t + i * .04, .14 - i * .02, 5));
+          break;
+        }
+        pad(ch.slice(1), t, BAR, b < 2 ? ST.pad * .7 : ST.pad);
+        bass(ch[0], t, BAR, ST.voice === 'box' ? .12 : .22);
+        const arp8 = [ch[1], ch[2] + 12, ch[3] + 12, ch[2] + 12, ch[1] + 12, ch[2] + 12, ch[3] + 12, ch[2] + 12];
+        const arp4 = [ch[1] + 12, ch[2] + 12, ch[3] + 12, ch[2] + 12];
+        const arp = ST.arp === 4 ? arp4 : arp8, step = BAR / arp.length;
+        arp.forEach((n, i) => note(n + UP, t + i * step, (i % 4 === 0 ? .085 : .055) * (b < 1 ? .7 : 1) * (ST.voice === 'box' ? .9 : 1), ST.arp === 4 ? 3 : 2.2));
+        if (ST.bell && b >= 2 && b % 2 === 0) bell(ch[3] + 24, t, .05);
         if (b >= 2) {                                                            // タイトルの あとから メロディー
-          let bt = 0; MEL[b % 8].forEach(([n, d]) => { if (n) piano(n, t + bt * BEAT, .14, Math.max(1.6, d * BEAT + .8)); bt += d; });
+          let bt = 0; MEL[b % 8].forEach(([n, d]) => { if (n) note(n + UP, t + bt * BEAT, ST.mel, Math.max(1.6, d * BEAT + .8)); bt += d; });
         }
       }
     }
@@ -3367,7 +3416,11 @@
       const canvas = document.getElementById('mvCanvas');
       if (!window.MediaRecorder || !canvas.captureStream) { alert('このブラウザでは動画を作れません。Safari / Chrome の最新版で試してください'); return; }
       const mode = bgmMode();
-      if (mode === 'file' && !bgmBuf) { alert('BGM の曲がまだ選ばれていません。「曲を選ぶ」から選ぶか、「おまかせ」「なし」にしてください'); return; }
+      if (mode === 'file' && !bgmBuf) {
+        alert('BGM の曲がまだ選ばれていません。「曲を選ぶ」から選ぶか、「AIにおまかせ」「なし」にしてください');
+        const d = document.querySelector('.mv-more'); if (d) { d.open = true; document.querySelector('.mv-bgm').scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+        return;
+      }
       const ac = mode !== 'none' ? audioCtx() : null;
       stopBgm();
       const prep = await prepareMovie(); if (!prep) return;
