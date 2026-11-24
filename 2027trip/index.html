@@ -956,6 +956,18 @@
     .gacha-col { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .gacha-cell { aspect-ratio: 1; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; color: #cfc6b4; }
     .gacha-cell canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+    .gacha-hint { margin: -2px 0 8px; font-size: 11.5px; color: var(--ink-soft); }
+    .gacha-cell.got { cursor: pointer; }
+    .fact-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+    .fact-list li { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: var(--ink-soft); }
+    .fact-list li b { display: block; font-size: 13.5px; color: var(--ink); }
+    .fact-list li.locked { color: #cfc6b4; font-family: var(--mono); }
+    .pose-view { position: fixed; inset: 0; z-index: 80; background: rgba(31,53,80,.55); display: grid; place-items: center; }
+    .pose-view.hidden { display: none; }
+    .pose-card { background: var(--paper); border-radius: 14px; padding: 16px 22px; text-align: center; animation: pop-in .35s cubic-bezier(.2,1.5,.4,1); }
+    .pose-card canvas { width: 160px; height: 160px; image-rendering: pixelated; display: block; margin: 0 auto 6px; }
+    .pose-card div { font-weight: 900; font-size: 15px; }
+    .pose-card small { color: var(--ink-soft); font-size: 11px; }
     .gacha-cell.new { border-color: var(--stamp); animation: pop-in .5s cubic-bezier(.2,1.5,.4,1); }
 
     /* ===== アニメーション ===== */
@@ -1471,7 +1483,13 @@
             <button class="btn btn-wide" id="gachaBtn" onclick="spinGacha()">ガチャをまわす</button>
           </div>
           <div class="gacha-col-head">あつめたポーズ <span id="gachaCount"></span></div>
+          <p class="gacha-hint">集めたポーズは、画面上部を歩く子どもたちがときどき見せてくれます。タップすると大きく見られます。</p>
           <div class="gacha-col" id="gachaCol"></div>
+          <div class="gacha-col-head" style="margin-top:14px">あつめたまめちしき <span id="factCount"></span></div>
+          <ol class="fact-list" id="factList"></ol>
+          <div class="pose-view hidden" id="poseView" onclick="this.classList.add('hidden')">
+            <div class="pose-card"><canvas id="poseBig"></canvas><div id="poseName"></div><small>タップで閉じる</small></div>
+          </div>
         </div>
       </section>
 
@@ -3018,6 +3036,8 @@
           phase[i] += dt * (small ? 7 : 5.5) * Math.pow(factor, 0.75);
           const x = Math.round(lead + i * gap + (small ? 2 : 0));
           if (x < -30 || x > cw + 10) return;
+          const pz = window.PARADE_POSE;
+          if (pz && pz.k === i && performance.now() < pz.until) { ctx.drawImage(pz.cv, x - 6, ch - 4 - 36, 36, 36); return; }
           const step = Math.floor(phase[i]) % 2;
           const img = SPR[i][step];
           const sh = img.height * PX;
@@ -3419,11 +3439,19 @@
       col.innerHTML = '';
       POSES.forEach(([pid, pname]) => KID_LABEL.forEach((kn, k) => {
         const key = `${k}-${pid}`, cell = document.createElement('div');
-        cell.className = 'gacha-cell' + (key === newKey ? ' new' : '');
-        cell.title = v.got.includes(key) ? `${kn}（${pname}）` : '？';
-        if (v.got.includes(key)) { const c = document.createElement('canvas'); drawPose(c, k, pid, 48); cell.appendChild(c); } else cell.textContent = '？';
+        const got = v.got.includes(key);
+        cell.className = 'gacha-cell' + (got ? ' got' : '') + (key === newKey ? ' new' : '');
+        cell.title = got ? `${kn}（${pname}）` : '？';
+        if (got) {
+          const c = document.createElement('canvas'); drawPose(c, k, pid, 48); cell.appendChild(c);
+          cell.onclick = () => { drawPose(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = `${kn}の「${pname}」`; document.getElementById('poseView').classList.remove('hidden'); };
+        } else cell.textContent = '？';
         col.appendChild(cell);
       }));
+      const facts = v.facts || [];
+      document.getElementById('factCount').textContent = `${facts.length} / ${GACHA_FACTS.length}`;
+      document.getElementById('factList').innerHTML = GACHA_FACTS.map((f, i) => facts.includes(i)
+        ? `<li><b>${esc(f[0])}</b>${esc(f[1])}</li>` : `<li class="locked">？？？</li>`).join('');
     }
     function spinGacha() {
       const v = gachaLoad(); if (v.last === gachaToday()) return;
@@ -3443,12 +3471,21 @@
           res.innerHTML = `<span class="rare">RARE POSE</span><h4>${KID_LABEL[k]}の「${pname}」</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
           drawPose(res.querySelector('canvas'), +k, pid, 96);
         } else {
-          const f = GACHA_FACTS[Math.floor(Math.random() * GACHA_FACTS.length)];
+          const fi = Math.floor(Math.random() * GACHA_FACTS.length), f = GACHA_FACTS[fi];
+          v.facts = v.facts || []; if (!v.facts.includes(fi)) v.facts.push(fi);
           res.innerHTML = `<span class="rare" style="background:var(--sea)">まめちしき</span><h4>${f[0]}</h4><p>${f[1]}</p>`;
         }
         gachaSave(v); renderGacha(newKey);
       }, 900);
     }
+
+    // あつめた ポーズを うえの おびの こどもが ときどき みせる
+    setInterval(() => {
+      const got = gachaLoad().got; if (!got.length || !window.KID_ART) return;
+      const [k, pid] = got[Math.floor(Math.random() * got.length)].split('-');
+      const cv = document.createElement('canvas'); drawPose(cv, +k, pid, 36);
+      window.PARADE_POSE = { k: +k, cv, until: performance.now() + 2600 };
+    }, 14000);
 
     /* ===== スクロールで ふわっと ===== */
     (function () {
