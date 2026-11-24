@@ -3462,7 +3462,8 @@
     }
 
     /* ===== しおりガチャ ===== */
-    const POSES = [['nete', 'ねてる'], ['saka', 'さかだち'], ['jump', 'ジャンプ'], ['guru', 'ぐるぐる']];
+    const POSES = [['nete', 'ねんね'], ['saka', 'さかだち'], ['jump', 'ジャンプ'], ['guru', 'ぐるぐる']];
+    const poseLabel = (kn, pname) => `「${pname}」している${kn}`;
     const KID_LABEL = ['みのり', 'あかり', 'かすみ', 'みはる', 'なつき', 'みおり', 'ふじ'];
     function gachaToday() { const d = simTime ? new Date(simTime) : new Date(); return ymd(d) + '-' + d.getHours(); }   // 1じかんに 1かい
     // テスト：コンプリートした じょうたいを かりに みる（ほんものの コレクションは かえない）
@@ -3544,10 +3545,10 @@
         const key = `${k}-${pid}`, cell = document.createElement('div');
         const got = v.got.includes(key);
         cell.className = 'gacha-cell' + (got ? ' got' : '') + (key === newKey ? ' new' : '');
-        cell.title = got ? `${kn}（${pname}）` : '？';
+        cell.title = got ? poseLabel(kn, pname) : '？';
         if (got) {
           const c = poseCanvas(document.createElement('canvas'), k, pid, 48); cell.appendChild(c);
-          cell.onclick = () => { poseCanvas(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = `${kn}の「${pname}」`; document.getElementById('poseView').classList.remove('hidden'); };
+          cell.onclick = () => { poseCanvas(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = poseLabel(kn, pname); document.getElementById('poseView').classList.remove('hidden'); };
         } else cell.textContent = '？';
         col.appendChild(cell);
       }));
@@ -3577,7 +3578,7 @@
           newKey = missing[Math.floor(Math.random() * missing.length)];
           v.got.push(newKey);
           const [k, pid] = newKey.split('-'), pname = POSES.find(p => p[0] === pid)[1];
-          res.innerHTML = `<span class="rare">RARE POSE</span><h4>${KID_LABEL[k]}の「${pname}」</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
+          res.innerHTML = `<span class="rare">RARE POSE</span><h4>${poseLabel(KID_LABEL[k], pname)}</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
           poseCanvas(res.querySelector('canvas'), +k, pid, 96);
         } else {
           res.innerHTML = COMPLETE_HTML;
