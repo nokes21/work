@@ -4031,13 +4031,13 @@
     }
 
     /* ===== しおりガチャ ===== */
-    const POSES = [['nete', '寝ている'], ['ichigo', 'いちごがり'], ['bunshin', 'ぶんしんする'], ['gyutan', 'ぎゅうたんを食べる']];
+    const POSES = [['nete', '寝ている'], ['ichigo', 'いちごがり'], ['kokeshi', 'こけしとならぶ'], ['gyutan', 'ぎゅうたんを食べる']];
     const poseLabel = (kn, pname) => `「${pname}」${kn}`;
     // ポーズごとの レアど（でやすさ）
     const RARITY = {
       nete:    { k: 'N',  name: 'ノーマル',     w: 50 },
       ichigo:  { k: 'R',  name: 'レア',         w: 30 },
-      bunshin: { k: 'SR', name: 'スーパーレア', w: 15 },
+      kokeshi: { k: 'SR', name: 'スーパーレア', w: 15 },
       gyutan:  { k: 'UR', name: 'ウルトラレア', w: 5 },
     };
     const rarityTag = pid => `<span class="rar rar-${RARITY[pid].k}">${RARITY[pid].k}<small>${RARITY[pid].name}</small></span>`;
@@ -4106,15 +4106,30 @@
         });
         return;
       }
-      if (pose === 'bunshin') {                                                 // 3にんに ぶんしん
-        const d = px(Math.abs(Math.sin(t * 2.2)) * S * 7);
-        const x0 = px(C / 2 - w / 2), y0 = px(C / 2 - h / 2);
-        g.globalAlpha = .35; g.drawImage(img, x0 - d, y0, w, h); g.drawImage(img, x0 + d, y0, w, h);
-        g.globalAlpha = 1; g.drawImage(img, x0, y0, w, h);
-        if (d > S * 3) {                                                        // シュッ
-          g.fillStyle = 'rgba(90,107,128,.5)';
-          [.25, .55, .8].forEach((y, i) => { g.fillRect(px(x0 - d - S * (3 + i)), px(y0 + h * y), S * 2, S); g.fillRect(px(x0 + w + d + S * (1 + i)), px(y0 + h * y), S * 2, S); });
+      if (pose === 'kokeshi') {                                                 // こけしと いっしょに ゆらゆら
+        const ground = px(C * .88);
+        const sw0 = Math.sin(t * 3), sway = Math.round(sw0);                    // -1〜1 ドット（ふたりで おなじ ほうへ）
+        // ドット絵の まま、うえほど よこに ずらして ゆらす
+        const shear = (src, sx, sw, sh, x, yb, sc, flip) => {
+          for (let y = 0; y < sh; y++) {
+            const off = Math.round(sway * (1 - y / sh)) * sc * (flip ? -1 : 1);
+            g.drawImage(src, sx, y, sw, 1, x + off, yb - (sh - y) * sc, sw * sc, sc);
+          }
+        };
+        shear(img, 0, img.width, img.height, px(C * .08), ground, S, false);
+        if (!art._kokeshi) {                                                     // オリジナルの こけし
+          const rows = ['..kkkk..', '.kkkkkk.', 'kkffffkk', 'kfeffefk', '.fcmmcf.', '..ffff..', '...nn...',
+            '.bbbbbb.', '.bbrrbb.', '.brrrrb.', '.bbrrbb.', '.gggggg.', '.bbbbbb.', '.brbbrb.', '..bbbb..'];
+          const PC = { k: '#1d1b22', f: '#fff1e0', e: '#1d1b22', c: '#ff9aa8', m: '#d8423e', n: '#e9d2b0', b: '#f2cf7a', r: '#d8423e', g: '#3a8a4a' };
+          const cv = document.createElement('canvas'); cv.width = 8; cv.height = rows.length;
+          const cg = cv.getContext('2d');
+          rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') { cg.fillStyle = PC[ch]; cg.fillRect(x, y, 1, 1); } }));
+          art._kokeshi = cv;
         }
+        const ko = art._kokeshi;
+        shear(ko, 0, ko.width, ko.height, px(C * .6), ground, S, false);
+        g.fillStyle = '#c9b48a'; g.fillRect(px(C * .04), ground, px(C * .92), S);   // ゆか
+        if (Math.abs(sw0) > .92) dots(px(C * .44), px(C * .06), ['.x.x.', 'xxxxx', '.xxx.', '..x..'], '#ff6fa3');   // なかよし
         return;
       }
       if (pose === 'gyutan') {                                                  // ぎゅうたんを もぐもぐ
