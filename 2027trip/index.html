@@ -3411,33 +3411,75 @@
     function gachaTestComplete() {
       const all = []; POSES.forEach(([pid]) => KID_LABEL.forEach((_, k) => all.push(`${k}-${pid}`)));
       window.__gachaTest = { last: '', got: all };
-      openGacha(); spinGacha();
+      openGacha();
     }
     function gachaLoad() {
       if (window.__gachaTest) return window.__gachaTest; try { return JSON.parse(localStorage.getItem('miyagi_trip_gacha') || '{"last":"","got":[]}'); } catch (e) { return { last: '', got: [] }; } }
     function gachaSave(v) {
       if (window.__gachaTest) { window.__gachaTest = v; return; } try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {} }
     // レアな ポーズを えがく（オリジナルの ドット絵を うごかすだけ）
-    function drawPose(canvas, k, pose, size) {
+    // レアな ポーズを えがく（オリジナルの ドット絵を うごかすだけ）。t は じかん（びょう）
+    function drawPose(canvas, k, pose, size, t = 0) {
       const art = window.KID_ART; if (!art) return;
-      const img = art.SPR[k][0], S = size >= 90 ? 4 : 2, w = art.W * S, h = img.height * S, C = size;
-      canvas.width = C; canvas.height = C;
-      const g = canvas.getContext('2d'); g.imageSmoothingEnabled = false;
+      const S = size >= 90 ? 4 : 2, C = size;
+      const img = art.SPR[k][pose === 'jump' ? (Math.floor(t * 4) % 2) : 0], w = art.W * S, h = img.height * S;
+      if (canvas.width !== C) { canvas.width = C; canvas.height = C; }
+      const g = canvas.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, C, C);
+      const px = v => Math.round(v / S) * S;                                   // ドットに そろえる
       g.save(); g.translate(C / 2, C / 2);
-      if (pose === 'nete') { g.rotate(-Math.PI / 2); g.drawImage(img, -w / 2, -h / 2 + S * 2, w, h); g.restore();
-        g.fillStyle = '#5a6b80'; g.font = `700 ${S * 5}px monospace`; g.fillText('z', C * .68, C * .32); g.fillText('Z', C * .78, C * .2); return; }
-      if (pose === 'saka') { g.scale(1, -1); g.drawImage(img, -w / 2, -h / 2, w, h); g.restore(); return; }
-      if (pose === 'jump') { g.drawImage(img, -w / 2, -h / 2 - S * 3, w, h); g.restore();
-        g.fillStyle = '#b8b0a0'; for (let i = 0; i < 3; i++) g.fillRect(C / 2 - S * 4 + i * S * 3, C - S * 3, S * 2, S); return; }
-      g.rotate(.5); g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
-      g.fillStyle = '#ffd34e'; [[.18, .22], [.8, .3], [.25, .8]].forEach(([x, y]) => { g.fillRect(C * x, C * y - S, S, S * 3); g.fillRect(C * x - S, C * y, S * 3, S); });
+      if (pose === 'nete') {
+        const br = Math.sin(t * 2.4) > 0 ? 0 : S;                              // すーすー
+        g.rotate(-Math.PI / 2); g.drawImage(img, -w / 2, -h / 2 + S * 2 + br, w, h); g.restore();
+        g.fillStyle = '#5a6b80';
+        [0, .5].forEach((o, i) => {                                            // Z が ふわふわ のぼる
+          const p = (t * .55 + o) % 1, sz = S * (4 + i);
+          g.globalAlpha = p < .15 ? p / .15 : 1 - Math.max(0, p - .7) / .3;
+          g.font = `700 ${sz}px monospace`; g.fillText(i ? 'Z' : 'z', px(C * (.62 + p * .2)), px(C * (.42 - p * .3)));
+        });
+        g.globalAlpha = 1; return;
+      }
+      if (pose === 'saka') {                                                   // ゆらゆら バランス
+        g.rotate(Math.round(Math.sin(t * 3) * 3) * .03); g.scale(1, -1);
+        g.drawImage(img, -w / 2, -h / 2 + S, w, h); g.restore(); return;
+      }
+      if (pose === 'jump') {                                                   // ぴょんぴょん
+        const jy = px(Math.abs(Math.sin(t * 4.5)) * S * 5);
+        g.drawImage(img, -w / 2, -h / 2 - jy + S, w, h); g.restore();
+        g.fillStyle = '#b8b0a0';
+        const sp = Math.max(0, S * 4 - jy / 2);
+        for (let i = 0; i < 3; i++) g.fillRect(px(C / 2 - sp + i * sp), C - S * 3, S * 2, S);
+        return;
+      }
+      g.rotate(Math.round(t * 8) * (Math.PI / 8));                             // くるくる
+      g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
+      g.fillStyle = '#ffd34e';
+      [[.18, .22, 0], [.8, .3, 1], [.25, .8, 2], [.78, .78, 3]].forEach(([x, y, i]) => {
+        if ((Math.floor(t * 4) + i) % 2) return;                               // ほしが きらきら
+        g.fillRect(px(C * x), px(C * y) - S, S, S * 3); g.fillRect(px(C * x) - S, px(C * y), S * 3, S);
+      });
     }
+    // ひらいている あいだ、コレクションの ドット絵を うごかす
+    (function () {
+      const t0 = performance.now();
+      function loop(now) {
+        const t = (now - t0) / 1000;
+        const open = !document.getElementById('gachaModal').classList.contains('hidden') || !document.getElementById('poseView').classList.contains('hidden');
+        if (open) document.querySelectorAll('canvas[data-pose]').forEach((c, i) => {
+          if (c.offsetParent) drawPose(c, +c.dataset.k, c.dataset.pose, +c.dataset.size, t + i * .37);
+        });
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    })();
+    function poseCanvas(c, k, pose, size) { c.dataset.k = k; c.dataset.pose = pose; c.dataset.size = size; drawPose(c, k, pose, size); return c; }
     function renderGacha(newKey) {
       const v = gachaLoad(), col = document.getElementById('gachaCol'); if (!col) return;
       const btn = document.getElementById('gachaBtn');
       const done = v.last === gachaToday();
       btn.disabled = done; btn.textContent = done ? 'また1時間後にまわしてね' : 'ガチャをまわす';
       const total = KID_LABEL.length * POSES.length;
+      const complete = v.got.length >= total;
+      btn.style.display = complete ? 'none' : '';
       document.getElementById('gachaCount').textContent = `${v.got.length} / ${total}`;
       col.innerHTML = '';
       POSES.forEach(([pid, pname]) => KID_LABEL.forEach((kn, k) => {
@@ -3446,14 +3488,20 @@
         cell.className = 'gacha-cell' + (got ? ' got' : '') + (key === newKey ? ' new' : '');
         cell.title = got ? `${kn}（${pname}）` : '？';
         if (got) {
-          const c = document.createElement('canvas'); drawPose(c, k, pid, 48); cell.appendChild(c);
-          cell.onclick = () => { drawPose(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = `${kn}の「${pname}」`; document.getElementById('poseView').classList.remove('hidden'); };
+          const c = poseCanvas(document.createElement('canvas'), k, pid, 48); cell.appendChild(c);
+          cell.onclick = () => { poseCanvas(document.getElementById('poseBig'), k, pid, 96); document.getElementById('poseName').textContent = `${kn}の「${pname}」`; document.getElementById('poseView').classList.remove('hidden'); };
         } else cell.textContent = '？';
         col.appendChild(cell);
       }));
-      document.getElementById('gachaDot').classList.toggle('hidden', done);
+      document.getElementById('gachaDot').classList.toggle('hidden', done || complete);
     }
-    function openGacha() { renderGacha(); document.getElementById('gachaResult').innerHTML = ''; document.getElementById('gachaModal').classList.remove('hidden'); }
+    const COMPLETE_HTML = `<span class="rare">COMPLETE</span><h4>全部そろいました！</h4><p>28ポーズ コンプリート 🎉</p>`;
+    function openGacha() {
+      renderGacha();
+      const total = KID_LABEL.length * POSES.length;
+      document.getElementById('gachaResult').innerHTML = gachaLoad().got.length >= total ? COMPLETE_HTML : '';
+      document.getElementById('gachaModal').classList.remove('hidden');
+    }
     function closeGacha() { document.getElementById('gachaModal').classList.add('hidden'); }
     setInterval(() => { if (document.getElementById('gachaModal').classList.contains('hidden')) renderGacha(); }, 60000);
     function spinGacha() {
@@ -3472,9 +3520,9 @@
           v.got.push(newKey);
           const [k, pid] = newKey.split('-'), pname = POSES.find(p => p[0] === pid)[1];
           res.innerHTML = `<span class="rare">RARE POSE</span><h4>${KID_LABEL[k]}の「${pname}」</h4><canvas></canvas><p>コレクションに追加しました！</p>`;
-          drawPose(res.querySelector('canvas'), +k, pid, 96);
+          poseCanvas(res.querySelector('canvas'), +k, pid, 96);
         } else {
-          res.innerHTML = `<span class="rare">COMPLETE</span><h4>全部そろいました！</h4><p>28ポーズ コンプリート 🎉</p>`;
+          res.innerHTML = COMPLETE_HTML;
         }
         gachaSave(v); renderGacha(newKey);
       }, 900);
