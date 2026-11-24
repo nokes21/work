@@ -888,6 +888,25 @@
     }
     @keyframes snip-pop { 0% { opacity: 0; transform: translate(-50%, -60%) scale(.5); } 25% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -160%); } }
 
+
+    /* ===== 旅の記録 モード ===== */
+    .archive-stamp { display: none; }
+    body.archive .archive-stamp {
+      display: block; position: absolute; left: calc(50% - 29px); top: 76px; z-index: 2;
+      color: var(--stamp); border: 3px double var(--stamp); border-radius: 50%;
+      width: 58px; height: 58px; display: grid; place-items: center;
+      font-weight: 900; font-size: 16px; letter-spacing: .05em;
+      transform: rotate(-14deg); opacity: .85; pointer-events: none;
+      background: rgba(255,255,255,.6);
+    }
+    body.archive .route .line i { visibility: hidden; }
+    body.archive #tab-btn-memo, body.archive #tab-btn-other,
+    body.archive #content-memo, body.archive #content-other,
+    body.archive .side-links, body.archive .weather, body.archive .plan-only,
+    body.archive .kid-edit, body.archive .pick-form, body.archive .pick-like, body.archive .picks .icon-btn,
+    body.archive .now-stamp, body.archive .a2hs { display: none !important; }
+    body.archive .picks-sub { display: none; }
+
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
@@ -1180,7 +1199,8 @@
       </div>
       <div class="ticket-main">
         <img class="ticket-pk" src="spot-img/lapras-cut.png" alt="" aria-hidden="true">
-        <h1 class="ticket-title">宮城旅行のしおり</h1>
+        <span class="archive-stamp" aria-hidden="true">旅了</span>
+        <h1 class="ticket-title" id="ticketTitle">宮城旅行のしおり</h1>
         <div class="ticket-sub">ラプラスに会いに行く旅</div>
         <div class="route">
           <div>
@@ -1253,7 +1273,7 @@
       <section id="content-schedule">
         <div class="page">
           <div class="page-head"><h2>旅のルート</h2><span class="en">ITINERARY</span></div>
-          <p class="memo">※ あくまでも予定です！当日の気分や子供たちの機嫌に合わせて、柔軟に楽しくいきましょう！</p>
+          <p class="memo plan-only">※ あくまでも予定です！当日の気分や子供たちの機嫌に合わせて、柔軟に楽しくいきましょう！</p>
 
           <div class="weather" id="weather">
             <div class="weather-head"><span><i class="fa-solid fa-cloud-sun"></i> 天気</span><span class="weather-sub" id="weatherSub">読み込み中…</span></div>
@@ -1361,7 +1381,7 @@
       <section id="content-spots" class="hidden">
         <div class="page">
           <div class="page-head"><h2>行き先リスト</h2><span class="en">DESTINATIONS</span></div>
-          <p class="memo">※ 今のスケジュールは仮です。日程が決まったら差し替えます。</p>
+          <p class="memo plan-only">※ 今のスケジュールは仮です。日程が決まったら差し替えます。</p>
           <div class="route-card" id="routeCard"></div>
           <div id="spotList"></div>
         </div>
@@ -3211,6 +3231,23 @@
       else if (today === TRIP_DAYS[0]) el.innerHTML = '旅行1日目！ いってらっしゃい 🌸';
       else if (today === TRIP_DAYS[1]) el.innerHTML = '旅行2日目！ いちご狩りを楽しみましょう 🍓';
       else el.innerHTML = 'おかえりなさい！ お疲れさまでした';
+      if (isArchive(now)) el.innerHTML = '📖 旅の記録　<b style="font-size:20px">2027.3.20–21</b>';
+    }
+
+    /* ===== りょこうが おわったら「旅の記録」モード（思い出だけ つかえる） ===== */
+    const ARCHIVE_FROM = new Date('2027-03-21T15:00:00');
+    function isArchive(now) { return now >= ARCHIVE_FROM; }
+    function applyArchive(now) {
+      const on = isArchive(now);
+      if (document.body.classList.contains('archive') === on) return;
+      document.body.classList.toggle('archive', on);
+      document.getElementById('ticketTitle').textContent = on ? '宮城旅行の記録' : '宮城旅行のしおり';
+      document.title = on ? '宮城旅行の記録' : '宮城旅行のしおり';
+      if (on) {
+        editingKid = null; renderKidCards();
+        const active = document.querySelector('.tab-btn.active');
+        if (active && (active.id === 'tab-btn-memo' || active.id === 'tab-btn-other')) switchTab('schedule');
+      }
     }
 
     /* ===== 天気（Open-Meteo・登録不要） ===== */
@@ -3296,6 +3333,7 @@
 
     function checkCurrentStatus() {
       const now = simTime ? new Date(simTime) : new Date();
+      applyArchive(now);
       renderCountdown(now);
       const route = document.querySelector('.route');
       if (route) route.classList.toggle('homeward', now >= new Date('2027-03-21T12:00:00'));
