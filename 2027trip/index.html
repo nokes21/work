@@ -1321,6 +1321,16 @@
     .mv-progress span { display: block; height: 100%; width: 0; background: var(--stamp); }
     .mv-msg { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
     .mv-result { margin-top: 12px; }
+    /* 動画の ポップアップ */
+    .mv-card { max-width: 380px; max-height: calc(100dvh - 32px); overflow: auto; padding: 20px 16px 16px; }
+    .mv-card .mv-stage canvas, .mv-card .mv-result video { width: auto; height: min(52dvh, 460px); max-width: 100%; }
+    .mv-card .mv-msg { font-size: 13px; font-weight: 700; margin-top: 8px; }
+    .mv-card .mv-progress { height: 10px; border-radius: 5px; }
+    .mv-card .mv-result .mv-actions { margin-top: 12px; }
+    .mv-modal-btns { margin-top: 12px; display: grid; gap: 8px; }
+    .mv-card .mv-pc { font-size: 20px; color: var(--stamp); font-family: var(--mono); }
+    .mv-again { margin-top: 10px; background: var(--stamp); }
+    .mv-cancel { background: #fff; color: var(--ink-soft); border: 1.5px solid var(--paper-line); }
 
 
     /* ===== タブレット・PC（スマホは かえない） ===== */
@@ -1687,18 +1697,7 @@
             <button class="btn" onclick="previewMovie()"><i class="fa-solid fa-play"></i>プレビュー</button>
             <button class="btn mv-make" onclick="makeMovie()"><i class="fa-solid fa-clapperboard"></i>動画を作る</button>
           </div>
-          <div class="mv-stage hidden" id="mvStage">
-            <canvas id="mvCanvas" width="720" height="1280"></canvas>
-            <div class="mv-progress hidden" id="mvProgress"><span id="mvBar"></span></div>
-            <p class="mv-msg" id="mvMsg"></p>
-          </div>
-          <div class="mv-result hidden" id="mvResult">
-            <video id="mvVideo" controls playsinline></video>
-            <div class="mv-actions">
-              <button class="btn" onclick="shareMovie()"><i class="fa-solid fa-share-from-square"></i>保存・送る</button>
-              <a class="btn" id="mvDownload" download="miyagi-omoide.mp4"><i class="fa-solid fa-download"></i>ダウンロード</a>
-            </div>
-          </div>
+          <button class="btn btn-wide mv-again hidden" id="mvAgain" onclick="openMvModal('done')"><i class="fa-solid fa-film"></i>できた動画を見る・保存する</button>
         </div>
       </section>
 
@@ -1804,6 +1803,30 @@
         </div>
 
       </section>
+    </div>
+  </div>
+
+  <!-- ===== 思い出の 動画（ポップアップ） ===== -->
+  <div id="mvModal" class="modal hidden">
+    <div class="modal-card mv-card">
+      <div class="news-k" id="mvKicker">MOVIE</div>
+      <h3 id="mvHead">動画</h3>
+      <div class="mv-stage hidden" id="mvStage">
+        <canvas id="mvCanvas" width="720" height="1280"></canvas>
+        <div class="mv-progress hidden" id="mvProgress"><span id="mvBar"></span></div>
+        <p class="mv-msg" id="mvMsg"></p>
+      </div>
+      <div class="mv-result hidden" id="mvResult">
+        <video id="mvVideo" controls playsinline></video>
+        <div class="mv-actions">
+          <button class="btn" onclick="shareMovie()"><i class="fa-solid fa-share-from-square"></i>保存・送る</button>
+          <a class="btn" id="mvDownload" download="miyagi-omoide.mp4"><i class="fa-solid fa-download"></i>ダウンロード</a>
+        </div>
+      </div>
+      <div class="mv-modal-btns">
+        <button class="btn btn-wide mv-cancel hidden" id="mvCancel" onclick="mvStop = true">作るのをやめる</button>
+        <button class="btn btn-wide mv-close" id="mvClose" onclick="closeMvModal()">閉じる</button>
+      </div>
     </div>
   </div>
 
@@ -3010,12 +3033,29 @@
       const into = segs[k].start + segs[k].dur - T;
       if (next && into < MV.fade) draw(next, 1 - into / MV.fade);
     }
+    function openMvModal(mode) {
+      const m = document.getElementById('mvModal');
+      const head = { preview: 'プレビュー', make: '動画を作っています…', done: 'できあがり！' }[mode];
+      document.getElementById('mvHead').textContent = head;
+      document.getElementById('mvKicker').textContent = mode === 'done' ? 'COMPLETE' : 'MOVIE';
+      document.getElementById('mvStage').classList.toggle('hidden', mode === 'done');
+      document.getElementById('mvResult').classList.toggle('hidden', mode !== 'done');
+      document.getElementById('mvCancel').classList.toggle('hidden', mode !== 'make');
+      document.getElementById('mvClose').classList.toggle('hidden', mode === 'make');
+      m.classList.remove('hidden');
+      document.body.classList.add('sheet-open');
+    }
+    function closeMvModal() {
+      if (mvBusy) mvStop = true;
+      const v = document.getElementById('mvVideo'); if (v) v.pause();
+      document.getElementById('mvModal').classList.add('hidden');
+      document.body.classList.remove('sheet-open');
+    }
     async function prepareMovie() {
       if (!memories.length) { alert('写真を1枚以上追加してください'); return null; }
       if (mvBusy) return null;
       try { await Promise.all(['700 46px "Zen Maru Gothic"', '900 64px "Zen Kaku Gothic New"', '600 26px "IBM Plex Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
       const imgs = await Promise.all(memories.map(m => loadImg(m.url)));
-      document.getElementById('mvStage').classList.remove('hidden');
       return { imgs, tl: timeline(), ctx: document.getElementById('mvCanvas').getContext('2d') };
     }
     function playOn(prep, onFrame) {
@@ -3035,11 +3075,12 @@
     async function previewMovie() {
       const prep = await prepareMovie(); if (!prep) return;
       mvBusy = true;
+      openMvModal('preview');
       document.getElementById('mvMsg').textContent = 'プレビュー中…';
       document.getElementById('mvProgress').classList.add('hidden');
-      await playOn(prep);
+      const ok = await playOn(prep);
       mvBusy = false;
-      document.getElementById('mvMsg').textContent = 'よろしければ「動画を作る」を押してください';
+      document.getElementById('mvMsg').textContent = ok ? 'よろしければ閉じて「動画を作る」を押してください' : '';
     }
     function pickMime() {
       const list = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
@@ -3056,24 +3097,30 @@
       rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
       const stopped = new Promise(ok => rec.onstop = ok);
       const bar = document.getElementById('mvBar');
+      bar.style.width = '0%';
+      openMvModal('make');
       document.getElementById('mvProgress').classList.remove('hidden');
-      document.getElementById('mvMsg').textContent = '動画を作っています…（画面を閉じずにお待ちください）';
-      document.getElementById('mvResult').classList.add('hidden');
+      const msg = document.getElementById('mvMsg'), total = Math.ceil(prep.tl.total);
+      msg.innerHTML = `<b class="mv-pc">0%</b><br>約${total}秒かかります。画面を閉じずにお待ちください`;
       renderAt(prep.ctx, prep.tl, prep.imgs, 0);
       rec.start(250);
-      await playOn(prep, r => bar.style.width = Math.min(100, r * 100).toFixed(1) + '%');
+      const ok = await playOn(prep, r => {
+        const pc = Math.min(100, r * 100);
+        bar.style.width = pc.toFixed(1) + '%';
+        msg.innerHTML = `<b class="mv-pc">${Math.floor(pc)}%</b><br>あと約${Math.max(0, Math.ceil(total * (1 - r)))}秒。画面を閉じずにお待ちください`;
+      });
       rec.stop(); await stopped;
       mvBusy = false;
+      if (!ok) { closeMvModal(); return; }
       const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
       mvBlob = new Blob(chunks, { type });
       const ext = type.includes('mp4') ? 'mp4' : 'webm';
       const url = URL.createObjectURL(mvBlob);
       const v = document.getElementById('mvVideo'); v.src = url;
       const a = document.getElementById('mvDownload'); a.href = url; a.download = `miyagi-omoide.${ext}`;
-      document.getElementById('mvResult').classList.remove('hidden');
-      document.getElementById('mvMsg').textContent = 'できあがりました。下の動画をご確認ください';
+      openMvModal('done');
+      document.getElementById('mvAgain').classList.remove('hidden');
       if (window.kidsCheer) kidsCheer('できた！');
-      document.getElementById('mvResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     async function shareMovie() {
       if (!mvBlob) return;
