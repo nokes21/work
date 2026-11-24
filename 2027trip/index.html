@@ -1035,6 +1035,31 @@
       padding: 4px 12px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer;
     }
 
+
+    /* ===== いまどこ？マップ ===== */
+    .where { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 10px; padding: 10px 12px 10px; margin: 0 0 26px; position: relative; z-index: 2; }
+    .where-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-weight: 900; font-size: 14px; }
+    .where-head i { color: var(--accent, #c8553d); }
+    .where-sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); }
+    .where-map { height: 230px; border-radius: 8px; overflow: hidden; margin-top: 8px; background: var(--paper); position: relative; z-index: 0; }
+    .where-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .where-chip { display: inline-flex; align-items: center; gap: 4px; border: 1.5px solid var(--paper-line); background: var(--paper); border-radius: 999px; padding: 2px 10px 2px 4px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; }
+    .where-chip canvas { width: 20px; height: 21px; image-rendering: pixelated; }
+    .where-chip small { color: var(--ink-soft); font-weight: 500; }
+    .where-chip.off { opacity: .45; cursor: default; }
+    .where-btns { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+    .where-send { flex: 1; }
+    .where-stop { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
+    .where-msg { margin: 6px 0 0; font-size: 12px; font-weight: 700; color: var(--ink-soft); min-height: 0; }
+    .where-msg:empty { display: none; }
+    .where-note { margin: 6px 0 0; font-size: 10px; line-height: 1.5; color: var(--ink-soft); opacity: .8; }
+    .where-pin { background: none; border: 0; }
+    .where-pin .pin-box { display: grid; justify-items: center; }
+    .where-pin img { width: 32px; height: 34px; image-rendering: pixelated; filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
+    .where-pin b { font-size: 10px; line-height: 1.2; white-space: nowrap; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 0 4px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; }
+    .where-pin b small { font-weight: 500; color: var(--ink-soft); }
+    .where-pin.me b { background: #ffe9a8; }
+
     /* その日の ながれ（ざっくり） */
     .day-flow {
       background: #fff;
@@ -1410,6 +1435,18 @@
           <div class="weather" id="weather">
             <div class="weather-head"><span><i class="fa-solid fa-cloud-sun"></i> 天気</span><span class="weather-sub" id="weatherSub">読み込み中…</span></div>
             <div class="weather-body" id="weatherBody"></div>
+          </div>
+
+          <div class="where plan-only" id="whereCard">
+            <div class="where-head"><span><i class="fa-solid fa-location-dot"></i> いまどこ？</span><span class="where-sub" id="whereSub"></span></div>
+            <div class="where-map" id="whereMap"></div>
+            <div class="where-list" id="whereList"></div>
+            <div class="where-btns">
+              <button class="btn where-send" id="whereSend" onclick="sendWhere()"><i class="fa-solid fa-location-crosshairs"></i> いまここを送る</button>
+              <button class="where-stop hidden" id="whereStop" onclick="stopWhere()">消す</button>
+            </div>
+            <p class="where-msg" id="whereMsg"></p>
+            <p class="where-note">※ 今の Firebase の設定だと、URLを知っている人なら読めてしまいます。なので、位置は数時間で自動的に消します。</p>
           </div>
 
           <div class="day">
@@ -3502,7 +3539,7 @@
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
       renderTicketFamily(); renderRoute(); if (window.revealScan) revealScan();
       editingKid = null; renderKidCards();
-      renderReady(); updateMyReady(); initFamilyMemo();
+      renderReady(); updateMyReady(); initFamilyMemo(); if (window.renderWhere) renderWhere();
     }
     function myAllPacked() { return belongings.length > 0 && belongings.every(b => b.checked); }
     function updateMyReady() {
@@ -3542,6 +3579,117 @@
       const db = await getDb(); if (!db) return;
       readyRef = db.ref(`trips/${TRIP_ID}/ready`);
       readyRef.on('value', snap => { readyState = snap.val() || {}; renderReady(); updateMyReady(); }, () => {});
+    }
+
+
+    /* ===== いまどこ？マップ（おしたときだけ いちを おくる・3じかんで きえる） ===== */
+    const WHERE_TTL = 3 * 60 * 60 * 1000;
+    let whereData = {}, whereMap = null, whereMarkers = {}, whereLeaflet = null, whereFitted = false;
+    function whereFresh() {
+      const now = Date.now(), out = {};
+      Object.entries(whereData || {}).forEach(([f, v]) => { if (v && typeof v.lat === 'number' && now - (v.at || 0) < WHERE_TTL) out[f] = v; });
+      return out;
+    }
+    function agoText(at) {
+      const m = Math.max(0, Math.floor((Date.now() - at) / 60000));
+      return m < 1 ? 'たった今' : m < 60 ? `${m}分前` : `${Math.floor(m / 60)}時間${m % 60 ? (m % 60) + '分' : ''}前`;
+    }
+    const homeIconCache = {};
+    function homeIconUrl(fam) {
+      if (homeIconCache[fam.id]) return homeIconCache[fam.id];
+      const c = document.createElement('canvas'); drawHome(c, fam);
+      return (homeIconCache[fam.id] = c.toDataURL());
+    }
+    function loadLeaflet() {
+      if (!whereLeaflet) whereLeaflet = (async () => {
+        const css = document.createElement('link'); css.rel = 'stylesheet';
+        css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+        document.head.appendChild(css);
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js');
+        return window.L;
+      })().catch(() => null);
+      return whereLeaflet;
+    }
+    async function initWhereMap() {
+      if (whereMap) return;
+      const L = await loadLeaflet(), box = document.getElementById('whereMap');
+      if (!L || !box || whereMap) { if (box && !L) box.innerHTML = '<p class="where-msg" style="padding:12px">地図を読み込めませんでした</p>'; return; }
+      whereMap = L.map(box, { zoomControl: true, attributionControl: true }).setView([38.2, 140.6], 7);
+      whereMap.attributionControl.setPrefix(false);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(whereMap);
+      renderWhere();
+    }
+    function renderWhere() {
+      const fresh = whereFresh(), me = myFamily();
+      const n = Object.keys(fresh).length;
+      document.getElementById('whereSub').textContent = n ? `${n}家族が共有中` : 'まだ だれも 送っていません';
+      document.getElementById('whereStop').classList.toggle('hidden', !(me && fresh[me]));
+      document.getElementById('whereList').innerHTML = READY_FAMS.map(id => {
+        const f = FAMILIES.find(x => x.id === id), v = fresh[id];
+        return `<button class="where-chip ${v ? '' : 'off'}" ${v ? `onclick="focusWhere('${id}')"` : 'disabled'}><img src="${homeIconUrl(f)}" alt="" style="width:20px;height:21px;image-rendering:pixelated"><span>${esc(f.name)}</span> <small>${v ? agoText(v.at) : '—'}</small></button>`;
+      }).join('');
+      if (!whereMap) return;
+      const L = window.L;
+      Object.keys(whereMarkers).forEach(id => { if (!fresh[id]) { whereMarkers[id].remove(); delete whereMarkers[id]; } });
+      Object.entries(fresh).forEach(([id, v]) => {
+        const f = FAMILIES.find(x => x.id === id); if (!f) return;
+        const icon = L.divIcon({ className: 'where-pin' + (id === me ? ' me' : ''), iconSize: [80, 52], iconAnchor: [40, 50],
+          html: `<div class="pin-box"><b>${esc(f.name)} <small>${agoText(v.at)}</small></b><img src="${homeIconUrl(f)}" alt=""></div>` });
+        if (whereMarkers[id]) whereMarkers[id].setLatLng([v.lat, v.lng]).setIcon(icon);
+        else whereMarkers[id] = L.marker([v.lat, v.lng], { icon }).addTo(whereMap);
+      });
+      const pts = Object.values(fresh).map(v => [v.lat, v.lng]);
+      if (pts.length && !whereFitted) {
+        whereFitted = true;
+        if (pts.length === 1) whereMap.setView(pts[0], 13); else whereMap.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
+      }
+    }
+    function focusWhere(id) {
+      const v = whereFresh()[id]; if (!v || !whereMap) return;
+      whereMap.setView([v.lat, v.lng], Math.max(whereMap.getZoom(), 14));
+    }
+    function whereSay(t) { document.getElementById('whereMsg').textContent = t; }
+    function sendWhere() {
+      const me = myFamily();
+      if (!me) { openFamPick(); return; }
+      if (!navigator.geolocation) { whereSay('この端末では位置情報が使えません'); return; }
+      const btn = document.getElementById('whereSend'); btn.disabled = true;
+      whereSay('位置を取得しています…');
+      navigator.geolocation.getCurrentPosition(async pos => {
+        btn.disabled = false;
+        const v = { lat: Math.round(pos.coords.latitude * 1e5) / 1e5, lng: Math.round(pos.coords.longitude * 1e5) / 1e5, at: Date.now() };
+        const db = await getDb();
+        if (!db) { whereSay('送れませんでした（通信を確認してください）'); return; }
+        db.ref(`trips/${TRIP_ID}/where/${me}`).set(v).then(() => {
+          whereSay('📍 送りました！（3時間で自動的に消えます）');
+          whereData[me] = v; whereFitted = false; renderWhere(); focusWhere(me);
+        }).catch(() => whereSay('送れませんでした'));
+      }, err => {
+        btn.disabled = false;
+        whereSay(err.code === 1 ? '位置情報の利用が許可されていません（設定で許可してください）' : '位置を取得できませんでした。もう一度ためしてください');
+      }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+    }
+    async function stopWhere() {
+      const me = myFamily(); if (!me) return;
+      const db = await getDb(); if (!db) return;
+      db.ref(`trips/${TRIP_ID}/where/${me}`).remove().then(() => whereSay('位置を消しました')).catch(() => {});
+    }
+    async function initWhere() {
+      renderWhere();
+      const card = document.getElementById('whereCard');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); initWhereMap(); } }, { rootMargin: '200px' });
+        io.observe(card);
+      } else initWhereMap();
+      setInterval(renderWhere, 60000);
+      const db = await getDb(); if (!db) return;
+      const ref = db.ref(`trips/${TRIP_ID}/where`);
+      ref.on('value', snap => {
+        whereData = snap.val() || {};
+        // ふるい いちは けす（3じかん）
+        Object.entries(whereData).forEach(([f, v]) => { if (!v || Date.now() - (v.at || 0) >= WHERE_TTL) ref.child(f).remove().catch(() => {}); });
+        renderWhere();
+      }, () => {});
     }
 
     /* ===== こどもたちが よろこぶ（ジャンプ） ===== */
@@ -3734,6 +3882,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initReady();
+      initWhere();
       renderGacha();
       initFamilyMemo();
       renderTicketFamily();
