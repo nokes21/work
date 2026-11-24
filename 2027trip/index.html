@@ -959,7 +959,7 @@
     .gacha-cell { aspect-ratio: 1; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; color: #cfc6b4; }
     .gacha-cell canvas { width: 100%; height: 100%; image-rendering: pixelated; }
     .gacha-hint { margin: 0 0 10px; font-size: 12px; color: var(--ink-soft); text-align: left; line-height: 1.6; }
-    .news-btn.gacha-open { right: auto; left: 8px; }
+
     .gacha-card { max-height: 88vh; overflow-y: auto; }
     .gacha-card h3 { margin: 2px 0 8px; }
     .gacha-close { margin-top: 14px; background: #fff; color: var(--ink); border: 1.5px solid var(--paper-line); }
@@ -1059,6 +1059,67 @@
     .where-pin b { font-size: 10px; line-height: 1.2; white-space: nowrap; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 0 4px; color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; }
     .where-pin b small { font-weight: 500; color: var(--ink-soft); }
     .where-pin.me b { background: #ffe9a8; }
+
+
+    /* ===== サブメニュー（右上） ===== */
+    .sub-modal { align-items: flex-start; justify-content: flex-end; padding: 46px 10px 10px; }
+    .sub-card {
+      width: 100%; max-width: 280px; background: var(--paper); border-radius: 14px;
+      padding: 8px 8px 10px; box-shadow: 0 12px 30px -10px rgba(31,53,80,.6);
+      max-height: calc(100dvh - 60px); overflow: auto;
+      animation: sub-in .18s ease-out; transform-origin: top right;
+    }
+    @keyframes sub-in { from { opacity: 0; transform: scale(.92) translateY(-6px); } to { opacity: 1; transform: none; } }
+    .sub-head { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 6px 8px; }
+    .sub-head .news-k { margin: 0; }
+    .sub-item {
+      position: relative; width: 100%; display: flex; align-items: center; gap: 12px;
+      border: 0; background: transparent; border-radius: 10px; padding: 11px 10px;
+      font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); text-decoration: none; text-align: left; cursor: pointer;
+    }
+    .sub-item:hover, .sub-item:active { background: rgba(200,85,61,.08); }
+    .sub-item > i:first-child { width: 22px; text-align: center; color: var(--stamp); font-size: 16px; }
+    .sub-item > span:not(.news-dot) { flex: 1; }
+    .sub-item .sub-ext { font-size: 11px; color: var(--ink-soft); }
+    .sub-item + .sub-item { border-top: 1px dashed var(--paper-line); border-radius: 0; }
+    .sub-dot { position: static; flex: none; border-color: var(--paper); }
+    .sub-admin { margin: 10px 4px 0; }
+    .sheet-x {
+      width: 32px; height: 32px; border-radius: 50%; border: 0; flex: none;
+      background: var(--ink); color: var(--paper); font-size: 14px; font-weight: 900; cursor: pointer;
+    }
+    /* ===== ポップアップの ページ（メンバー・割り勘） ===== */
+    .modal.sheet { align-items: flex-end; padding: 0; }
+    .sheet-card {
+      position: relative; width: 100%; max-width: 760px; max-height: calc(100dvh - 30px); overflow: auto;
+      -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      background: var(--kraft); border-radius: 18px 18px 0 0;
+      padding: 14px 12px calc(18px + env(safe-area-inset-bottom));
+      animation: sheet-up .28s cubic-bezier(.2,.9,.3,1);
+    }
+    @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .sheet-card > .sheet-x { position: sticky; top: 0; display: block; z-index: 5; margin: 0 2px 8px auto; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
+    .sheet-card .page { box-shadow: none; }
+    body.sheet-open { overflow: hidden; }
+    @media (min-width: 768px) { .modal.sheet { align-items: center; padding: 20px; } .sheet-card { border-radius: 18px; } }
+
+    /* ===== いまどこ？（ぜんがめん） ===== */
+    #content-where .where { margin: 14px 0 0; display: flex; flex-direction: column; height: calc(100vh - 150px); min-height: 420px; }
+    #content-where .where-map { flex: 1; height: auto; min-height: 0; }
+    @media (max-width: 1079px) {
+      #content-where {
+        position: fixed; z-index: 35; left: 0; right: 0; top: 40px;
+        bottom: var(--foot-h, 64px);
+        background: var(--kraft); padding: 8px 8px 6px;
+      }
+      #content-where .where { margin: 0 auto; max-width: 760px; height: 100%; min-height: 0; padding: 8px 10px 6px; }
+      #content-where .where-list { margin-top: 6px; gap: 4px; }
+      #content-where .where-btns { margin-top: 8px; }
+      #content-where .where-note { margin-top: 4px; }
+      body.where-open { overflow: hidden; }
+      body.where-open .peek, body.where-open .a2hs { display: none !important; }
+    }
+    body.archive #tab-btn-where { display: none; }
 
     /* その日の ながれ（ざっくり） */
     .day-flow {
@@ -1265,9 +1326,6 @@
       #content-memo .page:nth-child(1) { grid-area: souv; }
       #content-memo .page:nth-child(2) { grid-area: pack; }
       #content-memo .page:nth-child(3) { grid-area: note; }
-      #content-other { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-      #content-other > .page { grid-column: 1 / -1; }
-      #content-other > .coupon { margin: 0 !important; }
       #content-memories .page { max-width: 640px; margin: 0 auto; }
       .fam-panel .kid-cards { grid-template-columns: 1fr 1fr; }
     }
@@ -1283,7 +1341,6 @@
       .side-col > .ticket-wrap > .ticket { margin-top: 12px; }
       .side-links { display: grid; gap: 12px; margin-top: 16px; }
       .side-links .coupon { margin: 0; }
-      #content-other > .other-coupon { display: none; }
       .wrap > .tabs-wrap { grid-column: 2; grid-row: 1; }
       .wrap > main { grid-column: 2; grid-row: 2; min-width: 0; }
       .tab-btn { font-size: 13px; padding: 11px 0 10px; }
@@ -1338,13 +1395,9 @@
     <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
     <div class="parade" onclick="paradeJump()">
       <canvas id="parade" aria-label="こどもたちが歩いているドット絵"></canvas>
-      <button class="news-btn gacha-open" onclick="event.stopPropagation(); openGacha()" aria-label="しおりガチャ">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="9.5" cy="9" r="2" /><circle cx="14.5" cy="11.5" r="2"/><rect x="6" y="16" width="12" height="6" rx="1.5"/></svg>
-        <span class="news-dot" id="gachaDot"></span>
-      </button>
-      <button class="news-btn" id="newsBtn" onclick="event.stopPropagation(); openNews()" aria-label="お知らせ">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a6 6 0 0 0-6 6v4.2L4.3 15.6a1 1 0 0 0 .9 1.5h13.6a1 1 0 0 0 .9-1.5L18 12.7V8.5a6 6 0 0 0-6-6zM9.5 18.5a2.5 2.5 0 0 0 5 0z"/></svg>
-        <span class="news-dot" id="newsDot"></span>
+      <button class="news-btn" id="menuBtn" onclick="event.stopPropagation(); openSubMenu()" aria-label="メニュー">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="2.6" rx="1.3"/><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"/><rect x="4" y="15.9" width="16" height="2.6" rx="1.3"/></svg>
+        <span class="news-dot hidden" id="menuDot"></span>
       </button>
     </div>
 
@@ -1416,11 +1469,10 @@
     <div class="tabs-wrap">
       <nav class="tabs">
         <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn active"><i class="fa-solid fa-route"></i>日程</button>
-        <button onclick="switchTab('members')" id="tab-btn-members" class="tab-btn"><i class="fa-solid fa-user-group"></i>メンバー</button>
         <button onclick="switchTab('spots')" id="tab-btn-spots" class="tab-btn"><i class="fa-solid fa-map-location-dot"></i>行き先</button>
+        <button onclick="switchTab('where')" id="tab-btn-where" class="tab-btn"><i class="fa-solid fa-location-dot"></i>いまどこ？</button>
         <button onclick="switchTab('memo')" id="tab-btn-memo" class="tab-btn"><i class="fa-solid fa-pen-to-square"></i>メモ</button>
         <button onclick="switchTab('memories')" id="tab-btn-memories" class="tab-btn"><i class="fa-solid fa-film"></i>思い出</button>
-        <button onclick="switchTab('other')" id="tab-btn-other" class="tab-btn"><i class="fa-solid fa-suitcase"></i>その他</button>
       </nav>
     </div>
 
@@ -1435,18 +1487,6 @@
           <div class="weather" id="weather">
             <div class="weather-head"><span><i class="fa-solid fa-cloud-sun"></i> 天気</span><span class="weather-sub" id="weatherSub">読み込み中…</span></div>
             <div class="weather-body" id="weatherBody"></div>
-          </div>
-
-          <div class="where plan-only" id="whereCard">
-            <div class="where-head"><span><i class="fa-solid fa-location-dot"></i> いまどこ？</span><span class="where-sub" id="whereSub"></span></div>
-            <div class="where-map" id="whereMap"></div>
-            <div class="where-list" id="whereList"></div>
-            <div class="where-btns">
-              <button class="btn where-send" id="whereSend" onclick="sendWhere()"><i class="fa-solid fa-location-crosshairs"></i> いまここを送る</button>
-              <button class="where-stop hidden" id="whereStop" onclick="stopWhere()">消す</button>
-            </div>
-            <p class="where-msg" id="whereMsg"></p>
-            <p class="where-note">※ 公開されているURLなので、位置情報は10時間で自動的に削除します。</p>
           </div>
 
           <div class="day">
@@ -1521,20 +1561,6 @@
         </div>
       </section>
 
-      <!-- ===== 2. メンバー ===== -->
-      <section id="content-members" class="hidden">
-        <div class="page">
-          <div class="page-head"><h2>旅のメンバー</h2><span class="en">MEMBERS</span></div>
-          <p class="memo">自己紹介を設定できます（全員に共有されます）。<br>編集できるのは自分の家族のプロフィールだけです。</p>
-
-          <div class="fam-grid" id="famGrid"></div>
-
-          <div class="total">
-            <span>合計</span>
-            <span>大人 <span class="mono">8</span> ／ 子供 <span class="mono">7</span>（計 <span class="mono">15</span>名）</span>
-          </div>
-        </div>
-      </section>
 
       <!-- ===== 3. 行き先 ===== -->
       <section id="content-spots" class="hidden">
@@ -1543,6 +1569,21 @@
           <p class="memo plan-only">※ 今のスケジュールは仮です。日程が決まったら差し替えます。</p>
           <div class="route-card" id="routeCard"></div>
           <div id="spotList"></div>
+        </div>
+      </section>
+
+      <!-- ===== いまどこ？ ===== -->
+      <section id="content-where" class="hidden">
+        <div class="where" id="whereCard">
+          <div class="where-head"><span><i class="fa-solid fa-location-dot"></i> いまどこ？</span><span class="where-sub" id="whereSub"></span></div>
+          <div class="where-map" id="whereMap"></div>
+          <div class="where-list" id="whereList"></div>
+          <div class="where-btns">
+            <button class="btn where-send" id="whereSend" onclick="sendWhere()"><i class="fa-solid fa-location-crosshairs"></i> いまここを送る</button>
+            <button class="where-stop hidden" id="whereStop" onclick="stopWhere()">消す</button>
+          </div>
+          <p class="where-msg" id="whereMsg"></p>
+          <p class="where-note">※ 公開されているURLなので、位置情報は10時間で自動的に削除します。</p>
         </div>
       </section>
 
@@ -1635,8 +1676,73 @@
         </div>
       </section>
 
-      <!-- ===== 6. その他 ===== -->
-      <section id="content-other" class="hidden">
+
+    </main>
+
+  </div>
+
+  <!-- ===== おつかれさま ===== -->
+  <!-- ===== ホーム画面に追加の あんない（iPhone・iPad の ブラウザだけ） ===== -->
+  <div id="a2hs" class="a2hs hidden" role="dialog" aria-label="ホーム画面に追加">
+    <img src="apple-touch-icon.png" alt="" class="a2hs-icon">
+    <div class="a2hs-text" id="a2hsText"></div>
+    <button class="a2hs-close" onclick="closeA2hs()" aria-label="閉じる">✕</button>
+  </div>
+
+  <!-- ===== サブメニュー（右上） ===== -->
+  <div id="subMenu" class="modal sub-modal hidden" onclick="if (event.target === this) closeSubMenu()">
+    <div class="sub-card">
+      <div class="sub-head"><span class="news-k">MENU</span><button class="sheet-x" onclick="closeSubMenu()" aria-label="閉じる">✕</button></div>
+      <button class="sub-item" id="newsBtn" onclick="closeSubMenu(); openNews()"><i class="fa-solid fa-bell"></i><span>お知らせ</span><span class="news-dot sub-dot" id="newsDot"></span></button>
+      <button class="sub-item" onclick="closeSubMenu(); openSheet('members')"><i class="fa-solid fa-user-group"></i><span>メンバー</span></button>
+      <button class="sub-item" onclick="closeSubMenu(); openGacha()"><i class="fa-solid fa-gift"></i><span>しおりガチャ</span><span class="news-dot sub-dot" id="gachaDot"></span></button>
+      <button class="sub-item" onclick="closeSubMenu(); openSheet('other')"><i class="fa-solid fa-receipt"></i><span>割り勘・立替メモ</span></button>
+      <a class="sub-item" href="kids.html" target="_blank" onclick="closeSubMenu()"><i class="fa-solid fa-print"></i><span>子供用しおり</span><i class="fa-solid fa-arrow-up-right-from-square sub-ext"></i></a>
+      <a class="sub-item" href="game/" target="_blank" onclick="closeSubMenu()"><i class="fa-solid fa-gamepad"></i><span>みやぎチャレンジ</span><i class="fa-solid fa-arrow-up-right-from-square sub-ext"></i></a>
+      <details class="admin-menu sub-admin">
+        <summary><i class="fa-solid fa-gear"></i> 管理者メニュー</summary>
+        <div class="admin-body">
+          <div class="admin-k">家族の切り替え</div>
+          <div class="row">
+            <button onclick="closeSubMenu(); openFamPick()">家族を選び直す（いま：<span id="adminFamily"></span>）</button>
+          </div>
+          <div class="admin-k">現在地テスト</div>
+          <div class="row">
+            <button onclick="closeSubMenu(); setSimTime('2027-03-20T13:30:00'); switchTab('schedule')">1日目昼</button>
+            <button onclick="closeSubMenu(); setSimTime('2027-03-21T10:30:00'); switchTab('schedule')">2日目いちご狩り</button>
+            <button onclick="closeSubMenu(); setSimTime('2027-03-21T19:00:00'); switchTab('schedule')">旅行終了後</button>
+            <button onclick="resetSimTime()">解除</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ===== メンバー（ポップアップ） ===== -->
+  <div id="sheet-members" class="modal sheet hidden" onclick="if (event.target === this) closeSheet()">
+    <div class="sheet-card">
+      <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
+      <section id="content-members">
+        <div class="page">
+          <div class="page-head"><h2>旅のメンバー</h2><span class="en">MEMBERS</span></div>
+          <p class="memo">自己紹介を設定できます（全員に共有されます）。<br>編集できるのは自分の家族のプロフィールだけです。</p>
+
+          <div class="fam-grid" id="famGrid"></div>
+
+          <div class="total">
+            <span>合計</span>
+            <span>大人 <span class="mono">8</span> ／ 子供 <span class="mono">7</span>（計 <span class="mono">15</span>名）</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== 割り勘・立替メモ（ポップアップ） ===== -->
+  <div id="sheet-other" class="modal sheet hidden" onclick="if (event.target === this) closeSheet()">
+    <div class="sheet-card">
+      <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
+      <section id="content-other">
         <div class="page">
           <div class="notice notice-share">
             <i class="fa-solid fa-user-group" style="margin-top:3px"></i>
@@ -1671,51 +1777,8 @@
           </div>
         </div>
 
-        <div class="coupon other-coupon" style="margin-top:16px">
-          <div class="coupon-main">
-            <div class="k">PRINT · A4</div>
-            <h3>🖨️ こども用しおり</h3>
-            <p>10ページの本。ビンゴ・めいろ・絵日記付き！</p>
-          </div>
-          <a href="kids.html" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-
-        <div class="coupon other-coupon" style="background:#8fd3f5">
-          <div class="coupon-main">
-            <div class="k">GAME · SMARTPHONE</div>
-            <h3>🎮 みやぎ チャレンジ</h3>
-            <p>移動中のひまつぶしに。子どもたちの名前で遊べます</p>
-          </div>
-          <a href="game/" target="_blank" class="coupon-go">開く<i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-        <details class="admin-menu">
-          <summary><i class="fa-solid fa-gear"></i> 管理者メニュー</summary>
-          <div class="admin-body">
-            <div class="admin-k">家族の切り替え</div>
-            <div class="row">
-              <button onclick="openFamPick()">家族を選び直す（いま：<span id="adminFamily"></span>）</button>
-            </div>
-            <div class="admin-k">現在地テスト</div>
-            <div class="row">
-              <button onclick="setSimTime('2027-03-20T13:30:00'); switchTab('schedule')">1日目昼</button>
-              <button onclick="setSimTime('2027-03-21T10:30:00'); switchTab('schedule')">2日目いちご狩り</button>
-              <button onclick="setSimTime('2027-03-21T19:00:00'); switchTab('schedule')">旅行終了後</button>
-              <button onclick="resetSimTime()">解除</button>
-            </div>
-          </div>
-        </details>
       </section>
-
-    </main>
-
-  </div>
-
-  <!-- ===== おつかれさま ===== -->
-  <!-- ===== ホーム画面に追加の あんない（iPhone・iPad の ブラウザだけ） ===== -->
-  <div id="a2hs" class="a2hs hidden" role="dialog" aria-label="ホーム画面に追加">
-    <img src="apple-touch-icon.png" alt="" class="a2hs-icon">
-    <div class="a2hs-text" id="a2hsText"></div>
-    <button class="a2hs-close" onclick="closeA2hs()" aria-label="閉じる">✕</button>
+    </div>
   </div>
 
   <!-- ===== しおりガチャ（ポップアップ） ===== -->
@@ -2093,7 +2156,7 @@
     // タブ切り替え
     function switchTab(tab) {
       if (window.matchMedia('(max-width: 1079px)').matches) window.scrollTo(0, 0);
-      const tabs = ['schedule', 'members', 'spots', 'memo', 'memories', 'other'];
+      const tabs = ['schedule', 'spots', 'where', 'memo', 'memories'];
       tabs.forEach(t => {
         const content = document.getElementById(`content-${t}`);
         if (content) content.classList.add('hidden');
@@ -2110,6 +2173,8 @@
       if (window.revealScan) setTimeout(revealScan, 30);
       const activeBtn = document.getElementById(`tab-btn-${tab}`);
       if (activeBtn) activeBtn.classList.add('active');
+      document.body.classList.toggle('where-open', tab === 'where');
+      if (tab === 'where' && window.openWhereTab) openWhereTab();
     }
 
     // 持ち物描画
@@ -2558,7 +2623,7 @@
     // カードの ドット絵を その場で あるかせる
     function animateKidCards(now) {
       const art = window.KID_ART;
-      if (art && !document.getElementById('content-members').classList.contains('hidden')) {
+      if (art && !document.getElementById('sheet-members').classList.contains('hidden')) {
         const t = now / 1000, S = 3;
         document.querySelectorAll('.fam-art').forEach(c => {
           const ids = c.dataset.ids.split(','), dpr = window.devicePixelRatio || 1;
@@ -3676,11 +3741,6 @@
     }
     async function initWhere() {
       renderWhere();
-      const card = document.getElementById('whereCard');
-      if ('IntersectionObserver' in window) {
-        const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); initWhereMap(); } }, { rootMargin: '200px' });
-        io.observe(card);
-      } else initWhereMap();
       setInterval(renderWhere, 60000);
       const db = await getDb(); if (!db) return;
       const ref = db.ref(`trips/${TRIP_ID}/where`);
@@ -3690,6 +3750,40 @@
         Object.entries(whereData).forEach(([f, v]) => { if (!v || Date.now() - (v.at || 0) >= WHERE_TTL) ref.child(f).remove().catch(() => {}); });
         renderWhere();
       }, () => {});
+    }
+
+
+    /* ===== サブメニュー・ポップアップの ページ ===== */
+    function openSubMenu() { document.getElementById('subMenu').classList.remove('hidden'); }
+    function closeSubMenu() { document.getElementById('subMenu').classList.add('hidden'); }
+    function openSheet(id) {
+      document.getElementById('sheet-' + id).classList.remove('hidden');
+      document.body.classList.add('sheet-open');
+      const card = document.querySelector('#sheet-' + id + ' .sheet-card'); if (card) card.scrollTop = 0;
+      if (id === 'members') { renderFamilies(); }
+    }
+    function closeSheet() {
+      document.querySelectorAll('.modal.sheet').forEach(m => m.classList.add('hidden'));
+      document.body.classList.remove('sheet-open');
+    }
+    // メニューの あかい まる（お知らせ・ガチャの どちらかに あれば）
+    function updateMenuDot() {
+      const on = ['newsDot', 'gachaDot'].some(id => { const d = document.getElementById(id); return d && !d.classList.contains('hidden'); });
+      document.getElementById('menuDot').classList.toggle('hidden', !on);
+    }
+    (function () {
+      const mo = new MutationObserver(updateMenuDot);
+      ['newsDot', 'gachaDot'].forEach(id => { const d = document.getElementById(id); if (d) mo.observe(d, { attributes: true, attributeFilter: ['class'] }); });
+      setTimeout(updateMenuDot, 0);
+      // フッターの たかさ（いまどこ？の ちず を おおきく）
+      const tabs = document.querySelector('.tabs-wrap');
+      const setH = () => document.documentElement.style.setProperty('--foot-h', tabs.offsetHeight + 'px');
+      setH(); addEventListener('resize', setH);
+      if (window.ResizeObserver) new ResizeObserver(setH).observe(tabs);
+    })();
+    function openWhereTab() {
+      if (!whereMap) { initWhereMap(); return; }
+      setTimeout(() => { whereMap.invalidateSize(); whereFitted = false; renderWhere(); }, 50);
     }
 
     /* ===== こどもたちが よろこぶ（ジャンプ） ===== */
