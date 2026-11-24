@@ -1325,9 +1325,9 @@
         <div class="route">
           <div>
             <div class="code">HOME</div>
-            <div class="place">おうち</div>
+            <div class="place" id="homePlace">おうち</div>
           </div>
-          <div class="line"><i class="fa-solid fa-car-side"></i></div>
+          <div class="line"><i class="fa-solid fa-car-side" id="tripVehicle"></i></div>
           <div class="to">
             <div class="code">SDJ</div>
             <div class="place">宮城・仙台</div>
@@ -3426,8 +3426,17 @@
     const READY_FAMS = ['akari', 'kasumi', 'miharu', 'natsuki'];
     let readyState = {}, readyRef = null, readyAllPrev = null;
     function myFamily() { try { return localStorage.getItem('miyagi_trip_my_family') || ''; } catch (e) { return ''; } }
+    // チケットに じぶんの 家族名と のりもの
+    const FAMILY_VEHICLE = { miharu: 'fa-train' };   // 竹内家は 新幹線
+    function renderTicketFamily() {
+      const f = myFamily(), fam = typeof FAMILIES !== 'undefined' && FAMILIES.find(x => x.id === f);
+      const place = document.getElementById('homePlace'); if (place) place.textContent = fam ? fam.name : 'おうち';
+      const v = document.getElementById('tripVehicle');
+      if (v) v.className = 'fa-solid ' + (FAMILY_VEHICLE[f] || 'fa-car-side');
+    }
     function setMyFamily(f) {
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
+      renderTicketFamily();
       editingKid = null; renderKidCards();
       renderReady(); updateMyReady(); initFamilyMemo();
     }
@@ -3665,6 +3674,7 @@
       initReady();
       renderGacha();
       initFamilyMemo();
+      renderTicketFamily();
       if (!document.getElementById('splash') && !myFamily()) setTimeout(openFamPick, 300);
       setTimeout(revealScan, 50);
       if (window.ResizeObserver) { const mo = new MutationObserver(() => revealScan()); mo.observe(document.querySelector('main'), { childList: true, subtree: true }); }
