@@ -1298,8 +1298,18 @@
     .field-label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin: 4px 0 4px; }
     .mv-text { width: 100%; font-size: 16px; margin-bottom: 10px; }
     textarea.mv-text { resize: vertical; line-height: 1.5; }
-    .mv-more { margin: -2px 0 12px; }
-    .mv-more summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--sea); margin-bottom: 8px; }
+    .mv-more { margin: 2px 0 14px; }
+    .mv-more summary {
+      cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border: 1.5px dashed var(--sea); border-radius: 10px;
+      background: rgba(43,122,140,.08); color: var(--sea);
+      font-size: 13px; font-weight: 900; -webkit-tap-highlight-color: transparent;
+    }
+    .mv-more summary::-webkit-details-marker { display: none; }
+    .mv-more summary .mv-more-chev { margin-left: auto; font-size: 11px; transition: transform .2s; }
+    .mv-more[open] summary { margin-bottom: 10px; border-style: solid; }
+    .mv-more[open] summary .mv-more-chev { transform: rotate(180deg); }
+    .mv-more summary small { font-weight: 500; font-size: 11px; color: var(--ink-soft); }
     .pick-btn { margin-bottom: 12px; cursor: pointer; }
     .mem-item {
       display: grid; grid-template-columns: 76px 1fr; gap: 10px;
@@ -1677,7 +1687,7 @@
           <label class="field-label" for="mvTitle">タイトル</label>
           <input id="mvTitle" class="field mv-text" maxlength="20" value="宮城旅行の思い出" oninput="saveMvTitle()">
           <details class="mv-more">
-            <summary>動画の文字をくわしく設定する</summary>
+            <summary><i class="fa-solid fa-pen-to-square"></i><span>動画の文字をくわしく設定する<br><small>サブタイトル・日付・最後のメッセージ</small></span><span class="mv-more-chev">▼</span></summary>
             <label class="field-label" for="mvSub">サブタイトル（タイトルの下）</label>
             <input id="mvSub" class="field mv-text" maxlength="24" placeholder="4家族 15人の たび" oninput="saveMvTexts()">
             <label class="field-label" for="mvDate">日付（タイトル画面のスタンプ）</label>
