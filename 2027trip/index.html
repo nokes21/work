@@ -4279,6 +4279,10 @@
       if (v.ver !== 2) {   // ポーズを いれかえた ので まえの コレクションは リセット
         v = { last: '', got: [], ver: 2 }; try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {}
       }
+      // いまは ない ポーズの きろくは すてる（かずが ずれないように）
+      const valid = new Set(); POSES.forEach(([pid]) => KID_LABEL.forEach((_, k) => valid.add(`${k}-${pid}`)));
+      const got = (v.got || []).filter(key => valid.has(key));
+      if (got.length !== (v.got || []).length) { v.got = got; try { localStorage.setItem('miyagi_trip_gacha', JSON.stringify(v)); } catch (e) {} }
       return v;
     }
     function gachaSave(v) {
