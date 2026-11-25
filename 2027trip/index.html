@@ -1451,7 +1451,7 @@
     .wish-empty { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 18px 0; }
 
     /* いいね・へんしん */
-    .post-social { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--paper-line); }
+    .post-social { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--paper-line); }
     .like-btn, .reply-toggle { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 12.5px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
     .like-btn b, .reply-toggle b { font-family: var(--mono); font-size: 12px; }
     .like-btn b:empty, .reply-toggle b:empty { display: none; }
@@ -1492,6 +1492,33 @@
     .reply-row .field { flex: 1; min-width: 0; margin: 0; }
     .reply-row .btn { padding: 0 14px; flex: none; }
     .post-more { margin-top: 4px; background: #fff; color: var(--ink); border: 1.5px solid var(--paper-line); }
+
+    /* スタンプ */
+    .rx-row { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+    .rx { position: relative; border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 2px 9px; height: 30px; font: inherit; font-size: 12px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+    .rx b { font-family: var(--mono); font-size: 12px; }
+    .rx.on { border-color: #3a86c8; background: #eaf3fc; color: #2a6aa8; }
+    .rx .rx-emoji { font-size: 16px; line-height: 1; }
+    .rx .rx-kid { height: 22px; image-rendering: pixelated; pointer-events: none; }
+    .rx.on .rx-kid { animation: rx-hop .6s ease-in-out infinite alternate; }
+    @keyframes rx-hop { to { transform: translateY(-2px); } }
+    .rx-add { color: var(--ink-soft); padding: 2px 8px; font-size: 15px; }
+    .rx-add span { font-size: 11px; margin-left: -3px; }
+    .rx .like-who { bottom: calc(100% + 8px); left: 0; }
+    .post-social .rx-picker { order: 3; flex-basis: 100%; }
+    .rx-picker { width: 100%; margin-top: 8px; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 12px; padding: 8px; box-shadow: 0 6px 14px -8px rgba(31,53,80,.4); animation: pop-in .18s ease-out; }
+    .rx-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+    .rx-grid button { border: 0; background: var(--paper); border-radius: 8px; height: 38px; font-size: 20px; cursor: pointer; }
+    .rx-grid button:active { transform: scale(.9); }
+    .rx-kids-k { font-size: 11px; font-weight: 900; color: var(--ink-soft); margin: 8px 2px 4px; }
+    .rx-kids { grid-template-columns: repeat(7, 1fr); }
+    .rx-kids button { height: 52px; display: grid; place-items: center; padding: 2px 0; }
+    .rx-kids img { height: 28px; image-rendering: pixelated; }
+    .rx-kids small { font-size: 9px; font-weight: 700; color: var(--ink-soft); line-height: 1; }
+    .reply-reacts { margin-top: 4px; }
+    .reply-reacts .rx { height: 26px; padding: 1px 7px; }
+    .reply-reacts .rx .rx-emoji { font-size: 14px; }
+    .reply-reacts .rx-picker { margin-top: 6px; }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
     .note-auto:has(.note-saved.hidden) { display: none; }
@@ -4621,6 +4648,82 @@
       document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('.like-fams'); if (el) show(el); });
       document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.like-fams')) e.preventDefault(); });
     })();
+
+    /* ===== スタンプ（Slack の リアクション みたいに） ===== */
+    const REACTS = [
+      ['heart', '❤️'], ['good', '👍'], ['clap', '👏'], ['ok', '🙆'], ['lol', '😆'], ['love', '🥰'],
+      ['party', '🎉'], ['kira', '✨'], ['pray', '🙏'], ['cry', '😢'], ['hmm', '🤔'], ['ichigo', '🍓'],
+    ];
+    const KID_REACTS = ['minori', 'akari', 'kasumi', 'miharu', 'natsuki', 'miori', 'fuji'];   // こどもスタンプ
+    let reactPicker = '';
+    const kidStampCache = {};
+    function kidStamp(k) {
+      if (kidStampCache[k]) return kidStampCache[k];
+      const art = window.KID_ART, i = KID_IDS.indexOf(k); if (!art || i < 0) return '';
+      const img = art.SPR[i][1] || art.SPR[i][0], c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0); return (kidStampCache[k] = c.toDataURL());
+    }
+    function reactFace(key) {
+      const e = REACTS.find(x => x[0] === key); if (e) return `<span class="rx-emoji">${e[1]}</span>`;
+      const k = key.replace(/^kid_/, ''); return KID_REACTS.includes(k) ? `<img class="rx-kid" src="${kidStamp(k)}" alt="${esc(kidName(k))}">` : '';
+    }
+    // だれが おしたか（まえの いいねは ❤️ として あつかう）
+    function reactMap(item) {
+      const m = {};
+      Object.entries(item.reacts || {}).forEach(([k, v]) => { m[k] = Object.keys(v || {}).filter(a => /-(papa|mama)$/.test(a) && famOf(a)); });
+      const old = Object.keys(item.likes || {}).filter(a => /-(papa|mama)$/.test(a) && famOf(a));
+      if (old.length) m.heart = [...new Set([...(m.heart || []), ...old])];
+      return m;
+    }
+    function reactRow(item, key) {
+      const m = reactMap(item), mw = myWho();
+      const order = [...REACTS.map(x => x[0]), ...KID_REACTS.map(k => 'kid_' + k)];
+      const chips = order.filter(k => (m[k] || []).length).map(k => {
+        const who = m[k], on = mw && who.includes(mw);
+        const names = who.map(a => FAMILIES.find(x => x.id === famOf(a)).name + whoLabel(a)).join('・');
+        return `<button class="rx ${on ? 'on' : ''}" data-who="${esc(names)}" onclick="if (!rxLong) toggleReact('${key}','${k}')">${reactFace(k)}<b>${who.length}</b></button>`;
+      }).join('');
+      const open = reactPicker === key;
+      return `<div class="rx-row">${chips}<button class="rx rx-add ${open ? 'on' : ''}" onclick="openReactPicker('${key}')" aria-label="スタンプ"><i class="fa-regular fa-face-smile"></i><span>＋</span></button></div>
+        ${open ? `<div class="rx-picker">
+          <div class="rx-grid">${REACTS.map(([k, e]) => `<button onclick="toggleReact('${key}','${k}')">${e}</button>`).join('')}</div>
+          <div class="rx-kids-k">こどもスタンプ</div>
+          <div class="rx-grid rx-kids">${KID_REACTS.map(k => `<button onclick="toggleReact('${key}','kid_${k}')"><img src="${kidStamp(k)}" alt=""><small>${esc(kidName(k))}</small></button>`).join('')}</div>
+        </div>` : ''}`;
+    }
+    function openReactPicker(key) { reactPicker = reactPicker === key ? '' : key; renderWishes(); }
+    async function toggleReact(key, rk) {
+      const fam = myFamily(); if (!fam) { closeSheet(); openFamPick(); return; }
+      const who = myWho(); if (!who) { askWho(() => toggleReact(key, rk)); return; }
+      const [t, id, rid] = key.split(':');
+      const item = t === 'p' ? wishes[id] : (wishes[id] && wishes[id].replies && wishes[id].replies[rid]); if (!item) return;
+      const base = t === 'p' ? `trips/${TRIP_ID}/posts/${id}` : `trips/${TRIP_ID}/posts/${id}/replies/${rid}`;
+      const db = await getDb(); if (!db) return;
+      const on = (reactMap(item)[rk] || []).includes(who);
+      reactPicker = '';
+      if (on) {
+        db.ref(`${base}/reacts/${rk}/${who}`).remove().catch(() => {});
+        if (rk === 'heart') db.ref(`${base}/likes/${who}`).remove().catch(() => {});   // まえの いいね も けす
+      } else db.ref(`${base}/reacts/${rk}/${who}`).set(true).catch(() => {});
+      renderWishes();
+    }
+    // スタンプを 長押しで おした ひと
+    let rxLong = false;
+    (function () {
+      let timer = null;
+      document.addEventListener('pointerdown', e => {
+        const el = e.target.closest && e.target.closest('.rx[data-who]'); rxLong = false;
+        if (!el) return;
+        clearTimeout(timer); timer = setTimeout(() => {
+          rxLong = true;
+          document.querySelectorAll('.like-who').forEach(x => x.remove());
+          const b = document.createElement('span'); b.className = 'like-who'; b.textContent = el.dataset.who;
+          el.appendChild(b); setTimeout(() => b.remove(), 2500);
+        }, 450);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, () => { clearTimeout(timer); setTimeout(() => rxLong = false, 50); }));
+      document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.rx')) e.preventDefault(); });
+    })();
     function postSocial(id, w, me) {
       const likes = Object.keys(w.likes || {}).filter(a => /-(papa|mama)$/.test(a) && FAMILIES.find(x => x.id === famOf(a)));
       const mw = myWho(), liked = mw && w.likes && w.likes[mw];
@@ -4632,15 +4735,14 @@
       const who = replyWho[id] || (me && adultsOf(me).includes(last) ? last : (me ? adultsOf(me)[0] : ''));
       const fmt = at => { const d = new Date(at || 0); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
       return `<div class="post-social">
-          <button class="like-btn ${liked ? 'on' : ''}" onclick="toggleLike('${id}')" aria-label="いいね"><i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i><b>${likes.length || ''}</b></button>
-          <span class="like-fams" data-who="${esc(likeNames)}">${likeFams.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
+          ${reactRow(w, `p:${id}`)}
           <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')" aria-label="返信"><i class="fa-regular fa-comment"></i>返信<b>${reps.length || ''}</b></button>
         </div>
         ${open ? `<div class="replies">
           ${reps.map(([rid, r]) => { const f = FAMILIES.find(x => x.id === r.fam); return `<div class="reply">
             <img class="reply-art" src="${personArt(r.who)}" alt="">
             <div class="reply-body"><div class="reply-meta"><b>${f ? esc(f.name) : ''} ${whoLabel(r.who || '')}</b><time>${fmt(r.at)}</time>${r.fam === me ? `<button class="reply-del" onclick="delReply('${id}','${rid}')">削除</button>` : ''}</div>
-            <p>${esc(r.text)}</p>${replyLike(id, rid, r)}</div></div>`; }).join('')}
+            <p>${esc(r.text)}</p><div class="reply-reacts">${reactRow(r, `r:${id}:${rid}`)}</div></div></div>`; }).join('')}
           ${me ? `<form class="reply-form" onsubmit="sendReply(event,'${id}')">
             <div class="reply-row"><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
           </form>` : ''}
