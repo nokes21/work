@@ -1450,7 +1450,14 @@
     .like-btn.on { border-color: #ff6f91; color: #e0476c; background: #fff0f4; }
     .like-btn.on i { animation: like-pop .35s cubic-bezier(.3,1.8,.5,1); }
     @keyframes like-pop { from { transform: scale(.4); } to { transform: none; } }
-    .like-fams { display: inline-flex; margin-right: auto; }
+    .like-fams { display: inline-flex; margin-right: auto; position: relative; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+    .like-fams img { pointer-events: none; }
+    .like-who {
+      position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 6; white-space: nowrap;
+      background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px;
+      box-shadow: 0 4px 10px -4px rgba(31,53,80,.6); animation: pop-in .2s ease-out;
+    }
+    .like-who::after { content: ""; position: absolute; left: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--ink); }
     .like-fams img { width: 20px; height: 21px; image-rendering: pixelated; margin-right: -3px; }
     .reply-toggle.on { border-color: var(--sea); color: var(--sea); }
     .replies { margin-top: 10px; background: var(--paper); border-radius: 10px; padding: 8px 10px; }
@@ -4471,6 +4478,24 @@
       if (!r || r.fam !== myFamily() || !confirm('この返信を削除しますか？')) return;
       const db = await getDb(); if (db) db.ref(`trips/${TRIP_ID}/posts/${id}/replies/${rid}`).remove().catch(() => {});
     }
+    // いいねした 家族を 長押し（タップでも）で ひょうじ
+    (function () {
+      let timer = null;
+      const show = el => {
+        document.querySelectorAll('.like-who').forEach(x => x.remove());
+        if (!el.dataset.who) return;
+        const b = document.createElement('span'); b.className = 'like-who'; b.textContent = el.dataset.who + ' がいいね';
+        el.appendChild(b); clearTimeout(show._t); show._t = setTimeout(() => b.remove(), 2500);
+      };
+      document.addEventListener('pointerdown', e => {
+        const el = e.target.closest && e.target.closest('.like-fams');
+        if (!el) { document.querySelectorAll('.like-who').forEach(x => x.remove()); return; }
+        clearTimeout(timer); timer = setTimeout(() => show(el), 400);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, () => clearTimeout(timer)));
+      document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('.like-fams'); if (el) show(el); });
+      document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.like-fams')) e.preventDefault(); });
+    })();
     function postSocial(id, w, me) {
       const likes = Object.keys(w.likes || {}).filter(f => FAMILIES.find(x => x.id === f));
       const liked = me && w.likes && w.likes[me];
@@ -4481,8 +4506,8 @@
       const fmt = at => { const d = new Date(at || 0); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
       return `<div class="post-social">
           <button class="like-btn ${liked ? 'on' : ''}" onclick="toggleLike('${id}')" aria-label="いいね"><i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i><b>${likes.length || ''}</b></button>
-          <span class="like-fams">${likes.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
-          <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')" aria-label="返信"><i class="fa-regular fa-comment"></i><b>${reps.length || ''}</b></button>
+          <span class="like-fams" data-who="${esc(likes.map(f => FAMILIES.find(x => x.id === f).name).join('・'))}">${likes.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
+          <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')" aria-label="返信"><i class="fa-regular fa-comment"></i>返信<b>${reps.length || ''}</b></button>
         </div>
         ${open ? `<div class="replies">
           ${reps.map(([rid, r]) => { const f = FAMILIES.find(x => x.id === r.fam); return `<div class="reply">
@@ -4530,7 +4555,7 @@
           <div class="wish-top"><div style="flex:1;min-width:0"><span class="post-cat" style="--c:${ct.c}"><i class="fa-solid ${ct.icon}"></i> ${ct.name}</span><h3>${esc(w.place)}</h3></div>${who}</div>
           ${w.note ? `<p class="wish-note">${esc(w.note)}</p>` : ''}
           <div class="wish-foot"><time>${when}</time>
-            ${w.url ? `<a class="wish-link" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Webで見る</a>` : ''}
+            ${w.url ? `<a class="wish-link" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Web</a>` : ''}
             ${w.fam === me ? `<button class="wish-act" onclick="openPostForm('${id}')">編集</button><button class="wish-act del" onclick="delPost('${id}')">削除</button>` : ''}
           </div>${postSocial(id, w, me)}</div></div>`;
       }).join('') + (rest ? `<button class="btn btn-wide post-more" onclick="morePosts()">もっと見る（あと${rest}件）</button>` : '');
