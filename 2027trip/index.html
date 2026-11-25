@@ -2034,19 +2034,15 @@
   <script>
     // デフォルト持ち物
     const initialBelongings = [
-      "着替え（大人・子供）",
-      "パジャマ・下着",
-      "子供のおやつ・飲み物",
-      "ウェットティッシュ",
-      "常備薬・絆創膏",
-      "健康保険証・母子手帳",
-      "スマホ充電器・モバイルバッテリー",
-      "ラプラスグッズ（持ち込み用）"
+      '財布', '上着', 'タオル', 'ハンカチ', '帽子', '大人着替え', '子供着替え', '折り畳み傘',
+      'メガネ', 'コンタクトレンズ用品', '洗面用具', 'スマホ', '充電器', 'モバイルバッテリー',
     ];
 
     let belongings = [];
     let souvenirs = [];   // { text, checked }
-    const initialSouvenirs = ['ずんだもち'];
+    const initialSouvenirs = ['〇〇家にずんだ餅（8個入りくらい）', '会社用の萩の月（24個くらい）'];
+    // この ときより まえに ほぞんした 持ち物・お土産は、あたらしい 初期値に いれかえる（公開まえの 差し替え）
+    const LIST_RESET_AT = 1795568749341;
     let payments = [];
     let simTime = null;
 
@@ -2662,8 +2658,8 @@
 
     function saveLocalStorage() {
       try {
-        localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
-        localStorage.setItem('miyagi_trip_souvenirs_v2', JSON.stringify(souvenirs));
+        localStorage.setItem('miyagi_trip_belongings_v3', JSON.stringify(belongings));
+        localStorage.setItem('miyagi_trip_souvenirs_v3', JSON.stringify(souvenirs));
         if (!paymentsRef) localStorage.setItem('miyagi_trip_payments', JSON.stringify(payments));
       } catch (e) {}
       if (window.pushFamilyMemo) pushFamilyMemo();
@@ -2672,8 +2668,8 @@
     function loadLocalStorage() {
       let b = null, s = null, sc = null, p = null, s2 = null;
       try {
-        b = localStorage.getItem('miyagi_trip_belongings_v2');
-        s2 = localStorage.getItem('miyagi_trip_souvenirs_v2');
+        b = localStorage.getItem('miyagi_trip_belongings_v3');
+        s2 = localStorage.getItem('miyagi_trip_souvenirs_v3');
         s = localStorage.getItem('miyagi_trip_souvenir_items');
         sc = localStorage.getItem('miyagi_trip_souvenir_checked');
         p = localStorage.getItem('miyagi_trip_payments');
@@ -2688,10 +2684,7 @@
       // お土産：あたらしい ほぞん → むかしの ほぞんから ひきつぎ → さいしょの あたい
       try {
         if (s2) souvenirs = JSON.parse(s2);
-        else {
-          const items = s ? JSON.parse(s) : [], checked = sc ? JSON.parse(sc) : {};
-          souvenirs = items.map((t, i) => ({ text: t, checked: !!checked[`souvenir-${i}`] }));
-        }
+        else souvenirs = [];
       } catch (e) { souvenirs = []; }
       if (!s2 && souvenirs.length === 0) souvenirs = initialSouvenirs.map(t => ({ text: t, checked: false }));
       if (p && !FIREBASE_CONFIG) payments = JSON.parse(p);
@@ -3984,13 +3977,21 @@
           famMemoApplying = false; pushFamilyMemo(); if (window.updateMyReady) updateMyReady(); return;
         }
         famMemoApplying = true;
+        if (!v.at || v.at < LIST_RESET_AT) {   // ふるい 持ち物・お土産は あたらしい 初期値へ（メモは そのまま）
+          belongings = initialBelongings.map(t => ({ text: t, checked: false }));
+          souvenirs = initialSouvenirs.map(t => ({ text: t, checked: false }));
+          if (v.notes) try { notes = JSON.parse(v.notes); } catch (e) {}
+          famMemoApplying = false; saveLocalStorage(); renderTodoList(); renderSouvenirList(); renderNotes();
+          if (window.updateMyReady) updateMyReady();
+          return;
+        }
         try {
           if (v.belongings) belongings = JSON.parse(v.belongings);
           if (v.souvenirs) souvenirs = JSON.parse(v.souvenirs);
           if (v.notes) notes = JSON.parse(v.notes);
           try {
-            localStorage.setItem('miyagi_trip_belongings_v2', JSON.stringify(belongings));
-            localStorage.setItem('miyagi_trip_souvenirs_v2', JSON.stringify(souvenirs));
+            localStorage.setItem('miyagi_trip_belongings_v3', JSON.stringify(belongings));
+            localStorage.setItem('miyagi_trip_souvenirs_v3', JSON.stringify(souvenirs));
             localStorage.setItem('miyagi_trip_notes', JSON.stringify(notes));
             localStorage.setItem('miyagi_trip_memo_fam', f);
           } catch (e) {}
