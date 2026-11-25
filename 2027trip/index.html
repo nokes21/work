@@ -1397,8 +1397,20 @@
       box-shadow: 0 6px 14px -4px rgba(120,80,10,.55); cursor: pointer; font: inherit;
       -webkit-tap-highlight-color: transparent; transition: transform .15s;
     }
-    .wish-fab i { font-size: 19px; }
-    .wish-fab span { font-size: 10px; font-weight: 900; letter-spacing: -.02em; }
+    .wish-fab i { font-size: 18px; }
+    .wish-fab span { font-size: 9px; font-weight: 900; letter-spacing: -.04em; line-height: 1.1; text-align: center; }
+    .post-cats, .post-who { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+    .post-chip { border: 1.5px solid var(--paper-line); background: var(--paper); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .post-chip.on { border-color: var(--c, var(--stamp)); background: var(--c, var(--stamp)); color: #fff; }
+    .post-chip img { height: 24px; image-rendering: pixelated; }
+    .post-who .post-chip { padding: 3px 12px 3px 6px; }
+    .post-who .post-chip.on { background: rgba(200,85,61,.1); color: var(--stamp); }
+    .post-filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+    .post-filter::-webkit-scrollbar { display: none; }
+    .post-filter .post-chip { flex: none; font-size: 12px; padding: 4px 11px; }
+    .post-filter .post-chip small { font-family: var(--mono); font-size: 11px; opacity: .8; }
+    .post-cat { display: inline-block; font-size: 11px; font-weight: 900; color: #fff; background: var(--c); border-radius: 4px; padding: 1px 7px; margin-bottom: 4px; }
+    .wish-item.tweet .wish-top h3 { font-size: 15px; font-weight: 700; }
     .wish-fab:active { transform: scale(.93); }
     .wish-count { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--stamp); color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; }
     body.where-open .wish-fab { display: none; }
@@ -1417,7 +1429,8 @@
     .wish-top { display: flex; align-items: flex-start; gap: 8px; }
     .wish-top h3 { margin: 0; font-size: 16px; font-weight: 900; flex: 1; line-height: 1.35; }
     .wish-by { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
-    .wish-by img { height: 20px; image-rendering: pixelated; }
+    .wish-by img { height: 30px; image-rendering: pixelated; }
+    .wish-by { flex-direction: column; gap: 0; font-size: 10.5px; text-align: center; line-height: 1.2; }
     .wish-note { margin: 6px 0 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
     .wish-foot { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
     .wish-foot time { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-right: auto; }
@@ -1949,29 +1962,34 @@
     </div>
   </div>
 
-  <!-- ===== 行きたいところ（みぎしたの ボタン） ===== -->
-  <button class="wish-fab" id="wishFab" onclick="openWish()" aria-label="行きたいところ">
-    <i class="fa-solid fa-lightbulb"></i><span>行きたい</span><b class="wish-count hidden" id="wishCount"></b>
+  <!-- ===== みんなの投稿（みぎしたの ボタン） ===== -->
+  <button class="wish-fab" id="wishFab" onclick="openPosts()" aria-label="みんなの投稿">
+    <i class="fa-solid fa-comments"></i><span>みんなの<br>投稿</span><b class="wish-count hidden" id="wishCount"></b>
   </button>
-  <div id="sheet-wish" class="modal sheet hidden" onclick="if (event.target === this) closeSheet()">
+  <div id="sheet-posts" class="modal sheet hidden" onclick="if (event.target === this) closeSheet()">
     <div class="sheet-card">
       <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
       <div class="page">
-        <div class="page-head"><h2>行きたいところ</h2><span class="en">WISH LIST</span></div>
-        <p class="memo">旅行で行ってみたい場所を、みんなで出し合おう！<br>投稿は4家族全員に共有されます。編集・削除できるのは自分の家族の投稿だけです。</p>
-        <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openWishForm()"><i class="fa-solid fa-plus"></i>行きたいところを投稿する</button>
-        <form class="wish-form hidden" id="wishForm" onsubmit="saveWish(event)">
-          <label class="field-label" for="wishPlace">行きたいところ <span class="req">必須</span></label>
-          <input id="wishPlace" class="field" maxlength="40" placeholder="例：仙台うみの杜水族館" required>
+        <div class="page-head"><h2>みんなの投稿</h2><span class="en">BOARD</span></div>
+        <p class="memo">行きたいところ、食べたいもの、ひとことなど、なんでも投稿してね！<br>投稿は4家族全員に共有されます。編集・削除できるのは自分の家族の投稿だけです。</p>
+        <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openPostForm()"><i class="fa-solid fa-plus"></i>新しく投稿する</button>
+        <form class="wish-form hidden" id="wishForm" onsubmit="savePost(event)">
+          <div class="field-label">区分</div>
+          <div class="post-cats" id="postCats"></div>
+          <div class="field-label">投稿する人</div>
+          <div class="post-who" id="postWho"></div>
+          <label class="field-label" for="wishPlace"><span id="postTitleLabel">行きたいところ</span> <span class="req">必須</span></label>
+          <input id="wishPlace" class="field" maxlength="40" required>
           <label class="field-label" for="wishUrl">WebのURL <span class="opt">任意</span></label>
           <input id="wishUrl" class="field" type="text" inputmode="url" autocapitalize="off" autocorrect="off" maxlength="500" placeholder="https://…">
           <label class="field-label" for="wishNote">内容 <span class="opt">任意</span></label>
-          <textarea id="wishNote" class="field" rows="3" maxlength="200" placeholder="例：イルカのショーが見たい！ 雨でも楽しめそう"></textarea>
+          <textarea id="wishNote" class="field" rows="3" maxlength="200"></textarea>
           <div class="wish-form-btns">
-            <button type="button" class="btn wish-cancel" onclick="closeWishForm()">やめる</button>
+            <button type="button" class="btn wish-cancel" onclick="closePostForm()">やめる</button>
             <button type="submit" class="btn" id="wishSave">投稿する</button>
           </div>
         </form>
+        <div class="post-filter" id="postFilter"></div>
         <div id="wishList"></div>
       </div>
     </div>
@@ -4295,23 +4313,53 @@
     }
 
 
-    /* ===== 行きたいところ（4家族で 共有・じぶんの 家族だけ 編集） ===== */
-    let wishes = {}, wishRef = null, wishEditing = null;
-    function openWish() { openSheet('wish'); renderWishes(); }
-    function openWishForm(id) {
-      if (!myFamily()) { closeSheet(); openFamPick(); return; }
+    /* ===== みんなの投稿（4家族で 共有・じぶんの 家族だけ 編集） ===== */
+    const POST_CATS = {
+      place:    { name: '行きたいところ', icon: 'fa-location-dot', c: '#2b7a8c', title: '行きたいところ', ph: '例：仙台うみの杜水族館', note: '例：イルカのショーが見たい！ 雨でも楽しめそう' },
+      food:     { name: '食べたいもの',   icon: 'fa-utensils',     c: '#c8553d', title: '食べたいもの',   ph: '例：ずんだシェイク',     note: '例：仙台駅の中で買えるらしい' },
+      tweet:    { name: 'つぶやき',       icon: 'fa-comment',      c: '#7b8fa8', title: 'ひとこと',       ph: '例：楽しみすぎて眠れない！', note: '' },
+    };
+    let wishes = {}, wishEditing = null, postCat = 'place', postWho = '', postFilter = 'all';
+    function openPosts() { openSheet('posts'); renderWishes(); }
+    function adultsOf(fam) { return [`${fam}-papa`, `${fam}-mama`]; }
+    function whoLabel(id) { return id.endsWith('-papa') ? 'パパ' : id.endsWith('-mama') ? 'ママ' : ''; }
+    function personArt(id) {
+      const art = window.KID_ART; if (!art) return '';
+      const fr = art.ADULT_SPR[id] || (KID_IDS.includes(id) ? art.SPR[KID_IDS.indexOf(id)] : null); if (!fr) return '';
+      const img = fr[0], c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0); return c.toDataURL();
+    }
+    function renderPostForm() {
+      document.getElementById('postCats').innerHTML = Object.entries(POST_CATS).map(([id, ct]) =>
+        `<button type="button" class="post-chip ${id === postCat ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostCat('${id}')"><i class="fa-solid ${ct.icon}"></i>${ct.name}</button>`).join('');
+      const fam = myFamily();
+      document.getElementById('postWho').innerHTML = adultsOf(fam).map(id =>
+        `<button type="button" class="post-chip ${id === postWho ? 'on' : ''}" onclick="setPostWho('${id}')"><img src="${personArt(id)}" alt="">${whoLabel(id)}</button>`).join('');
+      const ct = POST_CATS[postCat];
+      document.getElementById('postTitleLabel').textContent = ct.title;
+      document.getElementById('wishPlace').placeholder = ct.ph;
+      document.getElementById('wishNote').placeholder = ct.note || '補足があれば';
+    }
+    function setPostCat(c) { postCat = c; renderPostForm(); }
+    function setPostWho(w) { postWho = w; try { localStorage.setItem('miyagi_trip_post_who', w); } catch (e) {} renderPostForm(); }
+    function openPostForm(id) {
+      const fam = myFamily();
+      if (!fam) { closeSheet(); openFamPick(); return; }
       wishEditing = id || null;
       const w = id ? wishes[id] : null;
+      postCat = w && POST_CATS[w.cat] ? w.cat : (postFilter !== 'all' ? postFilter : 'place');
+      let last = ''; try { last = localStorage.getItem('miyagi_trip_post_who') || ''; } catch (e) {}
+      postWho = w && w.who ? w.who : (adultsOf(fam).includes(last) ? last : adultsOf(fam)[0]);
       document.getElementById('wishPlace').value = w ? w.place : '';
       document.getElementById('wishUrl').value = w ? (w.url || '') : '';
       document.getElementById('wishNote').value = w ? (w.note || '') : '';
       document.getElementById('wishSave').textContent = id ? '保存する' : '投稿する';
+      renderPostForm();
       document.getElementById('wishForm').classList.remove('hidden');
       document.getElementById('wishNewBtn').classList.add('hidden');
       document.getElementById('wishForm').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      setTimeout(() => document.getElementById('wishPlace').focus(), 200);
     }
-    function closeWishForm() {
+    function closePostForm() {
       wishEditing = null;
       document.getElementById('wishForm').classList.add('hidden');
       document.getElementById('wishNewBtn').classList.remove('hidden');
@@ -4331,7 +4379,7 @@
         return /^https:\/\//.test(img) && img.length <= 800 ? img : '';
       } catch (e) { return ''; }
     }
-    async function saveWish(e) {
+    async function savePost(e) {
       e.preventDefault();
       const fam = myFamily(); if (!fam) return;
       const place = document.getElementById('wishPlace').value.trim();
@@ -4342,48 +4390,54 @@
       const db = await getDb(); if (!db) { alert('通信できませんでした。電波のよい場所で、もう一度ためしてください'); return; }
       const old = wishEditing ? wishes[wishEditing] : null;
       if (old && old.fam !== fam) return;
-      const ref = wishEditing ? db.ref(`trips/${TRIP_ID}/wishes/${wishEditing}`) : db.ref(`trips/${TRIP_ID}/wishes`).push();
-      const v = { place, fam, at: old ? old.at : Date.now() };
+      const ref = wishEditing ? db.ref(`trips/${TRIP_ID}/posts/${wishEditing}`) : db.ref(`trips/${TRIP_ID}/posts`).push();
+      const v = { cat: postCat, place, fam, who: adultsOf(fam).includes(postWho) ? postWho : adultsOf(fam)[0], at: old ? old.at : Date.now() };
       if (url) v.url = url;
       if (note) v.note = note;
       if (old && old.img && old.url === url) v.img = old.img;                  // URL が おなじなら がぞうは そのまま
       await ref.set(v).catch(() => alert('保存できませんでした'));
-      closeWishForm();
+      closePostForm();
       if (url && !v.img) { const img = await fetchWishImage(url); if (img) ref.child('img').set(img).catch(() => {}); }
     }
-    async function delWish(id) {
+    async function delPost(id) {
       const w = wishes[id]; if (!w || w.fam !== myFamily()) return;
       if (!confirm(`「${w.place}」を削除しますか？`)) return;
-      const db = await getDb(); if (db) db.ref(`trips/${TRIP_ID}/wishes/${id}`).remove().catch(() => {});
+      const db = await getDb(); if (db) db.ref(`trips/${TRIP_ID}/posts/${id}`).remove().catch(() => {});
     }
+    function setPostFilter(f) { postFilter = f; renderWishes(); }
     function renderWishes() {
-      const ids = Object.keys(wishes).sort((a, b) => (wishes[b].at || 0) - (wishes[a].at || 0));
+      const all = Object.keys(wishes).sort((a, b) => (wishes[b].at || 0) - (wishes[a].at || 0));
       const cnt = document.getElementById('wishCount');
-      cnt.textContent = ids.length; cnt.classList.toggle('hidden', !ids.length);
+      cnt.textContent = all.length; cnt.classList.toggle('hidden', !all.length);
       const box = document.getElementById('wishList'); if (!box) return;
-      if (!ids.length) { box.innerHTML = '<p class="wish-empty">まだ投稿がありません。<br>最初の「行きたいところ」を投稿してみよう！</p>'; return; }
+      const n = c => all.filter(id => (wishes[id].cat || 'place') === c).length;
+      document.getElementById('postFilter').innerHTML =
+        `<button class="post-chip ${postFilter === 'all' ? 'on' : ''}" onclick="setPostFilter('all')">すべて <small>${all.length}</small></button>` +
+        Object.entries(POST_CATS).map(([id, ct]) => `<button class="post-chip ${postFilter === id ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostFilter('${id}')"><i class="fa-solid ${ct.icon}"></i>${ct.name} <small>${n(id)}</small></button>`).join('');
+      const ids = postFilter === 'all' ? all : all.filter(id => (wishes[id].cat || 'place') === postFilter);
+      if (!ids.length) { box.innerHTML = `<p class="wish-empty">${all.length ? 'この区分の投稿はまだありません。' : 'まだ投稿がありません。<br>最初の投稿をしてみよう！'}</p>`; return; }
       const me = myFamily();
       box.innerHTML = ids.map(id => {
-        const w = wishes[id], f = FAMILIES.find(x => x.id === w.fam);
-        const d = new Date(w.at || 0), when = `${d.getMonth() + 1}/${d.getDate()}`;
+        const w = wishes[id], f = FAMILIES.find(x => x.id === w.fam), ct = POST_CATS[w.cat] || POST_CATS.place;
+        const d = new Date(w.at || 0), when = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         let host = ''; try { host = w.url ? new URL(w.url).hostname.replace(/^www\./, '') : ''; } catch (e) {}
         const pic = w.img
           ? `<a href="${esc(w.url)}" target="_blank" rel="noopener"><img class="wish-img" src="${esc(w.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></a>`
           : (w.url ? `<a class="wish-noimg" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>${esc(host)}</a>` : '');
-        return `<div class="wish-item">${pic}<div class="wish-body">
-          <div class="wish-top"><h3>${esc(w.place)}</h3>${f ? `<span class="wish-by"><img src="${famMembersArt(f).url}" alt="">${esc(f.name)}</span>` : ''}</div>
+        const who = w.who && f ? `<span class="wish-by"><img src="${personArt(w.who)}" alt="">${esc(f.name)}<br>${whoLabel(w.who)}</span>` : (f ? `<span class="wish-by">${esc(f.name)}</span>` : '');
+        return `<div class="wish-item ${w.cat === 'tweet' ? 'tweet' : ''}">${pic}<div class="wish-body">
+          <div class="wish-top"><div style="flex:1;min-width:0"><span class="post-cat" style="--c:${ct.c}"><i class="fa-solid ${ct.icon}"></i> ${ct.name}</span><h3>${esc(w.place)}</h3></div>${who}</div>
           ${w.note ? `<p class="wish-note">${esc(w.note)}</p>` : ''}
           <div class="wish-foot"><time>${when}</time>
             ${w.url ? `<a class="wish-link" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Webで見る</a>` : ''}
-            ${w.fam === me ? `<button class="wish-act" onclick="openWishForm('${id}')">編集</button><button class="wish-act del" onclick="delWish('${id}')">削除</button>` : ''}
+            ${w.fam === me ? `<button class="wish-act" onclick="openPostForm('${id}')">編集</button><button class="wish-act del" onclick="delPost('${id}')">削除</button>` : ''}
           </div></div></div>`;
       }).join('');
     }
     async function initWishes() {
       renderWishes();
       const db = await getDb(); if (!db) return;
-      wishRef = db.ref(`trips/${TRIP_ID}/wishes`);
-      wishRef.on('value', snap => {
+      db.ref(`trips/${TRIP_ID}/posts`).on('value', snap => {
         const v = snap.val() || {}; wishes = {};
         Object.entries(v).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
         renderWishes();
