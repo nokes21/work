@@ -81,6 +81,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     .hidden { display: none !important; }
+    /* iPhone で 入力するときに 画面が ズームしないように（16px より ちいさいと ズームする） */
+    input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea { font-size: 16px !important; }
     .net-bar {
       position: fixed; top: 40px; left: 0; right: 0; z-index: 41; text-align: center;
       background: #5a6b80; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px;
@@ -1573,11 +1575,6 @@
       0% { left: 150px; transform: scaleX(1); } 49.9% { left: calc(100% - 22px); transform: scaleX(1); }
       50% { left: calc(100% - 22px); transform: scaleX(-1); } 99.9% { left: 150px; transform: scaleX(-1); } 100% { left: 150px; transform: scaleX(1); }
     }
-    .reply-row { position: relative; }
-    .reply-peek { position: absolute; right: 64px; bottom: calc(100% - 4px); overflow: hidden; height: 22px; pointer-events: none; }
-    .reply-peek canvas { display: block; animation: reply-peek 3s ease-in-out infinite; }
-    @keyframes reply-peek { 0%, 100% { transform: translateY(16px); } 40%, 70% { transform: translateY(0); } }
-    .reply-form { padding-top: 14px; }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
     .note-auto:has(.note-saved.hidden) { display: none; }
@@ -4845,7 +4842,7 @@
             <div class="reply-body"><div class="reply-meta"><b>${f ? esc(f.name) : ''} ${whoLabel(r.who || '')}</b><time>${fmt(r.at)}</time>${r.fam === me ? `<button class="reply-del" onclick="delReply('${id}','${rid}')">削除</button>` : ''}</div>
             <p>${esc(r.text)}</p><div class="reply-reacts">${reactRow(r, `r:${id}:${rid}`)}</div></div></div>`; }).join('')}
           ${me ? `<form class="reply-form" onsubmit="sendReply(event,'${id}')">
-            <div class="reply-row"><span class="reply-peek">${kidPx((id.charCodeAt(1) || 0) % 7, 2)}</span><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
+            <div class="reply-row"><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
           </form>` : ''}
         </div>` : ''}`;
     }
