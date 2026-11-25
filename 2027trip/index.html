@@ -1522,6 +1522,23 @@
     .reply-reacts .rx-picker { margin: 6px 0 0 -36px; width: calc(100% + 36px); padding: 6px; }
     .reply-reacts .rx-grid button { height: 34px; font-size: 18px; }
     .reply-reacts .rx-kids button { height: 48px; }
+
+    /* みんなの投稿：ノートの はいけいを やめて よこを ひろく */
+    #sheet-posts.modal.sheet { padding: 10px 6px; }
+    #sheet-posts .sheet-card { background: var(--paper); }
+    #sheet-posts .sheet-scroll { padding: 52px 8px 12px; }
+    #sheet-posts .page { background: none; box-shadow: none; padding: 0; border-radius: 0; }
+    #sheet-posts .page::before, #sheet-posts .page::after { display: none; }
+    #sheet-posts .page-head { margin-left: 4px; }
+    #sheet-posts .memo { margin-left: 0; margin-right: 0; }
+    #sheet-posts .wish-item { margin-bottom: 10px; }
+    #sheet-posts .wish-body { padding: 10px 10px 10px; }
+    /* ひっぱって こうしん */
+    .ptr { height: 0; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-soft); transition: height .2s; }
+    .ptr i { transition: transform .2s; }
+    .ptr.ready i { transform: rotate(180deg); }
+    .ptr.busy i { animation: ptr-spin .8s linear infinite; }
+    @keyframes ptr-spin { to { transform: rotate(360deg); } }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
     .note-auto:has(.note-saved.hidden) { display: none; }
@@ -2063,6 +2080,7 @@
     <div class="sheet-card">
       <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
       <div class="page">
+        <div class="ptr" id="postPtr"><i class="fa-solid fa-arrow-down"></i><span>引っぱって更新</span></div>
         <div class="page-head"><h2>みんなの投稿</h2><span class="en">BOARD</span></div>
         <p class="memo">行きたいところ、食べたいもの、ひとことなど、なんでも投稿してください！</p>
         <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openPostForm()"><i class="fa-solid fa-plus"></i>新しく投稿する</button>
@@ -4793,6 +4811,41 @@
           </div>${postSocial(id, w, me)}</div></div>`;
       }).join('') + (rest ? `<button class="btn btn-wide post-more" onclick="morePosts()">もっと見る（あと${rest}件）</button>` : '');
     }
+
+    /* ===== みんなの投稿：下に 引っぱって 更新 ===== */
+    async function refreshPosts() {
+      const db = await getDb(); if (!db) return false;
+      try { db.goOffline(); db.goOnline(); } catch (e) {}                     // つなぎなおす
+      try {
+        const snap = await Promise.race([db.ref(`trips/${TRIP_ID}/posts`).once('value'), new Promise((_, ng) => setTimeout(ng, 8000))]);
+        const v = snap.val() || {}; wishes = {}; snapCache('posts', v);
+        Object.entries(v).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
+        renderWishes(); return true;
+      } catch (e) { return false; }
+    }
+    (function () {
+      const sc = () => document.querySelector('#sheet-posts .sheet-scroll');
+      let y0 = null, dy = 0, busy = false;
+      const ptr = document.getElementById('postPtr');
+      const show = (h, txt, cls) => { ptr.style.height = h + 'px'; ptr.querySelector('span').textContent = txt; ptr.className = 'ptr ' + (cls || ''); };
+      document.addEventListener('touchstart', e => {
+        const el = sc(); if (busy || !el || !el.contains(e.target) || el.scrollTop > 0) { y0 = null; return; }
+        y0 = e.touches[0].clientY; dy = 0;
+      }, { passive: true });
+      document.addEventListener('touchmove', e => {
+        if (y0 == null) return; const el = sc(); if (!el || el.scrollTop > 0) { y0 = null; show(0, '引っぱって更新'); return; }
+        dy = e.touches[0].clientY - y0;
+        if (dy > 0) show(Math.min(dy * .5, 90), dy > 110 ? '離すと更新' : '引っぱって更新', dy > 110 ? 'ready' : '');
+      }, { passive: true });
+      document.addEventListener('touchend', async () => {
+        if (y0 == null) return; y0 = null;
+        if (dy <= 110) { show(0, '引っぱって更新'); return; }
+        busy = true; show(56, '更新しています…', 'busy');
+        const ok = await refreshPosts();
+        show(56, ok ? '更新しました' : '更新できませんでした（電波を確認してください）', '');
+        setTimeout(() => { show(0, '引っぱって更新'); busy = false; }, 1000);
+      });
+    })();
     async function initWishes() {
       const cw = snapCache('posts');
       if (cw) Object.entries(cw).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
