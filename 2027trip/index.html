@@ -722,6 +722,8 @@
     .route-map { position: relative; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: var(--paper); }
     .route-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .route-list { list-style: none; margin: 12px 0 10px; padding: 0 0 0 4px; display: grid; gap: 4px; position: relative; }
+    .sched-leg { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: -4px 0 10px; font-size: 12px; font-weight: 700; }
+    .sched-leg .route-leg a { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; border-radius: 999px; padding: 2px 12px; }
     .route-list li.route-leg { padding-left: 32px; font-size: 11.5px; font-weight: 700; }
     .route-leg a { display: inline-flex; align-items: center; gap: 5px; color: var(--sea); text-decoration: none; background: rgba(43,122,140,.08); border-radius: 999px; padding: 1px 10px; }
     .route-leg.train a { color: var(--stamp); background: rgba(200,85,61,.08); }
@@ -2315,6 +2317,7 @@
       renderSouvenirList();
       renderSpots();
       renderRoute();
+      renderSchedLegs();
       renderStopPhotos();
       renderDayFlow();
       initPayments();
@@ -2399,6 +2402,30 @@
       const enc = encodeURIComponent;
       const url = `https://www.google.com/maps/dir/?api=1&travelmode=transit&origin=${enc(a.q)}&destination=${enc(b.q)}`;
       return `<li class="route-leg train"><a href="${url}" target="_blank" rel="noopener"><i class="fa-solid fa-train"></i>電車・新幹線で約2時間30分<small>（目安）</small></a></li>`;
+    }
+    // 日程にも いどう じかん
+    function renderSchedLegs() {
+      document.querySelectorAll('.sched-leg').forEach(e => e.remove());
+      const { h, list } = routeFor(typeof myFamily === 'function' ? myFamily() : '');
+      const find = k => list.findIndex(r => legKey(r) === k);
+      const legs = (from, to) => {                                           // from〜to の あいだの くかん（でんしゃも ふくむ）
+        let html = ''; for (let i = from; i < to; i++) html += routeLeg(list[i], list[i + 1], h);
+        return html.replace(/<li class="route-leg( train)?">/g, '<span class="route-leg$1">').replace(/<\/li>/g, '</span>');
+      };
+      const put = (html, ref, before) => {
+        if (!html || !ref) return;
+        const d = document.createElement('div'); d.className = 'sched-leg'; d.innerHTML = html;
+        before ? ref.before(d) : ref.after(d);
+      };
+      const st = id => document.getElementById(id);
+      const iL = find('lapras'), iS = list.findIndex((r, i) => legKey(r) === 'strawberry');
+      put(legs(0, iL), st('sched-1'), true);                                  // おうち → ラプラス公園
+      put(legs(find('lapras'), find('abe')), st('sched-1'));
+      put(legs(find('murakami'), find('gyutan')), st('sched-2'));
+      put(legs(find('gyutan'), find('planetarium')), st('sched-3'));
+      put(legs(find('planetarium'), find('hotel')), st('sched-4'));
+      put(legs(find('hotel'), iS), st('sched-6'));
+      put(legs(iS, list.length - 1), st('sched-8'));                          // かいさん → おうち
     }
     function renderRoute() {
       const box = document.getElementById('routeCard'); if (!box) return;
@@ -4159,7 +4186,7 @@
     }
     function setMyFamily(f) {
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
-      renderTicketFamily(); renderRoute(); if (window.revealScan) revealScan();
+      renderTicketFamily(); renderRoute(); renderSchedLegs(); if (window.revealScan) revealScan();
       editingKid = null; renderKidCards();
       renderReady(); updateMyReady(); initFamilyMemo(); if (window.renderWhere) renderWhere(); syncPayFamily(); if (window.renderWishes) renderWishes();
     }
