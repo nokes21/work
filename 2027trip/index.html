@@ -2002,6 +2002,15 @@
     </div>
   </div>
 
+  <div id="whoPick" class="modal hidden" style="z-index:60" onclick="if (event.target === this) this.classList.add('hidden')">
+    <div class="modal-card">
+      <div class="news-k">WHO?</div>
+      <h3>いいねするのは？</h3>
+      <p>このスマホを使っている人を選んでください。次からは自動で選ばれます。</p>
+      <div class="fam-pick-grid" id="whoPickBtns"></div>
+    </div>
+  </div>
+
   <!-- ===== みんなの投稿（みぎしたの ボタン） ===== -->
   <button class="wish-fab" id="wishFab" onclick="openPosts()" aria-label="みんなの投稿">
     <i class="fa-solid fa-comments"></i><span>みんなの<br>投稿</span><b class="wish-count hidden" id="wishCount"></b>
@@ -4454,12 +4463,29 @@
     function setPostFilter(f) { postFilter = f; postShow = 10; renderWishes(); }
     let postShow = 10, openReplies = new Set(), replyWho = {}, postRenderPending = false;
     function morePosts() { postShow += 10; renderWishes(); }
+    // この スマホを つかっている ひと（パパ／ママ）＝ さいごに とうこう・へんしん した ひと
+    function myWho() {
+      const fam = myFamily(); if (!fam) return '';
+      let last = ''; try { last = localStorage.getItem('miyagi_trip_post_who') || ''; } catch (e) {}
+      return adultsOf(fam).includes(last) ? last : '';
+    }
+    function askWho(then) {
+      const fam = myFamily(), box = document.getElementById('whoPick');
+      document.getElementById('whoPickBtns').innerHTML = adultsOf(fam).map(a =>
+        `<button class="fam-pick" data-a="${a}"><img src="${personArt(a)}" alt="" style="height:48px;image-rendering:pixelated"><b>${whoLabel(a)}</b></button>`).join('');
+      box.querySelectorAll('[data-a]').forEach(bt => bt.onclick = () => {
+        try { localStorage.setItem('miyagi_trip_post_who', bt.dataset.a); } catch (e) {}
+        box.classList.add('hidden'); then(bt.dataset.a);
+      });
+      box.classList.remove('hidden');
+    }
     async function toggleLike(id) {
       const fam = myFamily(); if (!fam) { closeSheet(); openFamPick(); return; }
+      const who = myWho(); if (!who) { askWho(() => toggleLike(id)); return; }
       const w = wishes[id]; if (!w) return;
       const db = await getDb(); if (!db) return;
-      const ref = db.ref(`trips/${TRIP_ID}/posts/${id}/likes/${fam}`);
-      (w.likes && w.likes[fam] ? ref.remove() : ref.set(true)).catch(() => {});
+      const ref = db.ref(`trips/${TRIP_ID}/posts/${id}/likes/${who}`);
+      (w.likes && w.likes[who] ? ref.remove() : ref.set(true)).catch(() => {});
     }
     function toggleReplies(id) { openReplies.has(id) ? openReplies.delete(id) : openReplies.add(id); renderWishes(); }
     function setReplyWho(id, who) { replyWho[id] = who; try { localStorage.setItem('miyagi_trip_post_who', who); } catch (e) {} renderWishes(); }
@@ -4497,8 +4523,10 @@
       document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.like-fams')) e.preventDefault(); });
     })();
     function postSocial(id, w, me) {
-      const likes = Object.keys(w.likes || {}).filter(f => FAMILIES.find(x => x.id === f));
-      const liked = me && w.likes && w.likes[me];
+      const likes = Object.keys(w.likes || {}).filter(a => /-(papa|mama)$/.test(a) && FAMILIES.find(x => x.id === famOf(a)));
+      const mw = myWho(), liked = mw && w.likes && w.likes[mw];
+      const likeFams = [...new Set(likes.map(famOf))];
+      const likeNames = likes.map(a => FAMILIES.find(x => x.id === famOf(a)).name + whoLabel(a)).join('・');
       const reps = Object.entries(w.replies || {}).filter(([, r]) => r && typeof r.text === 'string').sort((a, b) => (a[1].at || 0) - (b[1].at || 0));
       const open = openReplies.has(id);
       let last = ''; try { last = localStorage.getItem('miyagi_trip_post_who') || ''; } catch (e) {}
@@ -4506,7 +4534,7 @@
       const fmt = at => { const d = new Date(at || 0); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
       return `<div class="post-social">
           <button class="like-btn ${liked ? 'on' : ''}" onclick="toggleLike('${id}')" aria-label="いいね"><i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i><b>${likes.length || ''}</b></button>
-          <span class="like-fams" data-who="${esc(likes.map(f => FAMILIES.find(x => x.id === f).name).join('・'))}">${likes.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
+          <span class="like-fams" data-who="${esc(likeNames)}">${likeFams.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
           <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')" aria-label="返信"><i class="fa-regular fa-comment"></i>返信<b>${reps.length || ''}</b></button>
         </div>
         ${open ? `<div class="replies">
