@@ -1504,7 +1504,7 @@
     @keyframes rx-hop { to { transform: translateY(-2px); } }
     .rx-add { color: var(--ink-soft); padding: 2px 8px; font-size: 15px; }
     .rx-add span { font-size: 11px; margin-left: -3px; }
-    .rx .like-who { bottom: calc(100% + 8px); left: 0; }
+    .rx .like-who { bottom: calc(100% + 8px); left: 0; white-space: normal; width: max-content; max-width: 220px; text-align: left; line-height: 1.4; }
     .post-social .rx-picker { order: 3; flex-basis: 100%; }
     .rx-picker { width: 100%; margin-top: 8px; background: #fff; border: 1.5px solid var(--paper-line); border-radius: 12px; padding: 8px; box-shadow: 0 6px 14px -8px rgba(31,53,80,.4); animation: pop-in .18s ease-out; }
     .rx-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
@@ -4683,7 +4683,8 @@
       const order = [...REACTS.map(x => x[0]), ...KID_REACTS.map(k => 'kid_' + k)];
       const chips = order.filter(k => (m[k] || []).length).map(k => {
         const who = m[k], on = mw && who.includes(mw);
-        const names = who.map(a => FAMILIES.find(x => x.id === famOf(a)).name + whoLabel(a)).join('・');
+        let names = who.map(a => FAMILIES.find(x => x.id === famOf(a)).name + whoLabel(a)).join('・');
+        if (k.startsWith('kid_')) names = `「${kidName(k.slice(4))}」スタンプ：${names}`;   // どの子か わかるように
         return `<button class="rx ${on ? 'on' : ''}" data-who="${esc(names)}" onclick="if (!rxLong) toggleReact('${key}','${k}')">${reactFace(k)}<b>${who.length}</b></button>`;
       }).join('');
       const open = reactPicker === key;
