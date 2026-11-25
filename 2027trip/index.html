@@ -1409,6 +1409,7 @@
     .post-filter::-webkit-scrollbar { display: none; }
     .post-filter .post-chip { flex: none; font-size: 12px; padding: 4px 11px; }
     .post-filter .post-chip small { font-family: var(--mono); font-size: 11px; opacity: .8; }
+    .post-filter .post-chip i { font-size: 14px; }
     .post-cat { display: inline-block; font-size: 11px; font-weight: 900; color: #fff; background: var(--c); border-radius: 4px; padding: 1px 7px; margin-bottom: 4px; }
     .wish-item.tweet .wish-top h3 { font-size: 15px; font-weight: 700; }
     .wish-fab:active { transform: scale(.93); }
@@ -1442,7 +1443,9 @@
     /* いいね・へんしん */
     .post-social { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--paper-line); }
     .like-btn, .reply-toggle { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 12.5px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-    .like-btn b { font-family: var(--mono); font-size: 12px; }
+    .like-btn b, .reply-toggle b { font-family: var(--mono); font-size: 12px; }
+    .like-btn b:empty, .reply-toggle b:empty { display: none; }
+    .like-btn, .reply-toggle { min-width: 44px; justify-content: center; font-size: 15px; }
     .like-btn.on { border-color: #ff6f91; color: #e0476c; background: #fff0f4; }
     .like-btn.on i { animation: like-pop .35s cubic-bezier(.3,1.8,.5,1); }
     @keyframes like-pop { from { transform: scale(.4); } to { transform: none; } }
@@ -4470,9 +4473,9 @@
       const who = replyWho[id] || (me && adultsOf(me).includes(last) ? last : (me ? adultsOf(me)[0] : ''));
       const fmt = at => { const d = new Date(at || 0); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
       return `<div class="post-social">
-          <button class="like-btn ${liked ? 'on' : ''}" onclick="toggleLike('${id}')"><i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i>いいね<b>${likes.length || ''}</b></button>
+          <button class="like-btn ${liked ? 'on' : ''}" onclick="toggleLike('${id}')" aria-label="いいね"><i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i><b>${likes.length || ''}</b></button>
           <span class="like-fams">${likes.map(f => `<img src="${homeIconUrlSmall(f)}" alt="" title="${esc(FAMILIES.find(x => x.id === f).name)}">`).join('')}</span>
-          <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')"><i class="fa-regular fa-comment"></i>返信${reps.length ? ` ${reps.length}件` : 'する'}</button>
+          <button class="reply-toggle ${open ? 'on' : ''}" onclick="toggleReplies('${id}')" aria-label="返信"><i class="fa-regular fa-comment"></i><b>${reps.length || ''}</b></button>
         </div>
         ${open ? `<div class="replies">
           ${reps.map(([rid, r]) => { const f = FAMILIES.find(x => x.id === r.fam); return `<div class="reply">
@@ -4503,7 +4506,7 @@
       const n = c => all.filter(id => (wishes[id].cat || 'place') === c).length;
       document.getElementById('postFilter').innerHTML =
         `<button class="post-chip ${postFilter === 'all' ? 'on' : ''}" onclick="setPostFilter('all')">すべて <small>${all.length}</small></button>` +
-        Object.entries(POST_CATS).map(([id, ct]) => `<button class="post-chip ${postFilter === id ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostFilter('${id}')"><i class="fa-solid ${ct.icon}"></i>${ct.name} <small>${n(id)}</small></button>`).join('');
+        Object.entries(POST_CATS).map(([id, ct]) => `<button class="post-chip ${postFilter === id ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostFilter('${id}')" title="${ct.name}" aria-label="${ct.name}"><i class="fa-solid ${ct.icon}"></i><small>${n(id)}</small></button>`).join('');
       const ids = postFilter === 'all' ? all : all.filter(id => (wishes[id].cat || 'place') === postFilter);
       if (!ids.length) { box.innerHTML = `<p class="wish-empty">${all.length ? 'この区分の投稿はまだありません。' : 'まだ投稿がありません。<br>最初の投稿をしてみよう！'}</p>`; return; }
       const me = myFamily();
