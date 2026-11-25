@@ -1536,6 +1536,9 @@
     #sheet-posts .page-head { position: sticky; top: 0; z-index: 4; background: var(--paper); padding: 16px 56px 12px 4px; margin: 0 -8px 14px; padding-left: 12px; border-radius: 0; box-shadow: 0 6px 6px -6px rgba(60,40,10,.25); }
     #sheet-posts .sheet-scroll { overflow-x: hidden; touch-action: pan-y; }   /* よこに うごかない */
     #sheet-posts .memo { margin-left: 0; margin-right: 0; }
+    .badge-ask { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 8px 10px; background: #fff; border: 1.5px dashed var(--sea); border-radius: 10px; font-size: 12.5px; font-weight: 700; color: var(--sea); }
+    .badge-ask span { flex: 1; }
+    .badge-ask .btn { flex: none; padding: 6px 16px; font-size: 13px; background: var(--sea); }
     .post-list-head { display: flex; align-items: baseline; gap: 6px; margin: 4px 2px 10px; padding-bottom: 6px; border-bottom: 2px solid var(--paper-line); font-size: 14px; font-weight: 900; color: var(--ink); }
     .post-list-head i { color: var(--stamp); font-size: 13px; }
     .post-list-head small { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink-soft); }
@@ -2121,6 +2124,10 @@
         <div class="ptr" id="postPtr"><canvas class="kid-px ptr-kid" data-k="0" data-s="2"></canvas><i class="fa-solid fa-arrow-down"></i><span>引っぱって更新</span></div>
         <div class="page-head"><h2>みんなの投稿</h2><span class="en">BOARD</span></div>
         <p class="memo">行きたいところ、食べたいもの、ひとことなど、なんでも投稿してください！</p>
+        <div class="badge-ask hidden" id="badgeAsk">
+          <span><i class="fa-solid fa-bell"></i> ホーム画面のアイコンに、未読の数を出せます</span>
+          <button class="btn" onclick="askBadge()">出す</button>
+        </div>
         <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openPostForm()"><i class="fa-solid fa-plus"></i>新しく投稿する</button>
         <form class="wish-form hidden" id="wishForm" onsubmit="savePost(event)">
           <div class="field-label">区分</div>
@@ -4531,6 +4538,21 @@
       tweet:    { name: 'つぶやき',       icon: 'fa-comment',      c: '#7b8fa8', title: 'ひとこと',       ph: '例：楽しみすぎて眠れない！', note: '' },
     };
     let wishes = {}, wishEditing = null, postCat = 'place', postWho = '', postFilter = 'all';
+    /* ===== ホーム画面の アイコンに 未読の かず（バッジ） ===== */
+    const isStandalone = () => navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+    function badgeAllowed() { return 'setAppBadge' in navigator && (!('Notification' in window) || Notification.permission === 'granted'); }
+    function updateAppBadge(n) {
+      if (!('setAppBadge' in navigator)) return;
+      try { (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(() => {}); } catch (e) {}
+      // まだ きょかして いない ときだけ「出す」ボタン（iPhone の ホーム画面から ひらいた とき）
+      const ask = document.getElementById('badgeAsk');
+      if (ask) ask.classList.toggle('hidden', !(isStandalone() && 'Notification' in window && Notification.permission === 'default'));
+    }
+    async function askBadge() {
+      try { await Notification.requestPermission(); } catch (e) {}
+      renderWishes();
+    }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && window.renderWishes) renderWishes(); });
     let postsSeenPrev = 0;
     function openPosts() { postsSeenPrev = postsSeen(); openSheet('posts'); markPostsSeen(); renderWishes(); }
     // みどく：さいごに ひらいた ときより あたらしい、ほかの 家族の 投稿・返信
@@ -4863,6 +4885,7 @@
       if (!document.getElementById('sheet-posts').classList.contains('hidden')) markPostsSeen();   // ひらいている あいだは よんだ ことに
       const cnt = document.getElementById('wishCount'), un = unreadPosts();
       cnt.textContent = un > 9 ? '9+' : un; cnt.classList.toggle('hidden', !un);
+      updateAppBadge(un);
       const box = document.getElementById('wishList'); if (!box) return;
       const n = c => all.filter(id => (wishes[id].cat || 'place') === c).length;
       document.getElementById('postFilter').innerHTML =
