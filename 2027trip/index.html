@@ -1543,6 +1543,41 @@
     .ptr.ready i { transform: rotate(180deg); }
     .ptr.busy i { animation: ptr-spin .8s linear infinite; }
     @keyframes ptr-spin { to { transform: rotate(360deg); } }
+
+    /* みんなの投稿の こどもたち */
+    canvas.kid-px { image-rendering: pixelated; display: inline-block; vertical-align: bottom; }
+    .ptr { position: relative; }
+    .ptr-kid { margin-right: 4px; }
+    .ptr.busy .ptr-kid { animation: kid-dash .5s ease-in-out infinite alternate; }
+    .ptr.done .ptr-kid { animation: kid-hop .35s ease-out 2; }
+    .ptr.busy i, .ptr.done i { display: none; }
+    .ptr.done span { color: var(--stamp); font-weight: 900; }
+    @keyframes kid-dash { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
+    @keyframes kid-hop { 50% { transform: translateY(-10px); } }
+    .kid-fly { position: fixed; z-index: 75; pointer-events: none; }
+    .kid-deliver { left: 0; top: 42%; display: flex; align-items: flex-end; gap: 2px; animation: kid-run-across 2.2s linear forwards; }
+    .kd-mail { font-size: 20px; margin-bottom: 14px; animation: kid-hop .3s ease-in-out infinite; }
+    .kd-say { position: absolute; left: -6px; bottom: 100%; margin-bottom: 4px; white-space: nowrap; background: #fff; border: 2px solid var(--ink); border-radius: 10px; padding: 2px 10px; font-size: 14px; font-weight: 900; color: var(--stamp); }
+    @keyframes kid-run-across { from { transform: translateX(-80px); } to { transform: translateX(calc(100vw + 20px)); } }
+    .kid-pop { animation: kid-pop-up .9s ease-out forwards; }
+    @keyframes kid-pop-up { 0% { transform: translateY(14px) scale(.6); opacity: 0; } 30% { transform: translateY(-14px) scale(1); opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+    .post-new { display: inline-flex; align-items: flex-end; gap: 1px; margin-left: 6px; vertical-align: bottom; }
+    .post-new canvas { height: 26px !important; width: auto !important; }
+    .post-new b { font-family: var(--mono); font-size: 10px; font-weight: 600; color: #fff; background: var(--stamp); border-radius: 3px 3px 3px 0; padding: 1px 4px; margin-bottom: 14px; animation: new-wave 1s ease-in-out infinite alternate; transform-origin: left bottom; }
+    @keyframes new-wave { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+    .post-list-head { position: relative; overflow: hidden; padding-top: 2px; }
+    .plh-walk { position: absolute; bottom: 0; left: 150px; animation: plh-walk 14s linear infinite; }
+    .plh-walk canvas { height: 24px !important; width: auto !important; display: block; }
+    /* みぎへ あるいて、くるっと もどる */
+    @keyframes plh-walk {
+      0% { left: 150px; transform: scaleX(1); } 49.9% { left: calc(100% - 22px); transform: scaleX(1); }
+      50% { left: calc(100% - 22px); transform: scaleX(-1); } 99.9% { left: 150px; transform: scaleX(-1); } 100% { left: 150px; transform: scaleX(1); }
+    }
+    .reply-row { position: relative; }
+    .reply-peek { position: absolute; right: 64px; bottom: calc(100% - 4px); overflow: hidden; height: 22px; pointer-events: none; }
+    .reply-peek canvas { display: block; animation: reply-peek 3s ease-in-out infinite; }
+    @keyframes reply-peek { 0%, 100% { transform: translateY(16px); } 40%, 70% { transform: translateY(0); } }
+    .reply-form { padding-top: 14px; }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
     .note-auto:has(.note-saved.hidden) { display: none; }
@@ -2084,7 +2119,7 @@
     <div class="sheet-card">
       <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
       <div class="page">
-        <div class="ptr" id="postPtr"><i class="fa-solid fa-arrow-down"></i><span>引っぱって更新</span></div>
+        <div class="ptr" id="postPtr"><canvas class="kid-px ptr-kid" data-k="0" data-s="2"></canvas><i class="fa-solid fa-arrow-down"></i><span>引っぱって更新</span></div>
         <div class="page-head"><h2>みんなの投稿</h2><span class="en">BOARD</span></div>
         <p class="memo">行きたいところ、食べたいもの、ひとことなど、なんでも投稿してください！</p>
         <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openPostForm()"><i class="fa-solid fa-plus"></i>新しく投稿する</button>
@@ -4497,7 +4532,8 @@
       tweet:    { name: 'つぶやき',       icon: 'fa-comment',      c: '#7b8fa8', title: 'ひとこと',       ph: '例：楽しみすぎて眠れない！', note: '' },
     };
     let wishes = {}, wishEditing = null, postCat = 'place', postWho = '', postFilter = 'all';
-    function openPosts() { openSheet('posts'); markPostsSeen(); renderWishes(); }
+    let postsSeenPrev = 0;
+    function openPosts() { postsSeenPrev = postsSeen(); openSheet('posts'); markPostsSeen(); renderWishes(); }
     // みどく：さいごに ひらいた ときより あたらしい、ほかの 家族の 投稿・返信
     function postsSeen() { try { return +(localStorage.getItem('miyagi_trip_posts_seen') || 0); } catch (e) { return 0; } }
     function postItems() {
@@ -4590,6 +4626,7 @@
       if (old) { ['url', 'note', 'img'].forEach(k => { if (!(k in v)) v[k] = null; }); ref.update(v).catch(() => alert('保存できませんでした')); }
       else ref.set(v).catch(() => alert('保存できませんでした'));
       closePostForm();
+      if (!old) kidDeliver();
       if (url && !v.img) { const img = await fetchWishImage(url); if (img) ref.child('img').set(img).catch(() => {}); }
     }
     async function delPost(id) {
@@ -4675,6 +4712,38 @@
       document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.like-fams')) e.preventDefault(); });
     })();
 
+
+    /* ===== みんなの投稿の なかの こどもたち ===== */
+    // <canvas class="kid-px" data-k="こどもの ばんごう" data-s="おおきさ"> を かく。walk が ついていれば あしを うごかす
+    function kidPx(k, S = 2, cls = '') { return `<canvas class="kid-px ${cls}" data-k="${k}" data-s="${S}"></canvas>`; }
+    function paintKids(root = document, step = 0) {
+      const art = window.KID_ART; if (!art) return;
+      root.querySelectorAll('canvas.kid-px').forEach(c => {
+        const k = +c.dataset.k, S = +c.dataset.s || 2, fr = art.SPR[k]; if (!fr) return;
+        const img = fr[c.classList.contains('walk') ? step % 2 : 0];
+        if (c.width !== art.W * S || c.height !== img.height * S) { c.width = art.W * S; c.height = img.height * S; c.style.width = c.width + 'px'; c.style.height = c.height + 'px'; }
+        const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      });
+    }
+    let kidStep = 0;
+    setInterval(() => { kidStep++; const sh = document.getElementById('sheet-posts'); if (sh && !sh.classList.contains('hidden')) paintKids(sh, kidStep); document.querySelectorAll('.kid-fly').forEach(f => paintKids(f, kidStep)); }, 220);
+    const randKid = () => Math.floor(Math.random() * 7);
+    // 2. とうこうしたら：てがみを もって はしりぬける
+    function kidDeliver() {
+      const f = document.createElement('div'); f.className = 'kid-fly kid-deliver';
+      f.innerHTML = `<span class="kd-say">投稿完了！</span>${kidPx(randKid(), 3, 'walk')}<span class="kd-mail">✉️</span>`;
+      document.body.appendChild(f); paintKids(f);
+      setTimeout(() => f.remove(), 2300);
+    }
+    // 3. スタンプを おしたら：ボタンから ぴょん
+    function kidPop(el, k) {
+      if (!el) return; const r = el.getBoundingClientRect();
+      const f = document.createElement('div'); f.className = 'kid-fly kid-pop';
+      f.style.left = (r.left + r.width / 2 - 12) + 'px'; f.style.top = (r.top - 30) + 'px';
+      f.innerHTML = kidPx(k == null ? randKid() : k, 2, 'walk');
+      document.body.appendChild(f); paintKids(f);
+      setTimeout(() => f.remove(), 900);
+    }
     /* ===== スタンプ（Slack の リアクション みたいに） ===== */
     const REACTS = [
       ['heart', '❤️'], ['good', '👍'], ['clap', '👏'], ['ok', '🙆'], ['lol', '😆'], ['love', '🥰'],
@@ -4719,6 +4788,7 @@
         </div>` : ''}`;
     }
     function openReactPicker(key) { reactPicker = reactPicker === key ? '' : key; renderWishes(); }
+    document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('.rx, .rx-grid button'); if (b) window.__rxFrom = b; }, true);
     async function toggleReact(key, rk) {
       const fam = myFamily(); if (!fam) { closeSheet(); openFamPick(); return; }
       const who = myWho(); if (!who) { askWho(() => toggleReact(key, rk)); return; }
@@ -4731,7 +4801,11 @@
       if (on) {
         db.ref(`${base}/reacts/${rk}/${who}`).remove().catch(() => {});
         if (rk === 'heart') db.ref(`${base}/likes/${who}`).remove().catch(() => {});   // まえの いいね も けす
-      } else db.ref(`${base}/reacts/${rk}/${who}`).set(true).catch(() => {});
+      } else {
+        db.ref(`${base}/reacts/${rk}/${who}`).set(true).catch(() => {});
+        const kk = rk.startsWith('kid_') ? KID_IDS.indexOf(rk.slice(4)) : null;
+        kidPop(window.__rxFrom, kk >= 0 ? kk : null);
+      }
       renderWishes();
     }
     // スタンプを 長押しで おした ひと
@@ -4771,7 +4845,7 @@
             <div class="reply-body"><div class="reply-meta"><b>${f ? esc(f.name) : ''} ${whoLabel(r.who || '')}</b><time>${fmt(r.at)}</time>${r.fam === me ? `<button class="reply-del" onclick="delReply('${id}','${rid}')">削除</button>` : ''}</div>
             <p>${esc(r.text)}</p><div class="reply-reacts">${reactRow(r, `r:${id}:${rid}`)}</div></div></div>`; }).join('')}
           ${me ? `<form class="reply-form" onsubmit="sendReply(event,'${id}')">
-            <div class="reply-row"><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
+            <div class="reply-row"><span class="reply-peek">${kidPx((id.charCodeAt(1) || 0) % 7, 2)}</span><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
           </form>` : ''}
         </div>` : ''}`;
     }
@@ -4796,7 +4870,7 @@
         `<button class="post-chip ${postFilter === 'all' ? 'on' : ''}" onclick="setPostFilter('all')">すべて <small>${all.length}</small></button>` +
         Object.entries(POST_CATS).map(([id, ct]) => `<button class="post-chip ${postFilter === id ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostFilter('${id}')" title="${ct.name}" aria-label="${ct.name}"><i class="fa-solid ${ct.icon}"></i><small>${n(id)}</small></button>`).join('');
       const ids = postFilter === 'all' ? all : all.filter(id => (wishes[id].cat || 'place') === postFilter);
-      document.getElementById('postListHead').innerHTML = `<i class="fa-solid fa-list"></i> 投稿一覧${postFilter !== 'all' ? `（${POST_CATS[postFilter].name}）` : ''} <small>${ids.length}件</small>`;
+      document.getElementById('postListHead').innerHTML = `<i class="fa-solid fa-list"></i> 投稿一覧${postFilter !== 'all' ? `（${POST_CATS[postFilter].name}）` : ''} <small>${ids.length}件</small><span class="plh-walk">${kidPx(4, 2, 'walk')}</span>`;
       if (!ids.length) { box.innerHTML = `<p class="wish-empty">${all.length ? 'この区分の投稿はまだありません。' : 'まだ投稿がありません。<br>最初の投稿をしてみよう！'}</p>`; return; }
       const me = myFamily();
       const rest = Math.max(0, ids.length - postShow);
@@ -4809,13 +4883,14 @@
           : (w.url ? `<a class="wish-noimg" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>${esc(host)}</a>` : '');
         const who = w.who && f ? `<span class="wish-by"><img src="${personArt(w.who)}" alt="">${esc(f.name)}<br>${whoLabel(w.who)}</span>` : (f ? `<span class="wish-by">${esc(f.name)}</span>` : '');
         return `<div class="wish-item ${w.cat === 'tweet' ? 'tweet' : ''}">${pic}<div class="wish-body">
-          <div class="wish-top"><div style="flex:1;min-width:0"><span class="post-cat" style="--c:${ct.c}"><i class="fa-solid ${ct.icon}"></i> ${ct.name}</span><h3>${esc(w.place)}</h3></div>${who}</div>
+          <div class="wish-top"><div style="flex:1;min-width:0"><span class="post-cat" style="--c:${ct.c}"><i class="fa-solid ${ct.icon}"></i> ${ct.name}</span>${(w.at || 0) > postsSeenPrev && w.fam !== me ? `<span class="post-new">${kidPx(id.length % 7, 2, 'walk')}<b>NEW</b></span>` : ''}<h3>${esc(w.place)}</h3></div>${who}</div>
           ${w.note ? `<p class="wish-note">${esc(w.note)}</p>` : ''}
           <div class="wish-foot"><time>${when}</time>
             ${w.url ? `<a class="wish-link" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Web</a>` : ''}
             ${w.fam === me ? `<button class="wish-act" onclick="openPostForm('${id}')">編集</button><button class="wish-act del" onclick="delPost('${id}')">削除</button>` : ''}
           </div>${postSocial(id, w, me)}</div></div>`;
       }).join('') + (rest ? `<button class="btn btn-wide post-more" onclick="morePosts()">もっと見る（あと${rest}件）</button>` : '');
+      paintKids(document.getElementById('sheet-posts'), kidStep);
     }
 
     /* ===== みんなの投稿：下に 引っぱって 更新 ===== */
@@ -4833,7 +4908,12 @@
       const sc = () => document.querySelector('#sheet-posts .sheet-scroll');
       let y0 = null, dy = 0, busy = false;
       const ptr = document.getElementById('postPtr');
-      const show = (h, txt, cls) => { ptr.style.height = h + 'px'; ptr.querySelector('span').textContent = txt; ptr.className = 'ptr ' + (cls || ''); };
+      const kid = ptr.querySelector('.ptr-kid');
+      const show = (h, txt, cls) => {
+        if (h && !ptr.style.height.startsWith(String(h)) && (!ptr.style.height || ptr.style.height === '0px')) { kid.dataset.k = randKid(); paintKids(ptr); }
+        ptr.style.height = h + 'px'; ptr.querySelector('span').textContent = txt; ptr.className = 'ptr ' + (cls || '');
+        kid.classList.toggle('walk', cls === 'busy');
+      };
       document.addEventListener('touchstart', e => {
         const el = sc(); if (busy || !el || !el.contains(e.target) || el.scrollTop > 0) { y0 = null; return; }
         y0 = e.touches[0].clientY; dy = 0;
@@ -4848,8 +4928,8 @@
         if (dy <= 110) { show(0, '引っぱって更新'); return; }
         busy = true; show(56, '更新しています…', 'busy');
         const ok = await refreshPosts();
-        show(56, ok ? '更新しました' : '更新できませんでした（電波を確認してください）', '');
-        setTimeout(() => { show(0, '引っぱって更新'); busy = false; }, 1000);
+        show(56, ok ? '更新完了！' : '更新できませんでした（電波を確認してください）', ok ? 'done' : '');
+        setTimeout(() => { show(0, '引っぱって更新'); busy = false; }, 1200);
       });
     })();
     async function initWishes() {
