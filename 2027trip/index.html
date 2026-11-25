@@ -1470,6 +1470,11 @@
     .reply-del { margin-left: auto; border: 0; background: none; color: var(--stamp); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
     .reply p { margin: 2px 0 0; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
     .reply-form { margin-top: 6px; }
+    .reply-like-row { display: flex; align-items: center; gap: 2px; margin-top: 2px; }
+    .reply-like { border: 0; background: none; padding: 2px 4px; font-size: 14px; color: var(--ink-soft); cursor: pointer; }
+    .reply-like.on { color: #e0476c; }
+    .reply-like.on i { animation: like-pop .35s cubic-bezier(.3,1.8,.5,1); }
+    .reply-like-n { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); padding: 2px 6px; margin-right: 0; }
     .reply-who { display: flex; gap: 6px; margin-bottom: 6px; }
     .reply-who button { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 2px 10px 2px 4px; font: inherit; font-size: 12px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
     .reply-who button img { height: 20px; image-rendering: pixelated; }
@@ -4516,6 +4521,22 @@
       input.value = ''; input.blur();
       db.ref(`trips/${TRIP_ID}/posts/${id}/replies`).push({ text, fam, who: adultsOf(fam).includes(who) ? who : adultsOf(fam)[0], at: Date.now() }).catch(() => alert('送れませんでした'));
     }
+    function likeWho(likes) {
+      return Object.keys(likes || {}).filter(a => /-(papa|mama)$/.test(a) && FAMILIES.find(x => x.id === famOf(a)));
+    }
+    function replyLike(id, rid, r) {
+      const ls = likeWho(r.likes), mw = myWho(), on = mw && r.likes && r.likes[mw];
+      const names = ls.map(a => FAMILIES.find(x => x.id === famOf(a)).name + whoLabel(a)).join('・');
+      return `<div class="reply-like-row"><button class="reply-like ${on ? 'on' : ''}" onclick="toggleReplyLike('${id}','${rid}')" aria-label="いいね"><i class="fa-${on ? 'solid' : 'regular'} fa-heart"></i></button>${ls.length ? `<span class="like-fams reply-like-n" data-who="${esc(names)}">${ls.length}</span>` : ''}</div>`;
+    }
+    async function toggleReplyLike(id, rid) {
+      const fam = myFamily(); if (!fam) { closeSheet(); openFamPick(); return; }
+      const who = myWho(); if (!who) { askWho(() => toggleReplyLike(id, rid)); return; }
+      const r = wishes[id] && wishes[id].replies && wishes[id].replies[rid]; if (!r) return;
+      const db = await getDb(); if (!db) return;
+      const ref = db.ref(`trips/${TRIP_ID}/posts/${id}/replies/${rid}/likes/${who}`);
+      (r.likes && r.likes[who] ? ref.remove() : ref.set(true)).catch(() => {});
+    }
     async function delReply(id, rid) {
       const r = wishes[id] && wishes[id].replies && wishes[id].replies[rid];
       if (!r || r.fam !== myFamily() || !confirm('この返信を削除しますか？')) return;
@@ -4558,7 +4579,7 @@
           ${reps.map(([rid, r]) => { const f = FAMILIES.find(x => x.id === r.fam); return `<div class="reply">
             <img class="reply-art" src="${personArt(r.who)}" alt="">
             <div class="reply-body"><div class="reply-meta"><b>${f ? esc(f.name) : ''} ${whoLabel(r.who || '')}</b><time>${fmt(r.at)}</time>${r.fam === me ? `<button class="reply-del" onclick="delReply('${id}','${rid}')">削除</button>` : ''}</div>
-            <p>${esc(r.text)}</p></div></div>`; }).join('')}
+            <p>${esc(r.text)}</p>${replyLike(id, rid, r)}</div></div>`; }).join('')}
           ${me ? `<form class="reply-form" onsubmit="sendReply(event,'${id}')">
             <div class="reply-row"><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
           </form>` : ''}
