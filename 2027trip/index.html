@@ -2447,7 +2447,7 @@
           const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day" style="--i:${i}">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day" style="--i:0">DAY 1</li>' : '');
           const pin = r.home ? '🏠' : r.train ? '🚄' : ROUTE_SPOTS.indexOf(r) + 1;
           const name = r.spot ? `<button class="route-name" onclick="flashEl(document.getElementById('spot-${r.spot}'))">${esc(r.label)}</button>` : `<span class="route-name">${esc(r.label)}</span>`;
-          return `${day}${i > 0 ? routeLeg(ROUTE[i - 1], r, h) : ''}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
+          return `${day}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
         }).join('')}</ol>
         ${h.mode === 'shinkansen' ? `<a class="spot-btn route-open route-train" href="${train}" target="_blank" rel="noopener"><i class="fa-solid fa-train"></i>新幹線の乗換案内を開く</a>` : ''}
         <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップで${h.mode === 'shinkansen' ? '宮城でのルート' : 'ルート'}を開く</a>`;
