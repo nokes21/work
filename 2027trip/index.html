@@ -1391,14 +1391,14 @@
     /* ===== 行きたいところ ===== */
     .wish-fab {
       position: fixed; right: 14px; bottom: calc(var(--foot-h, 64px) + 14px); z-index: 44;
-      width: 58px; height: 58px; border-radius: 50%; border: 3px solid #fff;
+      width: 70px; height: 66px; border-radius: 16px; border: 3px solid #fff;
       background: linear-gradient(160deg, #ffcf5c, #f2a12e); color: var(--ink);
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
       box-shadow: 0 6px 14px -4px rgba(120,80,10,.55); cursor: pointer; font: inherit;
       -webkit-tap-highlight-color: transparent; transition: transform .15s;
     }
-    .wish-fab i { font-size: 18px; }
-    .wish-fab span { font-size: 9px; font-weight: 900; letter-spacing: -.04em; line-height: 1.1; text-align: center; }
+    .wish-fab i { font-size: 22px; }
+    .wish-fab span { font-size: 11px; font-weight: 900; letter-spacing: -.04em; line-height: 1.15; text-align: center; }
     .post-cats, .post-who { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
     .post-chip { border: 1.5px solid var(--paper-line); background: var(--paper); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; font-weight: 900; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
     .post-chip.on { border-color: var(--c, var(--stamp)); background: var(--c, var(--stamp)); color: #fff; }
@@ -1412,7 +1412,7 @@
     .post-cat { display: inline-block; font-size: 11px; font-weight: 900; color: #fff; background: var(--c); border-radius: 4px; padding: 1px 7px; margin-bottom: 4px; }
     .wish-item.tweet .wish-top h3 { font-size: 15px; font-weight: 700; }
     .wish-fab:active { transform: scale(.93); }
-    .wish-count { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--stamp); color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; }
+    .wish-count { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--stamp); color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; }
     body.where-open .wish-fab { display: none; }
     @media (min-width: 1080px) { .wish-fab { bottom: 24px; right: 24px; } }
     .wish-new { margin: 4px 0 14px; background: #f2a12e; color: var(--ink); }
