@@ -722,6 +722,10 @@
     .route-map { position: relative; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: var(--paper); }
     .route-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .route-list { list-style: none; margin: 12px 0 10px; padding: 0 0 0 4px; display: grid; gap: 4px; position: relative; }
+    .route-list li.route-leg { padding-left: 32px; font-size: 11.5px; font-weight: 700; }
+    .route-leg a { display: inline-flex; align-items: center; gap: 5px; color: var(--sea); text-decoration: none; background: rgba(43,122,140,.08); border-radius: 999px; padding: 1px 10px; }
+    .route-leg.train a { color: var(--stamp); background: rgba(200,85,61,.08); }
+    .route-leg small { font-size: 10px; font-weight: 500; opacity: .8; }
     .route-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; position: relative; }
     .route-list li:not(.route-day) + li:not(.route-day)::before { content: ""; position: absolute; left: 10px; top: -6px; height: 8px; border-left: 2px dotted var(--sea); }
     .route-day { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; color: var(--stamp); margin-top: 4px; }
@@ -2375,6 +2379,27 @@
       }
       return { h, list: [home('出発', 1), ...ROUTE_SPOTS, home('到着', 2)] };
     }
+    // くるまの いどう じかん（めやす。じっさいの じかんは Googleマップで）
+    const LEG_MIN = {
+      'home>lapras': 270, 'lapras>abe': 25, 'abe>murakami': 5, 'murakami>gyutan': 5, 'gyutan>planetarium': 25,
+      'planetarium>hotel': 25, 'hotel>strawberry': 40, 'strawberry>home': 270, 'st>lapras': 25, 'strawberry>st': 20,
+    };
+    const legKey = r => r.home ? 'home' : r.train ? 'st' : r.spot;
+    function routeLeg(a, b, h) {
+      const enc = encodeURIComponent;
+      if ((a.home && b.train) || (a.train && b.home)) return trainLeg(a, b);
+      let min = LEG_MIN[`${legKey(a)}>${legKey(b)}`];
+      if (min == null) return '';
+      if (h.name === '相原' && (a.home || b.home)) min += 10;
+      const t = min >= 60 ? `${Math.floor(min / 60)}時間${min % 60 ? (min % 60) + '分' : ''}` : `${min}分`;
+      const url = `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${enc(a.q)}&destination=${enc(b.q)}`;
+      return `<li class="route-leg"><a href="${url}" target="_blank" rel="noopener"><i class="fa-solid fa-car-side"></i>車で約${t}<small>（目安）</small></a></li>`;
+    }
+    function trainLeg(a, b) {
+      const enc = encodeURIComponent;
+      const url = `https://www.google.com/maps/dir/?api=1&travelmode=transit&origin=${enc(a.q)}&destination=${enc(b.q)}`;
+      return `<li class="route-leg train"><a href="${url}" target="_blank" rel="noopener"><i class="fa-solid fa-train"></i>電車・新幹線で約2時間30分<small>（目安）</small></a></li>`;
+    }
     function renderRoute() {
       const box = document.getElementById('routeCard'); if (!box) return;
       const enc = encodeURIComponent;
@@ -2395,7 +2420,7 @@
           const day = i > 0 && r.day !== ROUTE[i - 1].day ? `<li class="route-day" style="--i:${i}">DAY ${r.day}</li>` : (i === 0 ? '<li class="route-day" style="--i:0">DAY 1</li>' : '');
           const pin = r.home ? '🏠' : r.train ? '🚄' : ROUTE_SPOTS.indexOf(r) + 1;
           const name = r.spot ? `<button class="route-name" onclick="flashEl(document.getElementById('spot-${r.spot}'))">${esc(r.label)}</button>` : `<span class="route-name">${esc(r.label)}</span>`;
-          return `${day}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
+          return `${day}${i > 0 ? routeLeg(ROUTE[i - 1], r, h) : ''}<li style="--i:${i}"><span class="route-pin">${pin}</span>${name}</li>`;
         }).join('')}</ol>
         ${h.mode === 'shinkansen' ? `<a class="spot-btn route-open route-train" href="${train}" target="_blank" rel="noopener"><i class="fa-solid fa-train"></i>新幹線の乗換案内を開く</a>` : ''}
         <a class="spot-btn route-open" href="${open}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i>Googleマップで${h.mode === 'shinkansen' ? '宮城でのルート' : 'ルート'}を開く</a>`;
