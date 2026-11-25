@@ -2005,8 +2005,8 @@
   <div id="whoPick" class="modal hidden" style="z-index:60" onclick="if (event.target === this) this.classList.add('hidden')">
     <div class="modal-card">
       <div class="news-k">WHO?</div>
-      <h3>いいねするのは？</h3>
-      <p>このスマホを使っている人を選んでください。次からは自動で選ばれます。</p>
+      <h3>このスマホを使うのは？</h3>
+      <p>いいね・投稿・返信に使います。次からは自動で選ばれます。</p>
       <div class="fam-pick-grid" id="whoPickBtns"></div>
     </div>
   </div>
@@ -2025,8 +2025,6 @@
         <form class="wish-form hidden" id="wishForm" onsubmit="savePost(event)">
           <div class="field-label">区分</div>
           <div class="post-cats" id="postCats"></div>
-          <div class="field-label">投稿する人</div>
-          <div class="post-who" id="postWho"></div>
           <label class="field-label" for="wishPlace"><span id="postTitleLabel">行きたいところ</span> <span class="req">必須</span></label>
           <input id="wishPlace" class="field" maxlength="40" required>
           <label class="field-label" for="wishUrl">WebのURL <span class="opt">任意</span></label>
@@ -4408,8 +4406,6 @@
       document.getElementById('postCats').innerHTML = Object.entries(POST_CATS).map(([id, ct]) =>
         `<button type="button" class="post-chip ${id === postCat ? 'on' : ''}" style="--c:${ct.c}" onclick="setPostCat('${id}')"><i class="fa-solid ${ct.icon}"></i>${ct.name}</button>`).join('');
       const fam = myFamily();
-      document.getElementById('postWho').innerHTML = adultsOf(fam).map(id =>
-        `<button type="button" class="post-chip ${id === postWho ? 'on' : ''}" onclick="setPostWho('${id}')"><img src="${personArt(id)}" alt="">${whoLabel(id)}</button>`).join('');
       const ct = POST_CATS[postCat];
       document.getElementById('postTitleLabel').textContent = ct.title;
       document.getElementById('wishPlace').placeholder = ct.ph;
@@ -4457,6 +4453,8 @@
     async function savePost(e) {
       e.preventDefault();
       const fam = myFamily(); if (!fam) return;
+      const old0 = wishEditing ? wishes[wishEditing] : null;
+      if (!old0 && !myWho()) { askWho(() => savePost(e)); return; }
       const place = document.getElementById('wishPlace').value.trim();
       const rawUrl = document.getElementById('wishUrl').value.trim(), url = normUrl(rawUrl);
       const note = document.getElementById('wishNote').value.trim();
@@ -4466,7 +4464,7 @@
       const old = wishEditing ? wishes[wishEditing] : null;
       if (old && old.fam !== fam) return;
       const ref = wishEditing ? db.ref(`trips/${TRIP_ID}/posts/${wishEditing}`) : db.ref(`trips/${TRIP_ID}/posts`).push();
-      const v = { cat: postCat, place, fam, who: adultsOf(fam).includes(postWho) ? postWho : adultsOf(fam)[0], at: old ? old.at : Date.now() };
+      const v = { cat: postCat, place, fam, who: old && old.who ? old.who : (myWho() || adultsOf(fam)[0]), at: old ? old.at : Date.now() };
       if (url) v.url = url;
       if (note) v.note = note;
       if (old && old.img && old.url === url) v.img = old.img;                  // URL が おなじなら がぞうは そのまま
@@ -4513,8 +4511,7 @@
       e.preventDefault();
       const fam = myFamily(); if (!fam) { closeSheet(); openFamPick(); return; }
       const input = e.target.querySelector('input'), text = input.value.trim(); if (!text) return;
-      let last = ''; try { last = localStorage.getItem('miyagi_trip_post_who') || ''; } catch (er) {}
-      const who = replyWho[id] || (adultsOf(fam).includes(last) ? last : adultsOf(fam)[0]);
+      const who = myWho(); if (!who) { askWho(() => sendReply(e, id)); return; }
       const db = await getDb(); if (!db) { alert('通信できませんでした'); return; }
       input.value = ''; input.blur();
       db.ref(`trips/${TRIP_ID}/posts/${id}/replies`).push({ text, fam, who: adultsOf(fam).includes(who) ? who : adultsOf(fam)[0], at: Date.now() }).catch(() => alert('送れませんでした'));
@@ -4563,7 +4560,6 @@
             <div class="reply-body"><div class="reply-meta"><b>${f ? esc(f.name) : ''} ${whoLabel(r.who || '')}</b><time>${fmt(r.at)}</time>${r.fam === me ? `<button class="reply-del" onclick="delReply('${id}','${rid}')">削除</button>` : ''}</div>
             <p>${esc(r.text)}</p></div></div>`; }).join('')}
           ${me ? `<form class="reply-form" onsubmit="sendReply(event,'${id}')">
-            <div class="reply-who">${adultsOf(me).map(a => `<button type="button" class="${a === who ? 'on' : ''}" onclick="setReplyWho('${id}','${a}')"><img src="${personArt(a)}" alt="">${whoLabel(a)}</button>`).join('')}</div>
             <div class="reply-row"><input class="field" maxlength="200" placeholder="返信を書く…" enterkeyhint="send" onblur="if (postRenderPending) setTimeout(renderWishes, 150)"><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i></button></div>
           </form>` : ''}
         </div>` : ''}`;
