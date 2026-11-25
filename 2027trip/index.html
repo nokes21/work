@@ -1020,7 +1020,7 @@
     .gacha-cell canvas { width: 100%; height: 100%; image-rendering: pixelated; }
     .gacha-hint { margin: 0 0 10px; font-size: 12px; color: var(--ink-soft); text-align: left; line-height: 1.6; }
 
-    .gacha-card { max-height: 88vh; overflow-y: auto; }
+    .gacha-card { max-width: 380px; }
     .gacha-card h3 { margin: 2px 0 8px; }
     .gacha-close { margin-top: 14px; background: #fff; color: var(--ink); border: 1.5px solid var(--paper-line); }
     .gacha-cell.got { cursor: pointer; }
@@ -1186,6 +1186,10 @@
     /* スクロールするのは なかみ だけ（✕ は いつも みぎうえ に） */
     .sheet-scroll { overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 52px 12px 14px; min-height: 0; flex: 1; }
     @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    /* ふつうの ポップアップも ✕ を みぎうえに（なかみ だけ スクロール） */
+    .modal-card.with-x { position: relative; display: flex; flex-direction: column; max-height: calc(100dvh - 32px); overflow: hidden; padding: 0; }
+    .modal-card.with-x > .modal-scroll { overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 26px 20px 20px; min-height: 0; }
+    .modal-card.with-x > .sheet-x { position: absolute; top: 10px; right: 12px; z-index: 5; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
     .sheet-card > .sheet-x { position: absolute; top: 10px; right: 12px; z-index: 5; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
     .sheet-card .page { box-shadow: none; }
     .sheet-card .page-head { position: static; }
@@ -1988,7 +1992,6 @@
           </div>
           <p class="admin-memo">※ 見るだけです。自分のコレクションは変わりません。</p>
         </div>
-      <button class="btn btn-wide" style="margin-top:14px" onclick="closeAdmin()">閉じる</button>
     </div>
   </div>
 
@@ -2115,7 +2118,6 @@
       </div>
       <div class="mv-modal-btns">
         <button class="btn btn-wide mv-cancel hidden" id="mvCancel" onclick="mvStop = true">作るのをやめる</button>
-        <button class="btn btn-wide mv-close" id="mvClose" onclick="closeMvModal()">閉じる</button>
       </div>
     </div>
   </div>
@@ -2133,7 +2135,6 @@
       </div>
       <div class="gacha-col-head">あつめたポーズ <span id="gachaCount"></span></div>
       <div class="gacha-col" id="gachaCol"></div>
-      <button onclick="closeGacha()" class="btn btn-wide gacha-close">閉じる</button>
     </div>
   </div>
   <div class="pose-view hidden" id="poseView" onclick="this.classList.add('hidden')">
@@ -2156,7 +2157,6 @@
       <div class="news-k">NOTICE</div>
       <h3>お知らせ</h3>
       <p class="news-body">今のスケジュールはまだ仮です。<br>色々決まったらしおりに反映します。<br>決めるのはお願いします🙇‍♂️<span class="by">by あかり父</span></p>
-      <button onclick="closeNews()" class="btn btn-wide">閉じる</button>
     </div>
   </div>
 
@@ -2169,7 +2169,6 @@
       </div>
       <h3>お疲れさまでした！</h3>
       <p>またみんなで遊びに行きましょう！</p>
-      <button onclick="closeFinishModal()" class="btn btn-wide">閉じる</button>
     </div>
   </div>
 
@@ -4389,6 +4388,15 @@
         if (n >= 3) { n = 0; openAdmin(); }
       });
     })();
+    [['gachaModal', 'closeGacha()'], ['newsModal', 'closeNews()'], ['adminModal', 'closeAdmin()'], ['whoPick', "document.getElementById('whoPick').classList.add('hidden')"],
+     ['mvModal', 'closeMvModal()'], ['finishModal', 'closeFinishModal()']].forEach(([id, fn]) => {
+      const card = document.querySelector('#' + id + ' > .modal-card'); if (!card || card.classList.contains('with-x')) return;
+      const sc = document.createElement('div'); sc.className = 'modal-scroll';
+      [...card.childNodes].forEach(n => sc.appendChild(n));
+      const x = document.createElement('button'); x.className = 'sheet-x'; x.setAttribute('aria-label', '閉じる'); x.textContent = '✕';
+      x.setAttribute('onclick', fn); if (id === 'mvModal') x.id = 'mvClose';
+      card.classList.add('with-x'); card.append(sc, x);
+    });
     document.querySelectorAll('.sheet-card').forEach(card => {
       if (card.querySelector(':scope > .sheet-scroll')) return;
       const sc = document.createElement('div'); sc.className = 'sheet-scroll';
