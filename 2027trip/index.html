@@ -4304,7 +4304,9 @@
       if (pose === 'nete') {
         g.save(); g.translate(C / 2, C / 2);
         const br = Math.sin(t * 2.4) > 0 ? 0 : S;                              // すーすー
-        g.rotate(-Math.PI / 2); g.drawImage(img, -w / 2, -h / 2 + S * 2 + br, w, h); g.restore();
+        if (art.KIDS[k] && art.KIDS[k].size === art.CRAWL) g.drawImage(img, -w / 2 - S * 2, -h / 2 + S * 4 + br, w, h);   // ハイハイの子は まわさない
+        else { g.rotate(-Math.PI / 2); g.drawImage(img, -w / 2, -h / 2 + S * 2 + br, w, h); }
+        g.restore();
         g.fillStyle = '#5a6b80';
         [0, .5].forEach((o, i) => {                                            // Z が ふわふわ のぼる
           const p = (t * .55 + o) % 1, sz = S * (4 + i);
