@@ -1387,6 +1387,44 @@
     .bgm-try.playing { border-style: solid; background: var(--sea); color: #fff; }
     .bgm-note { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
     .bgm-note:empty { display: none; }
+
+    /* ===== 行きたいところ ===== */
+    .wish-fab {
+      position: fixed; right: 14px; bottom: calc(var(--foot-h, 64px) + 14px); z-index: 44;
+      width: 58px; height: 58px; border-radius: 50%; border: 3px solid #fff;
+      background: linear-gradient(160deg, #ffcf5c, #f2a12e); color: var(--ink);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+      box-shadow: 0 6px 14px -4px rgba(120,80,10,.55); cursor: pointer; font: inherit;
+      -webkit-tap-highlight-color: transparent; transition: transform .15s;
+    }
+    .wish-fab i { font-size: 19px; }
+    .wish-fab span { font-size: 10px; font-weight: 900; letter-spacing: -.02em; }
+    .wish-fab:active { transform: scale(.93); }
+    .wish-count { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--stamp); color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; }
+    body.where-open .wish-fab { display: none; }
+    @media (min-width: 1080px) { .wish-fab { bottom: 24px; right: 24px; } }
+    .wish-new { margin: 4px 0 14px; background: #f2a12e; color: var(--ink); }
+    .wish-form { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 12px; padding: 12px; margin: 0 0 16px; }
+    .wish-form .field { width: 100%; margin-bottom: 4px; }
+    .wish-form .req { font-size: 10.5px; color: #fff; background: var(--stamp); border-radius: 4px; padding: 0 5px; margin-left: 4px; }
+    .wish-form .opt { font-size: 10.5px; color: var(--ink-soft); border: 1px solid var(--paper-line); border-radius: 4px; padding: 0 5px; margin-left: 4px; }
+    .wish-form-btns { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 10px; }
+    .wish-cancel { background: #fff; color: var(--ink-soft); border: 1.5px solid var(--paper-line); }
+    .wish-item { background: #fff; border: 1.5px solid var(--paper-line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+    .wish-img { display: block; width: 100%; aspect-ratio: 1.91 / 1; object-fit: cover; background: var(--paper); }
+    .wish-noimg { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--paper); color: var(--ink-soft); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .wish-body { padding: 10px 12px 12px; }
+    .wish-top { display: flex; align-items: flex-start; gap: 8px; }
+    .wish-top h3 { margin: 0; font-size: 16px; font-weight: 900; flex: 1; line-height: 1.35; }
+    .wish-by { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+    .wish-by img { height: 20px; image-rendering: pixelated; }
+    .wish-note { margin: 6px 0 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .wish-foot { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .wish-foot time { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-right: auto; }
+    .wish-link, .wish-act { border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; text-decoration: none; }
+    .wish-link { border-color: var(--sea); color: var(--sea); }
+    .wish-act.del { color: var(--stamp); }
+    .wish-empty { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 18px 0; }
     /* なんでもメモ */
     .note-auto { margin: -2px 0 10px; font-size: 12px; color: var(--ink-soft); }
     .note-auto:has(.note-saved.hidden) { display: none; }
@@ -1908,6 +1946,34 @@
           <p class="fam-fix-note">※ 最初に間違えて家族を選んでしまった場合は、TOPのラプラスを3回タップしてみてください</p>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- ===== 行きたいところ（みぎしたの ボタン） ===== -->
+  <button class="wish-fab" id="wishFab" onclick="openWish()" aria-label="行きたいところ">
+    <i class="fa-solid fa-lightbulb"></i><span>行きたい</span><b class="wish-count hidden" id="wishCount"></b>
+  </button>
+  <div id="sheet-wish" class="modal sheet hidden" onclick="if (event.target === this) closeSheet()">
+    <div class="sheet-card">
+      <button class="sheet-x" onclick="closeSheet()" aria-label="閉じる">✕</button>
+      <div class="page">
+        <div class="page-head"><h2>行きたいところ</h2><span class="en">WISH LIST</span></div>
+        <p class="memo">旅行で行ってみたい場所を、みんなで出し合おう！<br>投稿は4家族全員に共有されます。編集・削除できるのは自分の家族の投稿だけです。</p>
+        <button class="btn btn-wide wish-new" id="wishNewBtn" onclick="openWishForm()"><i class="fa-solid fa-plus"></i>行きたいところを投稿する</button>
+        <form class="wish-form hidden" id="wishForm" onsubmit="saveWish(event)">
+          <label class="field-label" for="wishPlace">行きたいところ <span class="req">必須</span></label>
+          <input id="wishPlace" class="field" maxlength="40" placeholder="例：仙台うみの杜水族館" required>
+          <label class="field-label" for="wishUrl">WebのURL <span class="opt">任意</span></label>
+          <input id="wishUrl" class="field" type="text" inputmode="url" autocapitalize="off" autocorrect="off" maxlength="500" placeholder="https://…">
+          <label class="field-label" for="wishNote">内容 <span class="opt">任意</span></label>
+          <textarea id="wishNote" class="field" rows="3" maxlength="200" placeholder="例：イルカのショーが見たい！ 雨でも楽しめそう"></textarea>
+          <div class="wish-form-btns">
+            <button type="button" class="btn wish-cancel" onclick="closeWishForm()">やめる</button>
+            <button type="submit" class="btn" id="wishSave">投稿する</button>
+          </div>
+        </form>
+        <div id="wishList"></div>
+      </div>
     </div>
   </div>
 
@@ -4028,7 +4094,7 @@
       try { localStorage.setItem('miyagi_trip_my_family', f); } catch (e) {}
       renderTicketFamily(); renderRoute(); if (window.revealScan) revealScan();
       editingKid = null; renderKidCards();
-      renderReady(); updateMyReady(); initFamilyMemo(); if (window.renderWhere) renderWhere(); syncPayFamily();
+      renderReady(); updateMyReady(); initFamilyMemo(); if (window.renderWhere) renderWhere(); syncPayFamily(); if (window.renderWishes) renderWishes();
     }
     function myAllPacked() { return belongings.length > 0 && belongings.every(b => b.checked); }
     function updateMyReady() {
@@ -4226,6 +4292,102 @@
     function openWhereTab() {
       if (!whereMap) { initWhereMap(); return; }
       setTimeout(() => { whereMap.invalidateSize(); whereFitted = false; renderWhere(); }, 50);
+    }
+
+
+    /* ===== 行きたいところ（4家族で 共有・じぶんの 家族だけ 編集） ===== */
+    let wishes = {}, wishRef = null, wishEditing = null;
+    function openWish() { openSheet('wish'); renderWishes(); }
+    function openWishForm(id) {
+      if (!myFamily()) { closeSheet(); openFamPick(); return; }
+      wishEditing = id || null;
+      const w = id ? wishes[id] : null;
+      document.getElementById('wishPlace').value = w ? w.place : '';
+      document.getElementById('wishUrl').value = w ? (w.url || '') : '';
+      document.getElementById('wishNote').value = w ? (w.note || '') : '';
+      document.getElementById('wishSave').textContent = id ? '保存する' : '投稿する';
+      document.getElementById('wishForm').classList.remove('hidden');
+      document.getElementById('wishNewBtn').classList.add('hidden');
+      document.getElementById('wishForm').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      setTimeout(() => document.getElementById('wishPlace').focus(), 200);
+    }
+    function closeWishForm() {
+      wishEditing = null;
+      document.getElementById('wishForm').classList.add('hidden');
+      document.getElementById('wishNewBtn').classList.remove('hidden');
+    }
+    function normUrl(u) {
+      u = (u || '').trim(); if (!u) return '';
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      try { const x = new URL(u); return /^https?:$/.test(x.protocol) && x.hostname.includes('.') ? x.href : ''; } catch (e) { return ''; }
+    }
+    // URL から プレビュー画像を さがす（ページの 代表画像。とうこうした ときに 1かいだけ）
+    async function fetchWishImage(url) {
+      try {
+        const ctl = new AbortController(); setTimeout(() => ctl.abort(), 8000);
+        const r = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url), { signal: ctl.signal });
+        const j = await r.json(), d = j && j.data || {};
+        const img = (d.image && d.image.url) || (d.logo && d.logo.url) || '';
+        return /^https:\/\//.test(img) && img.length <= 800 ? img : '';
+      } catch (e) { return ''; }
+    }
+    async function saveWish(e) {
+      e.preventDefault();
+      const fam = myFamily(); if (!fam) return;
+      const place = document.getElementById('wishPlace').value.trim();
+      const rawUrl = document.getElementById('wishUrl').value.trim(), url = normUrl(rawUrl);
+      const note = document.getElementById('wishNote').value.trim();
+      if (!place) return;
+      if (rawUrl && !url) { alert('URL の形が正しくないようです（https:// から始まるアドレスを入れてください）'); return; }
+      const db = await getDb(); if (!db) { alert('通信できませんでした。電波のよい場所で、もう一度ためしてください'); return; }
+      const old = wishEditing ? wishes[wishEditing] : null;
+      if (old && old.fam !== fam) return;
+      const ref = wishEditing ? db.ref(`trips/${TRIP_ID}/wishes/${wishEditing}`) : db.ref(`trips/${TRIP_ID}/wishes`).push();
+      const v = { place, fam, at: old ? old.at : Date.now() };
+      if (url) v.url = url;
+      if (note) v.note = note;
+      if (old && old.img && old.url === url) v.img = old.img;                  // URL が おなじなら がぞうは そのまま
+      await ref.set(v).catch(() => alert('保存できませんでした'));
+      closeWishForm();
+      if (url && !v.img) { const img = await fetchWishImage(url); if (img) ref.child('img').set(img).catch(() => {}); }
+    }
+    async function delWish(id) {
+      const w = wishes[id]; if (!w || w.fam !== myFamily()) return;
+      if (!confirm(`「${w.place}」を削除しますか？`)) return;
+      const db = await getDb(); if (db) db.ref(`trips/${TRIP_ID}/wishes/${id}`).remove().catch(() => {});
+    }
+    function renderWishes() {
+      const ids = Object.keys(wishes).sort((a, b) => (wishes[b].at || 0) - (wishes[a].at || 0));
+      const cnt = document.getElementById('wishCount');
+      cnt.textContent = ids.length; cnt.classList.toggle('hidden', !ids.length);
+      const box = document.getElementById('wishList'); if (!box) return;
+      if (!ids.length) { box.innerHTML = '<p class="wish-empty">まだ投稿がありません。<br>最初の「行きたいところ」を投稿してみよう！</p>'; return; }
+      const me = myFamily();
+      box.innerHTML = ids.map(id => {
+        const w = wishes[id], f = FAMILIES.find(x => x.id === w.fam);
+        const d = new Date(w.at || 0), when = `${d.getMonth() + 1}/${d.getDate()}`;
+        let host = ''; try { host = w.url ? new URL(w.url).hostname.replace(/^www\./, '') : ''; } catch (e) {}
+        const pic = w.img
+          ? `<a href="${esc(w.url)}" target="_blank" rel="noopener"><img class="wish-img" src="${esc(w.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></a>`
+          : (w.url ? `<a class="wish-noimg" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>${esc(host)}</a>` : '');
+        return `<div class="wish-item">${pic}<div class="wish-body">
+          <div class="wish-top"><h3>${esc(w.place)}</h3>${f ? `<span class="wish-by"><img src="${famMembersArt(f).url}" alt="">${esc(f.name)}</span>` : ''}</div>
+          ${w.note ? `<p class="wish-note">${esc(w.note)}</p>` : ''}
+          <div class="wish-foot"><time>${when}</time>
+            ${w.url ? `<a class="wish-link" href="${esc(w.url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Webで見る</a>` : ''}
+            ${w.fam === me ? `<button class="wish-act" onclick="openWishForm('${id}')">編集</button><button class="wish-act del" onclick="delWish('${id}')">削除</button>` : ''}
+          </div></div></div>`;
+      }).join('');
+    }
+    async function initWishes() {
+      renderWishes();
+      const db = await getDb(); if (!db) return;
+      wishRef = db.ref(`trips/${TRIP_ID}/wishes`);
+      wishRef.on('value', snap => {
+        const v = snap.val() || {}; wishes = {};
+        Object.entries(v).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
+        renderWishes();
+      }, () => {});
     }
 
     /* ===== こどもたちが よろこぶ（ジャンプ） ===== */
@@ -4517,6 +4679,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       initReady();
       initWhere();
+      initWishes();
       syncPayFamily();
       renderGacha();
       initFamilyMemo();
