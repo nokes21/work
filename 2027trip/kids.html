@@ -719,5 +719,9 @@
   window.addEventListener('beforeprint', () => document.documentElement.style.setProperty('--z', 1));
   window.addEventListener('afterprint', fit);
 </script>
+<script>
+  // 電波が悪くても ひらけるように（しおりと おなじ しくみ）
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
 </body>
 </html>

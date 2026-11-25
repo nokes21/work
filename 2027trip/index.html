@@ -81,6 +81,11 @@
       -webkit-tap-highlight-color: transparent;
     }
     .hidden { display: none !important; }
+    .net-bar {
+      position: fixed; top: 40px; left: 0; right: 0; z-index: 41; text-align: center;
+      background: #5a6b80; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px;
+      box-shadow: 0 2px 6px -3px rgba(0,0,0,.4);
+    }
     /* はみだした ものが あっても 画面が よこに ずれないように */
     html, body { overflow-x: clip; }
 
@@ -1637,6 +1642,7 @@
     try { if (sessionStorage.getItem('miyagi_trip_splash') === '1') document.getElementById('splash').remove(); } catch (e) {}
   </script>
 
+  <div class="net-bar hidden" id="netBar"><i class="fa-solid fa-wifi"></i> オフライン中（前回の内容を表示しています）</div>
   <div class="wrap">
     <!-- ===== チケット ===== -->
     <!-- ===== ドット絵の こどもたち（オリジナル） ===== -->
@@ -2182,6 +2188,13 @@
     let payments = [];
     let simTime = null;
 
+    // 共有データの まえかい ぶん（電波が わるい ときに さきに だす）
+    function snapCache(key, v) {
+      try {
+        if (v === undefined) return JSON.parse(localStorage.getItem('miyagi_trip_cache_' + key) || 'null');
+        localStorage.setItem('miyagi_trip_cache_' + key, JSON.stringify(v));
+      } catch (e) { return null; }
+    }
     function esc(s) {
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
@@ -2343,6 +2356,8 @@
         </div>`).join('');
     }
     async function initPicks() {
+      const cp = snapCache('picks');
+      if (cp) { picks = Object.entries(cp).map(([key, v]) => ({ key, name: v.name, note: v.note || '', by: v.by, likes: v.likes || 0, createdAt: v.createdAt || 0 })); renderPicks(); }
       const db = await getDb();
       if (!db) {
         try { picks = JSON.parse(localStorage.getItem('miyagi_trip_gyutan_picks') || '[]'); } catch (e) { picks = []; }
@@ -2350,6 +2365,7 @@
       }
       picksRef = db.ref(`trips/${TRIP_ID}/gyutanPicks`);
       picksRef.on('value', snap => {
+        snapCache('picks', snap.val() || {});
         picks = Object.entries(snap.val() || {}).map(([key, v]) => ({ key, name: v.name, note: v.note || '', by: v.by, likes: v.likes || 0, createdAt: v.createdAt || 0 }));
         renderPicks();
       }, () => {});
@@ -2668,7 +2684,13 @@
       return dbPromise;
     }
 
+    function paymentsFrom(v) {
+      return Object.entries(v || {})
+        .map(([key, p]) => ({ key, family: p.family, title: p.title, amount: Number(p.amount) || 0, split: p.split, createdAt: p.createdAt || 0 }))
+        .sort((a, b) => a.createdAt - b.createdAt);
+    }
     async function initPayments() {
+      const cp = snapCache('payments'); if (cp && FIREBASE_CONFIG) payments = paymentsFrom(cp);
       renderPaymentList();
       if (!FIREBASE_CONFIG) {
         setSyncStatus('', '共有設定前：この端末だけに保存されます');
@@ -2681,15 +2703,14 @@
         paymentsRef = db.ref(`trips/${TRIP_ID}/payments`);
         paymentsRef.on('value', snap => {
           const v = snap.val() || {};
-          payments = Object.entries(v)
-            .map(([key, p]) => ({ key, family: p.family, title: p.title, amount: Number(p.amount) || 0, split: p.split, createdAt: p.createdAt || 0 }))
-            .sort((a, b) => a.createdAt - b.createdAt);
+          snapCache('payments', v);
+          payments = paymentsFrom(v);
           renderPaymentList();
           if (!document.getElementById('settlementResult').classList.contains('hidden')) calculateSettlement();
         }, () => setSyncStatus('err', '共有データを読み込めませんでした（権限・設定を確認）'));
         db.ref('.info/connected').on('value', snap => {
           if (snap.val()) setSyncStatus('on', '全家族で共有中');
-          else setSyncStatus('err', 'オフライン：つながると自動で反映されます');
+          else setSyncStatus('err', 'オフライン：つながると自動で送られます（それまでページを閉じないでください）');
         });
       } catch (e) {
         paymentsRef = null;
@@ -2937,13 +2958,14 @@
     }
     async function initProfiles() {
       loadLocalProfiles();
+      const cp = snapCache('profiles'); if (cp) profiles = cp;
       applyColors();
       renderKidCards();
       const db = await getDb();
       if (!db) return;
       profilesRef = db.ref(`trips/${TRIP_ID}/profiles`);
       profilesRef.on('value', snap => {
-        profiles = snap.val() || {};
+        profiles = snap.val() || {}; snapCache('profiles', profiles);
         if (!editingKid) { applyColors(); renderKidCards(); }
       });
     }
@@ -4223,7 +4245,7 @@
       renderReady();
       const db = await getDb(); if (!db) return;
       readyRef = db.ref(`trips/${TRIP_ID}/ready`);
-      readyRef.on('value', snap => { readyState = snap.val() || {}; renderReady(); updateMyReady(); }, () => {});
+      readyRef.on('value', snap => { readyState = snap.val() || {}; try { localStorage.setItem('miyagi_trip_ready', JSON.stringify(readyState)); } catch (e) {} renderReady(); updateMyReady(); }, () => {});
     }
 
 
@@ -4326,18 +4348,34 @@
       db.ref(`trips/${TRIP_ID}/where/${me}`).remove().then(() => whereSay('位置を消しました')).catch(() => {});
     }
     async function initWhere() {
+      const cw = snapCache('where'); if (cw) whereData = cw;
       renderWhere();
       setInterval(renderWhere, 60000);
       const db = await getDb(); if (!db) return;
       const ref = db.ref(`trips/${TRIP_ID}/where`);
       ref.on('value', snap => {
-        whereData = snap.val() || {};
+        whereData = snap.val() || {}; snapCache('where', whereData);
         // ふるい いちは けす（10じかん）
         Object.entries(whereData).forEach(([f, v]) => { if (!v || Date.now() - (v.at || 0) >= WHERE_TTL) ref.child(f).remove().catch(() => {}); });
         renderWhere();
       }, () => {});
     }
 
+
+    /* ===== オフラインの おしらせ ＆ スマホに ほぞん（Service Worker） ===== */
+    (function () {
+      const bar = document.getElementById('netBar');
+      let fbOk = null;
+      const upd = () => bar.classList.toggle('hidden', navigator.onLine && fbOk !== false);
+      addEventListener('online', upd); addEventListener('offline', upd); upd();
+      getDb().then(db => {
+        if (!db) return;
+        let first = true;
+        setTimeout(() => { if (first && fbOk === null) { fbOk = false; upd(); } }, 6000);   // 6びょう つながらなければ
+        db.ref('.info/connected').on('value', snap => { fbOk = !!snap.val(); if (fbOk) first = false; upd(); });
+      });
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+    })();
 
     /* ===== サブメニュー・ポップアップの ページ ===== */
     function openAdmin() { closeSubMenu(); document.getElementById('adminModal').classList.remove('hidden'); }
@@ -4488,8 +4526,8 @@
       if (url) v.url = url;
       if (note) v.note = note;
       if (old && old.img && old.url === url) v.img = old.img;                  // URL が おなじなら がぞうは そのまま
-      if (old) { ['url', 'note', 'img'].forEach(k => { if (!(k in v)) v[k] = null; }); await ref.update(v).catch(() => alert('保存できませんでした')); }
-      else await ref.set(v).catch(() => alert('保存できませんでした'));
+      if (old) { ['url', 'note', 'img'].forEach(k => { if (!(k in v)) v[k] = null; }); ref.update(v).catch(() => alert('保存できませんでした')); }
+      else ref.set(v).catch(() => alert('保存できませんでした'));
       closePostForm();
       if (url && !v.img) { const img = await fetchWishImage(url); if (img) ref.child('img').set(img).catch(() => {}); }
     }
@@ -4642,10 +4680,12 @@
       }).join('') + (rest ? `<button class="btn btn-wide post-more" onclick="morePosts()">もっと見る（あと${rest}件）</button>` : '');
     }
     async function initWishes() {
+      const cw = snapCache('posts');
+      if (cw) Object.entries(cw).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
       renderWishes();
       const db = await getDb(); if (!db) return;
       db.ref(`trips/${TRIP_ID}/posts`).on('value', snap => {
-        const v = snap.val() || {}; wishes = {};
+        const v = snap.val() || {}; wishes = {}; snapCache('posts', v);
         Object.entries(v).forEach(([id, w]) => { if (w && typeof w.place === 'string') wishes[id] = w; });
         renderWishes();
       }, () => {});
@@ -5080,6 +5120,14 @@
     async function loadWeather() {
       const sub = document.getElementById('weatherSub');
       const body = document.getElementById('weatherBody');
+      const cw = snapCache('weather');
+      const showCached = () => {
+        if (!cw) return false;
+        const d = new Date(cw.at);
+        sub.textContent = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} の情報`;
+        body.innerHTML = cw.html; return true;
+      };
+      if (!body.innerHTML.trim()) showCached();   // さきに まえかいの ぶん
       const now = simTime ? new Date(simTime) : new Date();
       const today = ymd(now);
       try {
@@ -5114,9 +5162,12 @@
           body.innerHTML = `<div class="wx wx-wide"><div class="when">いまの仙台</div><div class="icon">${ic}</div><div class="label">${lb}</div>
             <div class="temp">${Math.round(j.current.temperature_2m)}°　<span class="hi">${Math.round(j.daily.temperature_2m_max[0])}°</span> / <span class="lo">${Math.round(j.daily.temperature_2m_min[0])}°</span></div></div>`;
         }
+        snapCache('weather', { html: body.innerHTML, sub: sub.textContent, at: Date.now() });
       } catch (e) {
-        sub.textContent = '';
-        body.innerHTML = '<div class="wx wx-wide"><div class="label">天気を取得できませんでした</div></div>';
+        if (!showCached()) {
+          sub.textContent = '';
+          body.innerHTML = '<div class="wx wx-wide"><div class="label">天気を取得できませんでした</div></div>';
+        }
       }
     }
 
