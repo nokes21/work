@@ -1173,14 +1173,15 @@
     /* ===== ポップアップの ページ（メンバー・割り勘） ===== */
     .modal.sheet { align-items: center; padding: 16px 10px; }
     .sheet-card {
-      position: relative; width: 100%; max-width: 760px; max-height: calc(100dvh - 32px); overflow: auto;
-      -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      position: relative; width: 100%; max-width: 760px; max-height: calc(100dvh - 32px);
+      display: flex; flex-direction: column; overflow: hidden;
       background: var(--kraft); border-radius: 18px;
-      padding: 12px 12px 14px;
       animation: sheet-up .28s cubic-bezier(.2,.9,.3,1);
     }
+    /* スクロールするのは なかみ だけ（✕ は いつも みぎうえ に） */
+    .sheet-scroll { overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 52px 12px 14px; min-height: 0; flex: 1; }
     @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-    .sheet-card > .sheet-x { position: sticky; top: 0; display: block; z-index: 5; margin: 0 2px 8px auto; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
+    .sheet-card > .sheet-x { position: absolute; top: 10px; right: 12px; z-index: 5; box-shadow: 0 2px 6px rgba(31,53,80,.35); }
     .sheet-card .page { box-shadow: none; }
     .sheet-card .page-head { position: static; }
     body.sheet-open { overflow: hidden; }
@@ -4311,13 +4312,19 @@
         if (n >= 3) { n = 0; openAdmin(); }
       });
     })();
+    document.querySelectorAll('.sheet-card').forEach(card => {
+      if (card.querySelector(':scope > .sheet-scroll')) return;
+      const sc = document.createElement('div'); sc.className = 'sheet-scroll';
+      [...card.childNodes].forEach(n => { if (!(n.classList && n.classList.contains('sheet-x'))) sc.appendChild(n); });
+      card.appendChild(sc);
+    });
     function openSubMenu() { document.getElementById('subMenu').classList.remove('hidden'); }
     function closeSubMenu() { document.getElementById('subMenu').classList.add('hidden'); }
     function openSheet(id) {
       if (id === 'other') syncPayFamily();
       document.getElementById('sheet-' + id).classList.remove('hidden');
       document.body.classList.add('sheet-open');
-      const card = document.querySelector('#sheet-' + id + ' .sheet-card'); if (card) card.scrollTop = 0;
+      const card = document.querySelector('#sheet-' + id + ' .sheet-scroll'); if (card) card.scrollTop = 0;
       if (id === 'members') { renderFamilies(); }
     }
     function closeSheet() {
