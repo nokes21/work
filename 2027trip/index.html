@@ -1529,9 +1529,10 @@
     #sheet-posts .sheet-scroll { padding: 52px 8px 12px; }
     #sheet-posts .page { background: none; box-shadow: none; padding: 0; border-radius: 0; }
     #sheet-posts .page::before, #sheet-posts .page::after { display: none; }
-    #sheet-posts .page-head { margin-left: 4px; }
+    #sheet-posts .page-head { margin-left: 0; margin-right: 0; padding-left: 4px; padding-right: 0; }
+    #sheet-posts .sheet-scroll { overflow-x: hidden; touch-action: pan-y; }   /* よこに うごかない */
     #sheet-posts .memo { margin-left: 0; margin-right: 0; }
-    #sheet-posts .wish-item { margin-bottom: 10px; }
+    #sheet-posts .wish-item { margin-bottom: 18px; border: 2px solid #e2d6bf; box-shadow: 0 4px 10px -6px rgba(60,40,10,.35); }
     #sheet-posts .wish-body { padding: 10px 10px 10px; }
     /* ひっぱって こうしん */
     .ptr { height: 0; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-soft); transition: height .2s; }
