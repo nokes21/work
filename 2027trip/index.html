@@ -2225,7 +2225,10 @@
 
     let belongings = [];
     let souvenirs = [];   // { text, checked }
-    const initialSouvenirs = ['〇〇家にずんだ餅（8個入りくらい）', '会社用の萩の月（24個くらい）'];
+    const initialSouvenirs = [];
+    // まえの 初期値（チェックして いなければ けす）
+    const OLD_SOUVENIRS = ['〇〇家にずんだ餅（8個入りくらい）', '会社用の萩の月（24個くらい）'];
+    const dropOldSouvenirs = list => (list || []).filter(x => !(x && OLD_SOUVENIRS.includes(x.text) && !x.checked));
     // この ときより まえに ほぞんした 持ち物・お土産は、あたらしい 初期値に いれかえる（公開まえの 差し替え）
     const LIST_RESET_AT = 1795568749341;
     let payments = [];
@@ -2456,7 +2459,7 @@
       if (!container) return;
       container.innerHTML = '';
       if (belongings.length === 0) {
-        container.innerHTML = '<p class="empty">持ち物を追加してください♪</p>';
+        container.innerHTML = '<p class="empty">持ち物を追加してください</p>';
         return;
       }
       belongings.forEach((item, index) => {
@@ -2470,7 +2473,7 @@
       if (!container) return;
       container.innerHTML = '';
       if (souvenirs.length === 0) {
-        container.innerHTML = '<p class="empty">買いたいお土産を追加してください♪</p>';
+        container.innerHTML = '<p class="empty">買いたいお土産を追加してください</p>';
         return;
       }
       souvenirs.forEach((item, index) => {
@@ -2767,7 +2770,7 @@
 
       // お土産：あたらしい ほぞん → むかしの ほぞんから ひきつぎ → さいしょの あたい
       try {
-        if (s2) souvenirs = JSON.parse(s2);
+        if (s2) souvenirs = dropOldSouvenirs(JSON.parse(s2));
         else souvenirs = [];
       } catch (e) { souvenirs = []; }
       if (!s2 && souvenirs.length === 0) souvenirs = initialSouvenirs.map(t => ({ text: t, checked: false }));
@@ -4092,7 +4095,7 @@
         }
         try {
           if (v.belongings) belongings = JSON.parse(v.belongings);
-          if (v.souvenirs) souvenirs = JSON.parse(v.souvenirs);
+          if (v.souvenirs) souvenirs = dropOldSouvenirs(JSON.parse(v.souvenirs));
           if (v.notes) notes = JSON.parse(v.notes);
           try {
             localStorage.setItem('miyagi_trip_belongings_v3', JSON.stringify(belongings));
