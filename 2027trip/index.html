@@ -4398,7 +4398,22 @@
       tweet:    { name: 'つぶやき',       icon: 'fa-comment',      c: '#7b8fa8', title: 'ひとこと',       ph: '例：楽しみすぎて眠れない！', note: '' },
     };
     let wishes = {}, wishEditing = null, postCat = 'place', postWho = '', postFilter = 'all';
-    function openPosts() { openSheet('posts'); renderWishes(); }
+    function openPosts() { openSheet('posts'); markPostsSeen(); renderWishes(); }
+    // みどく：さいごに ひらいた ときより あたらしい、ほかの 家族の 投稿・返信
+    function postsSeen() { try { return +(localStorage.getItem('miyagi_trip_posts_seen') || 0); } catch (e) { return 0; } }
+    function postItems() {
+      const out = [];
+      Object.values(wishes).forEach(w => { out.push(w); Object.values(w.replies || {}).forEach(r => r && out.push(r)); });
+      return out;
+    }
+    function markPostsSeen() {
+      const mx = Math.max(Date.now(), ...postItems().map(x => x.at || 0));
+      try { localStorage.setItem('miyagi_trip_posts_seen', String(mx)); } catch (e) {}
+    }
+    function unreadPosts() {
+      const seen = postsSeen(), me = myFamily();
+      return postItems().filter(x => (x.at || 0) > seen && x.fam !== me).length;
+    }
     function adultsOf(fam) { return [`${fam}-papa`, `${fam}-mama`]; }
     function whoLabel(id) { return id.endsWith('-papa') ? 'パパ' : id.endsWith('-mama') ? 'ママ' : ''; }
     function personArt(id) {
@@ -4597,8 +4612,9 @@
       if (ae && ae.closest && ae.closest('.reply-form')) { postRenderPending = true; return; }
       postRenderPending = false;
       const all = Object.keys(wishes).sort((a, b) => (wishes[b].at || 0) - (wishes[a].at || 0));
-      const cnt = document.getElementById('wishCount');
-      cnt.textContent = all.length; cnt.classList.toggle('hidden', !all.length);
+      if (!document.getElementById('sheet-posts').classList.contains('hidden')) markPostsSeen();   // ひらいている あいだは よんだ ことに
+      const cnt = document.getElementById('wishCount'), un = unreadPosts();
+      cnt.textContent = un > 9 ? '9+' : un; cnt.classList.toggle('hidden', !un);
       const box = document.getElementById('wishList'); if (!box) return;
       const n = c => all.filter(id => (wishes[id].cat || 'place') === c).length;
       document.getElementById('postFilter').innerHTML =
