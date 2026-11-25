@@ -730,56 +730,6 @@
     button.route-name { text-decoration: underline dotted var(--paper-line); text-underline-offset: 3px; }
     .route-open { width: 100%; }
     .route-train { margin-bottom: 8px; background: var(--sea); }
-    /* 牛タン お店マップ：すみびやきの メニュー板ふう */
-    .gyutan-card {
-      --g-bg: #2b211c; --g-bg2: #3a2d26; --g-ink: #f6ead8; --g-soft: #cdb89c;
-      background: var(--g-bg); color: var(--g-ink);
-      border: 0;
-      box-shadow: 0 10px 22px -12px rgba(30,15,5,.7);
-      grid-column: 1 / -1;
-    }
-    .gyutan-hero { position: relative; }
-    .gyutan-hero img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-    .gyutan-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(43,33,28,0) 35%, rgba(43,33,28,.92) 100%); }
-    .gyutan-hero-text { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1; }
-    .gyutan-ribbon { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .2em; color: #fff; background: var(--stamp); padding: 2px 8px; border-radius: 3px; }
-    .gyutan-hero-text h3 { margin: 6px 0 2px; font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
-    .gyutan-hero-sub { font-size: 12px; font-weight: 700; color: var(--g-soft); }
-    .gyutan-card .gyutan-map { margin: 12px 12px 0; border: 4px solid var(--g-ink); border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
-    .gyutan-card .spot-body { color: var(--g-ink); }
-    .gyutan-card .picks { border-top-color: rgba(246,234,216,.25); margin-top: 0; }
-    .gyutan-card .picks-head { color: #fff; }
-    .gyutan-card .picks-sub, .gyutan-card .pick-note, .gyutan-card .pick-by { color: var(--g-soft); }
-    .gyutan-card .pick { background: var(--g-bg2); }
-    .gyutan-card .pick-name { color: #fff; }
-    .gyutan-card .pick-like { background: transparent; color: var(--g-ink); border-color: rgba(246,234,216,.35); }
-    .gyutan-card .pick-like.on { background: var(--stamp); color: #fff; border-color: var(--stamp); }
-    .gyutan-card .icon-btn { color: var(--g-soft); }
-    .gyutan-card .empty { color: var(--g-soft); }
-    .gyutan-card .field { background: var(--g-bg2); border-color: rgba(246,234,216,.25); color: var(--g-ink); }
-    .gyutan-card .field::placeholder { color: rgba(205,184,156,.75); }
-    .gyutan-card .btn { background: var(--stamp); color: #fff; }
-    .gyutan-card .when-chip { background: var(--g-ink); color: var(--g-bg); }
-    .gyutan-card .spot-btn { background: var(--stamp); color: #fff; }
-    .gyutan-map { position: relative; aspect-ratio: 4 / 3; background: var(--paper); }
-    .gyutan-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .gyutan-tip { margin-top: 8px; background: rgba(200,85,61,.07); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--ink); }
-    .gyutan-tip b { display: block; margin-bottom: 2px; }
-    .gyutan-tip ol { margin: 0; padding-left: 18px; line-height: 1.6; }
-    .picks { margin-top: 12px; border-top: 2px dashed var(--paper-line); padding-top: 10px; }
-    .picks-head { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
-    .picks-sub { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
-    .pick { display: flex; align-items: center; gap: 6px; background: var(--paper); border-radius: 8px; padding: 8px 8px 8px 10px; margin-bottom: 6px; }
-    .pick-main { flex: 1; min-width: 0; }
-    .pick-name { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 900; color: var(--ink); text-decoration: none; word-break: break-all; }
-    .pick-name i { color: var(--stamp); font-size: 12px; }
-    .pick-note { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
-    .pick-by { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
-    .pick-like { flex-shrink: 0; border: 1.5px solid var(--paper-line); background: #fff; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink); }
-    .pick-like.on { border-color: var(--stamp); background: rgba(200,85,61,.1); color: var(--stamp); }
-    .pick-form { display: grid; gap: 6px; margin-top: 8px; }
-    .pick-form .field { width: 100%; font-size: 16px; }
-    .pick-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
     .spot-tel { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--sea); text-decoration: none; }
     .spot-when { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .spot-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -2345,10 +2295,10 @@
       { id: 'strawberry', name: '甘熟いちごや燦燦園 仙台ハーベストビレッジ店', area: '〒984-0838 宮城県仙台市若林区上飯田字天神75-1（ハーベストビレッジ仙台）', tag: 'いちご狩り',
         desc: 'みんなでいちご狩りを楽しみます。',
         map: '宮城県仙台市若林区上飯田字天神75-1', sched: ['sched-7'], photo: 'spot-img/strawberry.jpg', url: 'https://www.beripla.jp/' },
-      { id: 'gyutan', special: 'gyutanMap', name: '牛タン お店マップ', area: '仙台駅のまわり', tag: '夜ごはん',
-        desc: '',
-        mapQuery: '仙台駅 牛タン', sched: ['sched-3'], photo: 'spot-img/gyutan.jpg',
-        url: 'https://www.google.com/search?q=%E4%BB%99%E5%8F%B0%E9%A7%85+%E7%89%9B%E3%82%BF%E3%83%B3&udm=local' },
+      { id: 'gyutan', name: '牛タン（仙台駅のまわり）', area: '仙台駅のまわり', tag: '夜ごはん',
+        desc: '仙台駅のまわりで、空いていそうなお店を選んで食べに行きます。行きたいお店があれば「みんなの投稿」でどうぞ！',
+        mapUrl: 'https://www.google.com/maps/search/' + encodeURIComponent('仙台駅 牛タン'), sched: ['sched-3'], photo: 'spot-img/gyutan.jpg',
+        url: 'https://www.google.com/search?q=%E4%BB%99%E5%8F%B0%E9%A7%85+%E7%89%9B%E3%82%BF%E3%83%B3&udm=local', urlLabel: 'お店の一覧' },
     ];
 
     // 初期化
@@ -2359,7 +2309,6 @@
       renderSpots();
       renderRoute();
       renderStopPhotos();
-      initPicks();
       renderDayFlow();
       initPayments();
       renderSplitNote();
@@ -2384,121 +2333,6 @@
       const day = el.closest('.day').querySelector('.day-date').textContent;
       return `${day} ${el.querySelector('.stop-time').textContent}`;
     }
-    // 牛タン お店マップ（とくべつな カード）
-    function gyutanCard(sp) {
-      const q = encodeURIComponent(sp.mapQuery);
-      return `
-        <div class="spot-card gyutan-card" id="spot-${sp.id}">
-          <div class="gyutan-hero">
-            ${sp.photo ? `<img src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : ''}
-            <div class="gyutan-hero-text">
-              <span class="gyutan-ribbon">SPECIAL MAP</span>
-              <h3>🥩 ${esc(sp.name)}</h3>
-              <div class="gyutan-hero-sub">${esc(sp.area)}・${esc(sp.tag)}</div>
-            </div>
-          </div>
-          <div class="gyutan-map">
-            <iframe src="https://www.google.com/maps?q=${q}&z=15&output=embed" title="仙台駅のまわりの牛タンのお店" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-          <div class="spot-body">
-            ${sp.desc ? `<p>${esc(sp.desc)}</p>` : ''}
-            <div class="picks">
-              <div class="picks-head">👍 みんなの候補 <span class="picks-sub">（全員に共有されます）</span></div>
-              <div id="gyutanPicks"></div>
-              <form class="pick-form" onsubmit="addPick(event)">
-                <input class="field" id="pickName" maxlength="30" placeholder="お店の名前（例: ○○ 仙台駅前店）" required>
-                <input class="field" id="pickNote" maxlength="40" placeholder="ひとこと（任意）例: 個室あり・子ども用いすあり">
-                <div class="pick-row">
-                  <select class="field" id="pickBy">
-                    <option value="あかり">原口家</option><option value="かすみ">小澤家</option><option value="みはる">竹内家</option><option value="なつき">坪田家</option>
-                  </select>
-                  <button type="submit" class="btn">候補に追加</button>
-                </div>
-              </form>
-            </div>
-            <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
-            <div class="spot-btns">
-              <a href="https://www.google.com/maps/search/${q}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-location-dot"></i>Googleマップで開く</a>
-              <a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-magnifying-glass"></i>お店の一覧</a>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    /* ===== 牛タンの 候補（みんなで 共有） ===== */
-    let picks = [], picksRef = null;
-    const PICK_LIKED = 'miyagi_trip_pick_liked';
-    function likedSet() { try { return new Set(JSON.parse(localStorage.getItem(PICK_LIKED) || '[]')); } catch (e) { return new Set(); } }
-    function saveLiked(set) { try { localStorage.setItem(PICK_LIKED, JSON.stringify([...set])); } catch (e) {} }
-    function saveLocalPicks() { try { localStorage.setItem('miyagi_trip_gyutan_picks', JSON.stringify(picks)); } catch (e) {} }
-    function renderPicks() {
-      const box = document.getElementById('gyutanPicks');
-      if (!box) return;
-      if (!picks.length) { box.innerHTML = '<p class="empty">まだ候補はありません。良さそうなお店を追加してください</p>'; return; }
-      const liked = likedSet();
-      const list = [...picks].sort((a, b) => (b.likes || 0) - (a.likes || 0) || (a.createdAt || 0) - (b.createdAt || 0));
-      box.innerHTML = list.map(pk => `
-        <div class="pick">
-          <div class="pick-main">
-            <a class="pick-name" href="https://www.google.com/maps/search/${encodeURIComponent(pk.name + ' 仙台')}" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i>${esc(pk.name)}</a>
-            ${pk.note ? `<div class="pick-note">${esc(pk.note)}</div>` : ''}
-            <div class="pick-by">${esc(famLabel(pk.by))}が追加</div>
-          </div>
-          <button class="pick-like ${liked.has(pk.key) ? 'on' : ''}" onclick="likePick('${pk.key}')" aria-label="いいね">👍 ${pk.likes || 0}</button>
-          <button class="icon-btn" onclick="removePick('${pk.key}')" aria-label="削除">✕</button>
-        </div>`).join('');
-    }
-    async function initPicks() {
-      const cp = snapCache('picks');
-      if (cp) { picks = Object.entries(cp).map(([key, v]) => ({ key, name: v.name, note: v.note || '', by: v.by, likes: v.likes || 0, createdAt: v.createdAt || 0 })); renderPicks(); }
-      const db = await getDb();
-      if (!db) {
-        try { picks = JSON.parse(localStorage.getItem('miyagi_trip_gyutan_picks') || '[]'); } catch (e) { picks = []; }
-        renderPicks(); return;
-      }
-      picksRef = db.ref(`trips/${TRIP_ID}/gyutanPicks`);
-      picksRef.on('value', snap => {
-        snapCache('picks', snap.val() || {});
-        picks = Object.entries(snap.val() || {}).map(([key, v]) => ({ key, name: v.name, note: v.note || '', by: v.by, likes: v.likes || 0, createdAt: v.createdAt || 0 }));
-        renderPicks();
-      }, () => {});
-    }
-    function addPick(e) {
-      e.preventDefault();
-      const name = document.getElementById('pickName').value.trim().slice(0, 30);
-      const note = document.getElementById('pickNote').value.trim().slice(0, 40);
-      const by = document.getElementById('pickBy').value;
-      if (!name) return;
-      document.getElementById('pickName').value = ''; document.getElementById('pickNote').value = '';
-      const data = { name, by, likes: 0 };
-      if (note) data.note = note;
-      if (picksRef) {
-        picksRef.push({ ...data, createdAt: firebase.database.ServerValue.TIMESTAMP })
-          .catch(err => alert('追加できませんでした。\n理由: ' + ((err && (err.code || err.message)) || '不明')));
-        return;
-      }
-      picks.push({ ...data, key: 'p' + Date.now(), createdAt: Date.now() });
-      saveLocalPicks(); renderPicks();
-    }
-    function likePick(key) {
-      const liked = likedSet(), d = liked.has(key) ? -1 : 1;
-      if (d > 0) liked.add(key); else liked.delete(key);
-      saveLiked(liked);
-      if (picksRef) {
-        picksRef.child(key).child('likes').transaction(n => Math.max(0, (n || 0) + d)).catch(() => {});
-        renderPicks();
-        return;
-      }
-      const pk = picks.find(x => x.key === key); if (pk) pk.likes = Math.max(0, (pk.likes || 0) + d);
-      saveLocalPicks(); renderPicks();
-    }
-    function removePick(key) {
-      const pk = picks.find(x => x.key === key); if (!pk) return;
-      if (!confirm(`「${pk.name}」を候補から削除しますか？${picksRef ? '\n（全員の画面から消えます）' : ''}`)) return;
-      if (picksRef) { picksRef.child(key).remove(); return; }
-      picks = picks.filter(x => x.key !== key); saveLocalPicks(); renderPicks();
-    }
-
     // 日程にも 行き先の 写真を 出す
     function renderStopPhotos() {
       document.querySelectorAll('.stop').forEach(stop => {
@@ -2566,7 +2400,7 @@
 
     function renderSpots() {
       const list = document.getElementById('spotList');
-      list.innerHTML = SPOTS.map(sp => sp.special === 'gyutanMap' ? gyutanCard(sp) : `
+      list.innerHTML = SPOTS.map(sp => `
         <div class="spot-card" id="spot-${sp.id}">
           ${sp.photo ? `<img class="spot-photo" src="${esc(sp.photo)}" alt="${esc(sp.name)}" loading="lazy">` : `<div class="spot-photo spot-photo-empty">写真は準備中です</div>`}
           <div class="spot-body">
@@ -2578,7 +2412,7 @@
             <div class="spot-when">${sp.sched.map(id => `<button class="when-chip" onclick="goSched('${id}')">${schedLabel(id)}</button>`).join('')}</div>
             <div class="spot-btns">
               ${sp.mapUrl || sp.map ? `<a href="${esc(sp.mapUrl || 'https://maps.google.com/?q=' + encodeURIComponent(sp.map))}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-location-dot"></i>地図</a>` : `<span class="spot-btn off">地図（準備中）</span>`}
-              ${sp.url ? `<a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-globe"></i>公式ページ</a>` : `<span class="spot-btn off">公式ページ（準備中）</span>`}
+              ${sp.url ? `<a href="${esc(sp.url)}" target="_blank" rel="noopener" class="spot-btn"><i class="fa-solid fa-globe"></i>${esc(sp.urlLabel || '公式ページ')}</a>` : `<span class="spot-btn off">公式ページ（準備中）</span>`}
             </div>
           </div>
         </div>`).join('');
